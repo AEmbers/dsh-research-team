@@ -4,6 +4,11 @@ import { afterEach, expect, it } from 'vitest'
 import { chromium, type Browser, type Locator, type Page } from 'playwright'
 import { launchWebScaffold, acknowledgeReloadConnectionLoss, watchConsole, type WebScaffold } from './scaffold.ts'
 import { connectFreshWorkspaceZh } from './support.ts'
+// This file is rendered into the adjacent harness checkout and runs from there,
+// where bare workspace imports resolve to harness source by the lane's own
+// tsconfig paths facade — so the version the page must state is read through the
+// same call the running Host makes, not from a copy of its path.
+import { getDshRuntimeVersion } from '@deepseek-ai/dsh-app-boot'
 
 const TEAM_ROOT = '__TEAM_ROOT__'
 const HOME = '__HOME__'
@@ -561,6 +566,11 @@ it('drives the complete opt-in Agent Team journey in real Web', async () => {
   const modelMenu = page.locator('[role="menu"]').filter({ hasText: '跟随全局默认' })
   await modelMenu.waitFor()
   expect(await modelMenu.getByRole('menuitem').count()).toBeGreaterThanOrEqual(2)
+  // The radius the shared Menu primitive gives its own rows, measured live: the
+  // Team composer's mention popover is held to this same value below, so the two
+  // cannot drift into separate menu languages on any DSH line.
+  const shippedRowRadius = await modelMenu.getByRole('menuitem').first()
+    .evaluate(row => getComputedStyle(row).borderTopLeftRadius)
   await page.screenshot({ path: join(UI04_SHOTS, 'agent-model-menu.png'), fullPage: true })
   await modelMenu.getByRole('menuitem', { name: '跟随全局默认' }).click()
   await expect.poll(() => page.locator('[role="menu"]').count()).toBe(0)
@@ -702,8 +712,11 @@ it('drives the complete opt-in Agent Team journey in real Web', async () => {
   // DSH 0.1.7's menu surface token is translucent, so the popup must frost what
   // is behind it — the blur plus that translucent fill is what keeps the roster
   // legible over the conversation, which is the state this pins. Its shape is
-  // the shipped menu's too: a 16px surface over 8px rows, the geometry of the
-  // Menu primitive that draws this app's other popovers.
+  // the shipped menu's too: the surface rides the tier the shared radius scale
+  // names, and the rows land on the row radius measured off the Menu primitive
+  // above. rc.2 moved that scale onto `--dsw-radius-*` (lg surface, md rows)
+  // where rc.1 hard-coded the pixels, so both expectations are read from the
+  // running line instead of frozen to one cut of it.
   const menuSurface = await page.getByRole('listbox', { name: '提及成员建议' }).evaluate(element => {
     const style = getComputedStyle(element)
     const firstRow = element.querySelector('[role="option"]')
@@ -712,12 +725,13 @@ it('drives the complete opt-in Agent Team journey in real Web', async () => {
       fill: style.backgroundColor,
       radius: style.borderTopLeftRadius,
       rowRadius: firstRow === null ? '' : getComputedStyle(firstRow).borderTopLeftRadius,
+      surfaceTier: getComputedStyle(document.documentElement).getPropertyValue('--dsw-radius-lg').trim() || '16px',
     }
   })
   expect(menuSurface.blur).toContain('blur')
   expect(menuSurface.fill).toContain('rgba(')
-  expect(menuSurface.radius).toBe('16px')
-  expect(menuSurface.rowRadius).toBe('8px')
+  expect(menuSurface.radius).toBe(menuSurface.surfaceTier)
+  expect(menuSurface.rowRadius).toBe(shippedRowRadius)
   await page.getByRole('option', { name: /@builder/ }).click()
   await page.screenshot({ path: join(UI04_SHOTS, 'mention-menu-selected.png'), fullPage: true })
   const asTaskToggle = page.getByRole('button', { name: '作为任务' })
@@ -2542,15 +2556,17 @@ it('configures the Human profile from Settings in real Web', async () => {
 
 /**
  * The environment check above the version footnote. The versions it prints are
- * the whole point: `0.1.15` comes from the installed manifest and `0.1.7-rc.1`
- * from the lower bound of the declared DSH peer range, so this journey proves
- * the Host's own version readers resolved against the real staged install
- * rather than against a fixture. Only the `ok` tier is reachable in a browser —
- * the other two describe an environment this run does not have (a different DSH
- * cut, or unreadable facts) and are pinned by the Host and component suites.
- * It also rides the settled 0.1.7-rc.2 baseline: rc.2 is certified inside the
- * same peer range, which is exactly why the range's lower bound is what the
- * page states.
+ * the whole point: `0.1.15` comes from the installed manifest and the DSH
+ * version from the running Host's own reader, so this journey proves the Host
+ * resolved its real manifests rather than a fixture. Only the `ok` tier is
+ * reachable in a browser — the other two describe an environment this run does
+ * not have (a different DSH cut, or unreadable facts) and are pinned by the Host
+ * and component suites. The `ok` line names the **running** version, never the
+ * declared range's lower bound: that bound belongs to the out-of-range tier,
+ * which is why this case also pins its absence. The expectation therefore comes
+ * from `getDshRuntimeVersion()` — the call the Host itself makes — so the
+ * journey states the fact on rc.1, rc.2, and whatever cut the adjacent checkout
+ * carries instead of naming one cut once.
  */
 it('states the local environment check on the Human profile page', async () => {
   await installLocalBundle(false)
@@ -2567,10 +2583,10 @@ it('states the local environment check on the Human profile page', async () => {
   const block = panel.locator('[data-environment]')
   await block.waitFor()
   await expect.poll(async () => await block.getAttribute('data-environment')).toBe('ok')
-  // Only the range's lower bound is named, and only in words: the running
-  // version is stated as a fact, and no raw semver range appears anywhere.
+  // The running version is stated as a fact and in words: no raw semver range
+  // appears anywhere, and the certified line stays out of the `ok` tier.
   expect(await block.textContent()).toContain('在支持范围内')
-  expect(await block.textContent()).toContain('正在运行的 DSH 0.1.7-rc.1 在我们声明的支持范围内。')
+  expect(await block.textContent()).toContain(`正在运行的 DSH ${getDshRuntimeVersion()} 在我们声明的支持范围内。`)
   expect(await block.textContent()).not.toContain('>=0.1.7-rc.1')
   expect(await block.textContent()).not.toContain('我们实测认证的组合')
   expect(await block.locator('a').count()).toBe(0)
