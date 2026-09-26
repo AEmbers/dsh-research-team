@@ -74,6 +74,8 @@ dsh web
 
 `cordis.patch.yml` is the bundle patch entry point. It adds Host, Client, and invariant rows to the opt-in profile and mounts the `team-member` roster in the isolated `agentPresets` scope. Ordinary shipped/user preset rosters must not be changed.
 
+The plugin manager renders that scope container as a component row and shows it as off; this is expected and needs no action there. The container is a composition carrier rather than a feature plugin, so it has no live entry of its own to match, while the Loader treats a group entry as always enabled. The rows listed inside it are the ones that run, and the web and desktop builds render the same way.
+
 Always verify the built publication layout. A source symlink can bypass profile peer fallback and differ from a real installation; the browser scripts copy built packages for this reason.
 
 ### Profiles and release cadence

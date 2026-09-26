@@ -60,6 +60,8 @@ dsh web
 
 `cordis.patch.yml` 是 bundle patch 的入口。它将 Host、Client 和 invariant rows 加入 opt-in profile，并在隔离的 `agentPresets` scope 中挂载 `team-member` roster。普通 Session 的 shipped/user preset roster 不应被 Team bundle 改写。
 
+插件页会把这个 scope 容器渲染成一个组件行并显示「已关闭」；这是预期现象，无需在这里做任何操作。容器是组合载体而不是功能插件，它自身没有可匹配的 live entry，而 Loader 对 group 条目一律按启用处理；真正在运行的是它内部列出的那几行。web 与桌面构建的渲染一致。
+
 真实安装验证必须使用已构建 package 的发布布局。直接 symlink 到源码可能绕过 profile 内的 peer fallback，导致与真实安装不同的结果；`scripts/team-ui.e2e.ts` 和 `scripts/team-ui.preview.ts` 已采用复制 package 的方式。
 
 ### Profile 模式与发布节奏
