@@ -4,6 +4,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+- The Team Client follows DSH 0.1.7-rc.2's design language: focus rings take the shipped ring tokens (one ring colour everywhere, and a ring no longer paints over a mouse click on controls the platform suppresses it for), and radii move onto the shipped scale — the composer card, menu rows, result rows and chips pick up the sizes rc.2 re-rounded. Written with the previous literal as the fallback, so a run on rc.1 keeps rendering exactly what it renders today.
 - Settings now says whether the DSH you are running is one this bundle supports. It sits above the version footnote, states the running version and the supported range in words rather than as a version expression, names the certified combination only when both versions are actually known, and when the running DSH is outside the range it says so plainly and links the release notes instead of warning about a failure it cannot see. A version it cannot read is reported as not determined rather than as unsupported, and a newer DSH certified inside the same range keeps reading as supported.
 
 ## [0.1.15] - 2026-09-24

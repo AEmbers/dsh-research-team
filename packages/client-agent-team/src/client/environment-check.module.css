@@ -59,7 +59,7 @@
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--dsw-alias-label-primary);
+  outline: var(--dsw-focus-ring-width, 2px) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -69,7 +69,7 @@
 
 .block[data-environment='out-of-range'] {
   background: var(--dsw-alias-state-warn-tertiary);
-  border-radius: 12px;
+  border-radius: var(--dsw-radius-md, 12px);
   gap: 10px;
   padding: 12px;
 }
