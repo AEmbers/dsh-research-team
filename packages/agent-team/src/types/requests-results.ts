@@ -869,6 +869,32 @@ export interface AgentTeamViewItem {
   readonly lastActivityAt: string
 }
 
+/**
+ * One in-flight Task Thread for the team_view「活跃 task thread」radar: work a
+ * reader can see is already claimed and moving, so an unexpected Workspace edit
+ * or a Task they were about to pick up resolves to "someone is on this" instead
+ * of a mystery. Unlike the Human Inbox's 「最近活跃」 slice, admission is not
+ * participation — every active Task Thread in the reader's authorized Channels
+ * appears, whether or not they took part — and a Thread still holding unread is
+ * not excluded, because this radar answers "who is on what" independently of
+ * the reader's own unread queue.
+ */
+export interface AgentTeamActiveTaskThread {
+  readonly taskRef: AgentTeamTaskRef
+  readonly threadRef: AgentTeamThreadRef
+  readonly channelRef: AgentTeamChannelRef
+  /** The Task's ordinal inside its home Channel. */
+  readonly taskNumber?: number
+  /** Always `in_progress` or `in_review` — the two states a live Claim keeps a Task in. */
+  readonly status: AgentTeamTask['status']
+  /** The Thread's opening line, trimmed and capped at 120 characters — the same bound the Inbox row uses. */
+  readonly subject: string
+  /** Owners of the Task's live Claims, in claim order, deduped — the same rule the Inbox row and Channel feed use. */
+  readonly members: readonly AgentTeamInboxActor[]
+  /** Instant of the newest fact on this Thread. */
+  readonly lastActivityAt: string
+}
+
 export interface AgentTeamViewRequest {
   readonly workspaceId: WorkspaceId
   readonly channelRef?: AgentTeamChannelRef
@@ -894,6 +920,14 @@ export interface AgentTeamView {
   readonly threads: readonly AgentTeamThread[]
   readonly taskNumbers: readonly { readonly taskRef: AgentTeamTaskRef; readonly taskNumber: number }[]
   readonly items: readonly AgentTeamViewItem[]
+  /**
+   * The「活跃 task thread」radar: every in_progress / in_review Task Thread in
+   * the reader's authorized Channels of this Workspace, newest activity first.
+   * Independent of the reader's participation and unread state — its job is to
+   * surface who is already on what, so re-entry and pre-claim/pre-commit checks
+   * do not mistake in-flight work for a conflict.
+   */
+  readonly activeTaskThreads: readonly AgentTeamActiveTaskThread[]
   readonly claims: readonly AgentTeamClaim[]
   readonly activities: readonly AgentTeamActivity[]
   readonly cursor: number
