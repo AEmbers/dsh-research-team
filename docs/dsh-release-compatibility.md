@@ -167,9 +167,9 @@ Record candidate tag, symptom, affected interface, reproduction command, and nex
 
 ## 6. Current baseline
 
-The current certified baseline is DSH `0.1.7-rc.1`; the paragraphs below preserve the `0.1.5` history that produced the preceding baselines.
+The current certified baseline is DSH `0.2.0-rc.1`; the paragraphs below preserve the history that produced the preceding baselines.
 
-The DSH peers state exactly that certified line, `>=0.1.7-rc.1 <0.1.8`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim.
+The DSH peers state exactly that certified line, `>=0.2.0-rc.1 <0.2.1`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim.
 
 The routed sqlite backend is a vendored fork, not a dependency at all (GitHub issue #28): the upstream package stays a devDependency pinned at the fork source, 0.1.5-rc.2, as the byte-compatibility fixture reference, and every compat round diffs the fork against that version's file before anything else.
 
@@ -244,3 +244,35 @@ Section 3.6 is not re-triggered: `session-persistence` and `session-format-catal
 Evidence on the frozen tree: `npm run typecheck`, `npm test` (778 passed, 1 skipped), `npm run lint`, `npm run build`, `npm pack --dry-run` (260 files), `git diff --check`, and `npm run test:browser` (5 journeys).
 
 At certification time npm `latest` and `next` both pointed at `0.1.7-rc.2`, and `alpha` at `0.1.7-alpha.2`.
+
+### DSH 0.2.0-rc.1
+
+DSH `0.2.0-rc.1` is certified and moves the baseline; it is the tagged release the pre-certification above was waiting for. Tag `4878cdab` (2026-09-28) sits 261 commits after `dsh-v0.1.7-rc.2` and carries `21638c5631` in its history, and the root and `apps/cli` manifests declare `0.2.0-rc.1`.
+
+At certification time npm `next` already pointed at it while `latest` still pointed at `0.1.7-rc.2`, so the round was not release-blocking.
+
+The candidate falls outside `>=0.1.7-rc.1 <0.1.8` — a comparator enables prereleases only on its own base tuple, so that range reaches no `0.2.0` cut — and section 4 therefore requires the atomic move: all 45 DSH peers to `>=0.2.0-rc.1 <0.2.1`, the CI harness tag to `dsh-v0.2.0-rc.1`, the Hoplite tag, and every wording spot that names the range.
+
+The declared range decides whether the bundle mounts at all. `loadProfileDirectory` evaluates each bundle manifest through `evaluatePluginCompatibility`, and a bundle whose peers do not admit the running Host goes into `skippedBundles`.
+
+Nothing is printed: the warning text surfaces only in the plugin manager and through `dsh plugin allow-version`. Under the old range the candidate mounted nothing — all five browser journeys failed on an absent Host service and an absent Client module — which is the range gate, not a source incompatibility.
+
+No imported symbol was removed or renamed, and no bundle source changed. Inside the peered packages the delta is 680 non-documentation files, concentrated in the shipped Client surface this bundle composes into (`ui-chat` 34, `ui-primitives` 22, `ui-settings-account` 20, `ui-workspace` 17).
+
+Section 3.6 is not re-triggered: `session-persistence` and `session-format-catalog` changed only their manifests, the Session-side source changes are `session-telemetry*` and `session-log-deepseek`, and every shipped preset row this bundle mounts has zero source changes.
+
+The five slot seats the Client mounts (`sidebar.workspaces`, `main`, `sidebar.settings`, `sidebar.footer.action`, `settings.section`) appear in no changed line, and `ui-sidebar/SidebarRoot.tsx` is untouched, so the panelList anchor the pinning test holds on still exists.
+
+One peer-move trap sits outside the version gate: `packages/agent-team/tests/shipping.spec.ts` pins the range literal five times and `check:versions` does not read it, so the first `npm test` on the moved tree failed exactly there while every version spot already agreed. A peer move updates that spec in the same commit.
+
+Evidence on the certified tree: `npm run typecheck` (508 Harness mappings), `npm test` (778 passed, 1 skipped), `npm run lint`, `npm run build`, `npm pack --dry-run` (260 files), `git diff --check`, and `npm run test:browser` (5 journeys).
+
+Section 3.5 resolves a single DSH generation: 278 `@deepseek-ai/dsh-*` copies, every one at `0.2.0-rc.1`, with no second set behind anything the bundle loads at runtime.
+
+The trailing declared range is closed: `@wowyuarm/dsh-context-continuity@0.1.6` declares its seven `@deepseek-ai/dsh-*` peers as `>=0.2.0-rc.1 <0.2.1`, and this bundle requires `^0.1.6`, so a tree that resolves this manifest installs one DSH generation.
+
+`0.1.5` still declared `>=0.1.7-rc.1 <0.1.8`, so npm satisfied that unsatisfiable declared peer by nesting `@deepseek-ai/dsh-session-projection@0.1.7-rc.2` (120 KB) under the bundle and printing `ERESOLVE overriding peer dependency`; the install still exited 0.
+
+Nothing loaded that copy: the engine's only reference to the package is a type-only import, this bundle never names it, and the engine is a library rather than a profile bundle, so its peers never reach `evaluatePluginCompatibility`.
+
+The dependency floor moves with the engine so a lockfile still holding `0.1.5` cannot keep the older declaration alive, and the engine's own range now admits the `0.2.0` line, so installing it at the root of a `0.2.0-rc.1` profile no longer meets a range that excludes the host. The engine's move ships in the same window as this line, because an engine naming `0.2.0-rc.1` puts a stray copy of that generation into trees still on `0.1.7-rc.2`.

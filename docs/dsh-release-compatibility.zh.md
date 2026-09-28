@@ -226,9 +226,9 @@ Harness 随附一套 experimental Agent Teams，以独立 profile bundle 形式�
 
 ## 6. 当前基线
 
-当前 Team bundle 的已认证基线是 DSH `0.1.7-rc.1`；以下几段保留产生前几条基线的 `0.1.5` 历史。
+当前 Team bundle 的已认证基线是 DSH `0.2.0-rc.1`；以下几段保留产生前几条基线的历史。
 
-DSH peers 正好声明这条已认证线：`>=0.1.7-rc.1 <0.1.8`，因此本仓库尚未验证的线会落在声明区间之外，而不是在未经核实的兼容声明下被装上。
+DSH peers 正好声明这条已认证线：`>=0.2.0-rc.1 <0.2.1`，因此本仓库尚未验证的线会落在声明区间之外，而不是在未经核实的兼容声明下被装上。
 
 经路由的 sqlite 后端是 vendored fork，根本不是 dependency（GitHub issue #28）：上游包只以 devDependency 钉在 fork 来源版本 0.1.5-rc.2，用作字节兼容 fixture 参照；每次兼容认证先把 fork 与该版本文件对一遍 diff，再做其他事。
 
@@ -307,3 +307,35 @@ sidebar 自身的标记也变了：logo 行多了 `data-window-drag`，新会话
 认证树上的证据：`npm run typecheck`、`npm test`（778 通过、1 跳过）、`npm run lint`、`npm run build`、`npm pack --dry-run`（260 文件）、`git diff --check`、`npm run test:browser`（5 条 journey）。
 
 认证时 npm 的 `latest` 与 `next` 都指向 `0.1.7-rc.2`，`alpha` 指向 `0.1.7-alpha.2`。
+
+### DSH 0.2.0-rc.1
+
+DSH `0.2.0-rc.1` 已认证，基线随之前移；它就是上一节预认证所等待的那个带 tag 的正式发布。tag `4878cdab`（2026-09-28）位于 `dsh-v0.1.7-rc.2` 之后 261 个提交，历史中含 `21638c5631`，根与 `apps/cli` 的 manifest 声明 `0.2.0-rc.1`。
+
+认证时 npm `next` 已指向它，而 `latest` 仍指向 `0.1.7-rc.2`，因此本轮不构成 release-blocking。
+
+候选落在 `>=0.1.7-rc.1 <0.1.8` 之外——比较符只在自身 base tuple 上开放预发布，该区间够不到任何 `0.2.0` 切点——因此按 §4 执行原子移动：45 个 DSH peers 全部移到 `>=0.2.0-rc.1 <0.2.1`，CI harness tag 移到 `dsh-v0.2.0-rc.1`，Hoplite tag 与各版本位点一并更新。
+
+**声明的 peer 区间决定 bundle 能否挂载。** `loadProfileDirectory` 对每个 bundle manifest 调用 `evaluatePluginCompatibility`，peers 不接纳运行宿主的 bundle 会被放进 `skippedBundles`。
+
+这一步不打印任何东西：警告文本只在插件管理器与 `dsh plugin allow-version` 中可见。旧区间下候选什么都没挂上——五条 browser journey 全红于 Host 服务缺失与 Client 模块缺失——这是区间闸门，不是源码不兼容。
+
+本 bundle 引入的符号没有被删除或改名，源码零改动。peer 包内的差异是 680 个非文档文件，集中在 bundle 组合进去的随包 Client 界面（`ui-chat` 34、`ui-primitives` 22、`ui-settings-account` 20、`ui-workspace` 17）。
+
+§3.6 未被重新触发：`session-persistence` 与 `session-format-catalog` 只改了 manifest，Session 侧源码改动是 `session-telemetry*` 与 `session-log-deepseek`，bundle 挂载的每个随包 preset 行源码改动均为零。
+
+Client 占用的五个 slot 座位（`sidebar.workspaces`、`main`、`sidebar.settings`、`sidebar.footer.action`、`settings.section`）不在任何改动行内，`ui-sidebar/SidebarRoot.tsx` 未被改动，pinning 测试依赖的 panelList 锚点仍在。
+
+有一处 peer 移动陷阱在版本闸门之外：`packages/agent-team/tests/shipping.spec.ts` 五处钉住区间字面量，而 `check:versions` 不读它，因此移动树上第一次 `npm test` 正好红在这里，尽管各版本位点早已一致。peer 移动必须在同一提交内更新该 spec。
+
+认证树上的证据：`npm run typecheck`（508 个 Harness mapping）、`npm test`（778 通过、1 跳过）、`npm run lint`、`npm run build`、`npm pack --dry-run`（260 文件）、`git diff --check`、`npm run test:browser`（5 条 journey）。
+
+§3.5 解析出单一 DSH 世代：278 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.0-rc.1`，bundle 运行时加载的任何东西背后都没有第二套。
+
+落后的那一条声明区间已收口：`@wowyuarm/dsh-context-continuity@0.1.6` 把七个 `@deepseek-ai/dsh-*` peers 声明为 `>=0.2.0-rc.1 <0.2.1`，本 bundle 要求 `^0.1.6`，因此解析本 manifest 的树只装一套 DSH 世代。
+
+`0.1.5` 仍声明 `>=0.1.7-rc.1 <0.1.8`：npm 为满足这个无法满足的声明 peer，在 bundle 下嵌套安装了 `@deepseek-ai/dsh-session-projection@0.1.7-rc.2`（120 KB）并打印 `ERESOLVE overriding peer dependency`，安装仍以 0 退出。
+
+没有任何东西加载这份拷贝——引擎对该包只有一处 type-only import，本 bundle 从不指名它，且引擎是库而非 profile bundle，其 peers 不会进入 `evaluatePluginCompatibility`。
+
+依赖下界随引擎一起前移，锁文件里仍钉着 `0.1.5` 的树无法让旧声明继续生效；引擎自己的区间现在接纳 `0.2.0` 线，因此在 `0.2.0-rc.1` profile 根部安装它不再撞上排除该宿主的区间。引擎这次移动与本线同一窗口出门，因为命名 `0.2.0-rc.1` 的引擎会在仍停在 `0.1.7-rc.2` 的树里放进一份该世代的拷贝。
