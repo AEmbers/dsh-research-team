@@ -59,6 +59,10 @@ Temporary certification
 
 Build the certified Harness checkout first so Team TypeScript facades point at its declarations. Do not reuse old `lib/` or `node_modules`; that can conceal declaration or runtime incompatibility.
 
+In that checkout run `pnpm install --frozen-lockfile` and build it: `pnpm run build:lib`, `pnpm run build:native-system` for the native system addon the tests load, and `pnpm run build:web` for the browser lane's `apps/web/dist`.
+
+Mirror the daily repository's `node_modules/@deepseek-ai/*` link farm onto the candidate checkout, and point the bundle self-link at the copy: typecheck resolves through the facades, while the test suite and the browser lane resolve through those links.
+
 Then run in the isolated Team copy:
 
 ```sh
@@ -74,8 +78,8 @@ Typert output must be stable. Review generator output and the Remote contract be
 Run the narrow tests for the changed surface, then at least:
 
 ```sh
+npm run build        # the suite's preset rows load each package's lib/, not src/
 npm test
-npm run build
 npm pack --dry-run
 git diff --check
 ```
@@ -218,3 +222,25 @@ Two upstream changes stopped at the test fixtures, and neither moved bundle sour
 The sidebar's own markup also moved: `data-window-drag` on the logo row, and the new-session icon and label rewrapped in a mask/content pair. The container snapshot folds those two details onto one shape, because a committed snapshot must hold on every cut inside the certified range, not on the newest one alone.
 
 Evidence on the certified tree: `npm run typecheck`, `npm test` (741 passed, 1 skipped), `npm run lint`, `npm run build`, `npm pack --dry-run` (251 files), and `npm run test:browser` (4 journeys).
+
+### DSH master 21638c5631 (0.2.0 pre-release sync)
+
+This is a pre-certification, not a baseline. Upstream merged its unreleased plugin-ecosystem line into `master` without a tag: at the frozen commit `21638c5631` (2026-09-27, `Merge PR #5282`, 155 commits after `dsh-v0.1.7-rc.2`) `apps/cli` still declares `0.1.7-rc.2`, and no `dsh-v*` tag exists after rc.2.
+
+Section 2.2's basis is an immutable tag together with the npm packages it published, and this candidate has neither, so nothing moved: the baseline stays `0.1.7-rc.1`, every version spot keeps naming its lower bound, the CI harness tag is unchanged, and the peer move waits for a tagged `0.2.0`.
+
+Certification ran anyway, to learn early whether that line breaks the bundle. It does not: no imported symbol was removed or renamed, and no bundle source changed. The one required change is generated — `node scripts/sync-paths.mjs` against the candidate absorbs 13 new upstream path aliases (507 Harness mappings) — and it stays uncommitted, because the committed facades must keep matching the baseline tag that CI regenerates them from.
+
+Confirmed ignorable:
+
+- `SessionRow.displayTitle` semantics (the bundle renders no session row), and the optional `onCreated` on fork.
+- Optional `focusDelayMs` and the new `pointerModality` export in `ui-primitives`; `submit(mode, source?)` in the input contract, which `TeamComposer` does not consume.
+- The `productAnalytics` service, left disabled in the web composition.
+- The `otel` row in `bundle/base` and the desktop-only telemetry rows in `bundle/web-app` that replace the disabled `time-context`/`schedule`/`ui-schedule` rows; the bundle mounts its own member time context instead.
+- `ui-sidebar/SidebarRoot.tsx` is untouched, so the panelList anchor the bundle's pinning test holds on still exists.
+
+Section 3.6 is not re-triggered: `session-persistence` and `session-format-catalog` source is unchanged (only `session-telemetry*` moved), no source-kind or write-path rule changed, and every shipped preset row the bundle mounts has zero source changes.
+
+Evidence on the frozen tree: `npm run typecheck`, `npm test` (778 passed, 1 skipped), `npm run lint`, `npm run build`, `npm pack --dry-run` (260 files), `git diff --check`, and `npm run test:browser` (5 journeys).
+
+At certification time npm `latest` and `next` both pointed at `0.1.7-rc.2`, and `alpha` at `0.1.7-alpha.2`.

@@ -84,6 +84,10 @@ npm 的 prerelease 版本范围不是普通的连续区间。比如：
 
 在认证 Harness checkout 中先完成其自身的构建，使 Team 的 TypeScript facade 指向候选 tag 的实际声明文件。不要把旧 checkout 的 `lib/` 或 `node_modules` 当作候选版本的构建结果复用；这会掩盖声明或运行时不兼容。
 
+在该 checkout 中执行 `pnpm install --frozen-lockfile` 并完成构建：`pnpm run build:lib`、测试会加载的 native system addon 用 `pnpm run build:native-system`、浏览器车道需要的 `apps/web/dist` 用 `pnpm run build:web`。
+
+还要把日常仓库 `node_modules/@deepseek-ai/*` 的软链阵整份镜像到候选 checkout，并把 bundle 自链指向副本：类型检查走 facade，而测试套件与浏览器车道走这些软链。
+
 再在隔离 Team 副本中运行：
 
 ```sh
@@ -99,8 +103,8 @@ Typert 生成结果必须稳定。若结果变化，先审查生成物和 Remote
 先运行与变更面匹配的窄测试，再至少运行：
 
 ```sh
+npm run build        # 套件中的 preset 行加载各包的 lib/，不是 src/
 npm test
-npm run build
 npm pack --dry-run
 git diff --check
 ```
@@ -281,3 +285,25 @@ DSH `0.1.7-rc.2` 在同一 peer 区间上认证通过，manifest 无改动。候
 sidebar 自身的标记也变了：logo 行多了 `data-window-drag`，新会话图标与文字被重新包进 mask/content 结构。容器快照因此把这两处细节折叠成同一形状，因为已提交的快照必须对认证区间内每个切点成立，而不只是对最新的那个。
 
 认证树上的证据：`npm run typecheck`、`npm test`（741 通过、1 跳过）、`npm run lint`、`npm run build`、`npm pack --dry-run`（251 文件）、`npm run test:browser`（4 条 journey）。
+
+### DSH master 21638c5631（0.2.0 预发布同步）
+
+这是一次**预认证，不是基线**。上游把尚未发布的插件生态线并进了 `master` 但未打 tag：冻结提交 `21638c5631`（2026-09-27，`Merge PR #5282`，`dsh-v0.1.7-rc.2` 之后 155 个提交）处 `apps/cli` 仍声明 `0.1.7-rc.2`，rc.2 之后也不存在任何 `dsh-v*` tag。
+
+§2.2 的依据是「一个不可变 tag + 它发布出去的那套 npm 包」，这个候选两者都没有，因此本轮什么都不动：基线仍是 `0.1.7-rc.1`，各版本位继续指向区间下界，CI 的 harness tag 不变，peer 移动等带 tag 的 `0.2.0`。
+
+认证仍然做了，为的是提前知道这条线是否破坏 bundle。结论是不破坏：没有符号被删除或改名，bundle 源码零改动。唯一必须动的是生成物——对着候选跑 `node scripts/sync-paths.mjs` 吸收了上游新增的 13 个 path alias（507 个 Harness mapping）——且它保持未提交，因为已提交的 facade 必须继续与 CI 重新生成它们所用的基线 tag 一致。
+
+确认可忽略：
+
+- `SessionRow.displayTitle` 语义变化（本 bundle 不渲染 session row），以及 fork 上新增的可选 `onCreated`。
+- `ui-primitives` 新增的可选 `focusDelayMs` 与新导出 `pointerModality`；输入契约新增的 `submit(mode, source?)` 不被 `TeamComposer` 消费。
+- `productAnalytics` 服务在 web 组合里是 disabled。
+- `bundle/base` 新增的 `otel` 行与 `bundle/web-app` 新增的 desktop-only 遥测行取代了原先已 disabled 的 `time-context`/`schedule`/`ui-schedule` 行；本 bundle 挂的是自己的成员时间上下文。
+- `ui-sidebar/SidebarRoot.tsx` 未被改动，bundle pinning 测试依赖的 panelList 锚点仍在。
+
+§3.6 未被重新触发：`session-persistence` 与 `session-format-catalog` 源码零改动（只有 `session-telemetry*` 变化），source kind 与写入路径规则未变，bundle 挂载的每个随包 preset 行源码改动均为零。
+
+认证树上的证据：`npm run typecheck`、`npm test`（778 通过、1 跳过）、`npm run lint`、`npm run build`、`npm pack --dry-run`（260 文件）、`git diff --check`、`npm run test:browser`（5 条 journey）。
+
+认证时 npm 的 `latest` 与 `next` 都指向 `0.1.7-rc.2`，`alpha` 指向 `0.1.7-alpha.2`。
