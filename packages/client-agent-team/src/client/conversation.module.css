@@ -120,11 +120,17 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+/* The sender is the secondary grade of the content axis — one step under the
+ * body, 13px/20px at the default content size — so a raised Settings size
+ * grows the author with the message instead of leaving the seat header behind.
+ * Shipped keeps a label that sits next to content on this same grade
+ * (`.hint`, `openError`, a compaction title) and pins only its smallest time
+ * grade at a fixed size, which is why the 11px time below stays put. */
 .nameRow strong {
   color: var(--dsw-alias-label-primary);
-  font-size: 13px;
+  font-size: var(--dsh-content-font-size-secondary, 13px);
   font-weight: 600;
-  line-height: 20px;
+  line-height: calc(20px + var(--dsh-content-font-delta-secondary, 0px));
 }
 .messageTime {
   color: var(--dsw-alias-label-tertiary);

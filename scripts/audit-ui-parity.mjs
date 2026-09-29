@@ -1,6 +1,7 @@
 // UI parity audit: mechanical consistency checks between the Team Client's
-// own CSS/TSX and the DSH 0.1.7 design language — the rc.2 baseline — documented
-// in docs/frontend-design/principles-and-language.md §Design language alignment.
+// own CSS/TSX and the DSH 0.1.7 design language — the rc.2 baseline, re-verified
+// on the 0.2.0-rc.1 and 0.2.0-rc.2 lines — documented in
+// docs/frontend-design/principles-and-language.md §Design language alignment.
 // This is the repeatable
 // form of the manual audit that produced commit bb1ebba — run it after any
 // visible-UI change and after every DSH upgrade:
@@ -385,6 +386,7 @@ const GEOMETRY = [
   ['conversation.module.css', '.messageText', [['font-size', 'var(--dsh-content-font-size, 14px)'], ['line-height', 'calc(22px + var(--dsh-content-font-delta, 0px))']], 'literal body rides the content-font axis on the 14/22 chat grid'],
   ['conversation.module.css', '.messageClamp', [['max-height', 'calc(176px + 8 * var(--dsh-content-font-delta, 0px))']], 'the fold preview stays eight lines of the body grid at any content size'],
   ['conversation.module.css', '.messageBody .messageMarkdown', [['font-size', 'var(--dsh-content-font-size, 14px)'], ['line-height', 'calc(22px + var(--dsh-content-font-delta, 0px))']], 'markdown body rides the content-font axis on the 14/22 chat grid'],
+  ['conversation.module.css', '.nameRow strong', [['font-size', 'var(--dsh-content-font-size-secondary, 13px)'], ['line-height', 'calc(20px + var(--dsh-content-font-delta-secondary, 0px))']], 'the sender line is the secondary grade of the content axis (13px over 20px at the default content size), so a raised Settings size grows the author with the body; shipped puts a label next to content on this same grade and pins only its smallest time grade'],
   ['conversation.module.css', '.messageBody [data-document] .messageMarkdown', [['line-height', 'calc(24px + var(--dsh-content-font-delta, 0px))']], 'a folded long body reads on the 24px document grid'],
   ['conversation.module.css', '.messageBody [data-document] .messageMarkdown p', [['margin', '16px 0']], 'document block gap'],
   ['conversation.module.css', '.messageBody [data-document] .messageMarkdown li + li', [['margin-top', '6px']], 'document list-item gap'],

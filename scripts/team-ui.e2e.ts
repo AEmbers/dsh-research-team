@@ -1127,6 +1127,28 @@ it('drives the complete opt-in Agent Team journey in real Web', async () => {
   await longMarkdownRow.getByRole('button', { name: '收起' }).click()
   await expect.poll(async () => await longMarkdownRow.locator('[class*="messageClamp"]').count()).toBe(1)
 
+  // The sender line is the secondary grade of the content axis: 13px/20px at
+  // the default Settings size, and it grows with the body once that size is
+  // raised, while the 11px time stays the fixed small grade. The axis is the
+  // one variable the theme bootstrap publishes on body, so overriding it here
+  // walks the same path a raised Settings size takes.
+  const senderName = page.locator('[data-team-thread] article [class*="nameRow"] strong').first()
+  await senderName.waitFor()
+  const senderMetrics = async (): Promise<string> => await senderName.evaluate(node => {
+    const { fontSize, lineHeight } = getComputedStyle(node)
+    return `${fontSize}/${lineHeight}`
+  })
+  await expect.poll(senderMetrics).toBe('13px/20px')
+  const axisBefore = await page.evaluate(() => document.body.style.getPropertyValue('--dsh-content-font-size'))
+  await page.evaluate(() => { document.body.style.setProperty('--dsh-content-font-size', '17px') })
+  await expect.poll(senderMetrics).toBe('15px/22px')
+  await page.screenshot({ path: join(UI04_SHOTS, 'content-axis-17px.png') })
+  await page.evaluate(value => {
+    if (value === '') document.body.style.removeProperty('--dsh-content-font-size')
+    else document.body.style.setProperty('--dsh-content-font-size', value)
+  }, axisBefore)
+  await expect.poll(senderMetrics).toBe('13px/20px')
+
   await agentRefLinks.first().click()
   await page.getByRole('heading', { name: /Task #1/ }).waitFor()
   await page.setViewportSize({ width: 390, height: 844 })
