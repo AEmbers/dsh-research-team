@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { evaluateEnvironment, rangeAdmits, reportEnvironment, supportRangeOf } from '../src/environment-check.ts'
+import { evaluateEnvironment, reportEnvironment, supportRangeOf } from '../src/environment-check.ts'
 
 /**
  * The environment check decides one of exactly three shapes from three facts,
@@ -56,21 +56,6 @@ describe('the declared support range', () => {
     // nothing it could render honestly as a support line.
     expect(supportRangeOf(manifestWith({ '@deepseek-ai/dsh-workspace': '^0.1.7-rc.1' }))).toBeUndefined()
     expect(supportRangeOf(manifestWith({ '@deepseek-ai/dsh-workspace': '0.1.7-rc.1' }))).toBeUndefined()
-  })
-})
-
-describe('asking one range about one version', () => {
-  it('orders prereleases rather than comparing text', () => {
-    expect(rangeAdmits(RANGE, '0.1.7-rc.1')).toBe(true)
-    expect(rangeAdmits(RANGE, '0.1.7-alpha.1')).toBe(false)
-  })
-
-  it('refuses a malformed range or a non-semver version instead of admitting it', () => {
-    // A question the evaluator refuses to answer is not an admission: an
-    // unparseable range must never silently read as "supported".
-    expect(rangeAdmits('not-a-range', '0.1.7-rc.1')).toBe(false)
-    expect(rangeAdmits('', '0.1.7-rc.1')).toBe(false)
-    expect(rangeAdmits(RANGE, 'not-a-version')).toBe(false)
   })
 })
 

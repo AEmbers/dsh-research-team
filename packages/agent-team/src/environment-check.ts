@@ -1,30 +1,20 @@
 /** The one local environment check: how the running DSH compares to the line this bundle declares. */
 
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { evaluatePluginCompatibility, getDshRuntimeVersion } from '@deepseek-ai/dsh-app-boot'
+import { bundleVersionOf, readInstalledManifest } from './installed-manifest.ts'
+import type { AgentTeamEnvironmentSupportRange, AgentTeamEnvironmentVerdict } from './types.ts'
 
 /**
- * Which of the three shapes the settings page renders. There is deliberately no
- * fourth: a fact this Host cannot establish is `undetermined`, never a guess,
- * and the two causes that produce it (an unreadable runtime version, a support
- * range this manifest does not state) are not distinguished to the reader —
- * only recorded in `reason` for diagnostics.
+ * What the settings page needs to state the environment.
+ *
+ * Deliberately not the wire type (`AgentTeamEnvironmentResult`): that one states
+ * every fact as optional, because a Transport may withhold any of them, while
+ * this is what the checker itself guarantees. `bundleVersion` is therefore
+ * required here and optional there, and the seam in `index.ts` is where the two
+ * meet.
  */
-export type EnvironmentVerdict = 'ok' | 'out-of-range' | 'undetermined'
-
-/** The declared DSH support line, rendered in words; never a bare range string. */
-export interface EnvironmentSupportRange {
-  /** Lower bound of the declared range, which is also the certified baseline. */
-  readonly lower: string
-  /** Exclusive upper bound of the declared range. */
-  readonly upper: string
-}
-
-/** What the settings page needs to state the environment; every field is optional by contract. */
 export interface EnvironmentReport {
-  readonly verdict: EnvironmentVerdict
+  readonly verdict: AgentTeamEnvironmentVerdict
   /** Host-side diagnostic for an `undetermined` verdict; never rendered as user copy. */
   readonly reason?: string | undefined
   /** Version of the bundle this Host runs from, or `'unknown'` when its manifest is unreadable. */
@@ -37,7 +27,7 @@ export interface EnvironmentReport {
   readonly dshVersion?: string | undefined
   /** Lower bound of the declared support range: the certified, actually-tested DSH line. */
   readonly certifiedDshVersion?: string | undefined
-  readonly supportRange?: EnvironmentSupportRange | undefined
+  readonly supportRange?: AgentTeamEnvironmentSupportRange | undefined
 }
 
 /** Prefix of every peer that sits on the DSH version line; the bare scope is not one. */
@@ -56,7 +46,7 @@ const SUPPORT_RANGE_SHAPE = /^>=(\S+)\s+<(\S+)$/u
  * states the same line its README does. Returns `undefined` when the peers
  * disagree or the shape is unreadable.
  */
-export function supportRangeOf(manifest: object): EnvironmentSupportRange | undefined {
+export function supportRangeOf(manifest: object): AgentTeamEnvironmentSupportRange | undefined {
   const fields = manifest as { readonly peerDependencies?: unknown }
   if (typeof fields.peerDependencies !== 'object' || fields.peerDependencies === null) return undefined
   const ranges = new Set<string>()
@@ -70,60 +60,6 @@ export function supportRangeOf(manifest: object): EnvironmentSupportRange | unde
   const shape = SUPPORT_RANGE_SHAPE.exec(distinct[0]!)
   if (shape === null) return undefined
   return Object.freeze({ lower: shape[1]!, upper: shape[2]! })
-}
-
-/** Version of the manifest this package installed from, or `'unknown'`. */
-function readInstalledBundleVersion(): string {
-  const manifest = readInstalledManifest()
-  if (typeof manifest?.version === 'string' && manifest.version !== '') return manifest.version
-  return 'unknown'
-}
-
-/**
- * Parsed manifest of the installed bundle, or `undefined` when it cannot be
- * read. Three levels up: `packages/agent-team/{src,lib}` sits that deep in both
- * a `link:` checkout and a registry tarball.
- */
-function readInstalledManifest(): Record<string, unknown> | undefined {
-  try {
-    const manifestPath = resolve(dirname(fileURLToPath(import.meta.url)), '../../../package.json')
-    const parsed: unknown = JSON.parse(readFileSync(manifestPath, 'utf8'))
-    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
-      ? parsed as Record<string, unknown>
-      : undefined
-  } catch {
-    // An unreadable own manifest is a broken install, not a panel failure: the
-    // report says 'unknown' and the page renders `undetermined`.
-    return undefined
-  }
-}
-
-/**
- * Ask the Harness's own evaluator whether one range admits one version.
- *
- * The range is passed as a single-peer manifest, so the answer is about that
- * range alone — exactly the reason `evaluateEnvironment` judges against the
- * range it prints instead of against one representative peer. Prerelease
- * ordering is the evaluator's (`0.1.7-alpha.1` is below `0.1.7-rc.1`; a
- * prerelease of the upper bound like `0.1.8-rc.1` is below `0.1.8` and inside
- * the range), which is what the page's "from X, before Y" states in words.
- *
- * @param range - one `>=lower <upper` series.
- * @param version - the running DSH version.
- * @returns whether the range admits the version; `false` on anything malformed.
- */
-export function rangeAdmits(range: string, version: string): boolean {
-  try {
-    return evaluatePluginCompatibility({
-      name: '@wowyuarm/dsh-agent-team',
-      version: '0.0.0',
-      peerDependencies: { '@deepseek-ai/dsh-runtime': range },
-    }, {}, version) === undefined
-  } catch {
-    // The evaluator throws on a malformed range or a non-semver version, and a
-    // question it refuses to answer is not an admission.
-    return false
-  }
 }
 
 /**
@@ -159,9 +95,10 @@ export function evaluateEnvironment(
   // "not satisfied" even though no single range can then be stated for the
   // page. Only when nothing is violated does the question become whether the
   // declared line can be stated at all.
-  const declared = range === undefined ? undefined : `>=${range.lower} <${range.upper}`
+  // One evaluation covers every dsh peer in the manifest, and `range` above is
+  // derived from exactly those peers: re-judging the range it prints could not
+  // change this answer.
   const satisfied = evaluatePluginCompatibility(manifest, {}, runtimeVersion) === undefined
-    && (declared === undefined || rangeAdmits(declared, runtimeVersion))
   if (!satisfied) return Object.freeze({ ...running, verdict: 'out-of-range' })
   // Nothing is violated but there is no line to state: the page withholds the
   // range rather than inventing one.
@@ -185,7 +122,7 @@ export function evaluateEnvironment(
  */
 export function reportEnvironment(): EnvironmentReport {
   const manifest = readInstalledManifest() ?? {}
-  const bundleVersion = readInstalledBundleVersion()
+  const bundleVersion = bundleVersionOf(manifest)
   let runtime: string
   try {
     runtime = getDshRuntimeVersion()

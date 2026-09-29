@@ -1419,9 +1419,16 @@ export default class AgentTeam extends TypertRemoteService {
    * declares. Human-scoped and read-only — the Client renders the verdict and
    * states the range in words, and nothing here is written back.
    *
-   * Synchronous like `humanProfile`: reading two manifests settles immediately,
-   * and the verdict comes from the Harness's own compatibility evaluator rather
-   * than a second version comparison written here.
+   * Synchronous like `humanProfile`: both read the installed manifest once and
+   * settle immediately, and the verdict comes from the Harness's own
+   * compatibility evaluator rather than a second version comparison written
+   * here.
+   *
+   * The wire type and `EnvironmentReport` keep separate top-level field lists on
+   * purpose: the contract states every fact as optional because a Transport may
+   * withhold any of them, while the report is the stricter thing the checker
+   * guarantees. This assignment is where the compiler holds the two together,
+   * and a new required contract field fails it here.
    */
   @Remote('environment')
   environmentForClient(_request: AgentTeamEnvironmentRequest): AgentTeamEnvironmentResult {

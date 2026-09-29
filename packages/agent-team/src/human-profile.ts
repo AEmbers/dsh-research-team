@@ -1,8 +1,6 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import z from '@deepseek-ai/schemastery'
 import { parse } from 'yaml'
+import { bundleVersionOf, readInstalledManifest } from './installed-manifest.ts'
 
 /**
  * Human identity profile: the one configurable display name plus the avatar
@@ -44,35 +42,18 @@ export const HUMAN_PROFILE_REPO_URL = 'https://github.com/wowyuarm/dsh-agent-tea
 
 /**
  * Bundle version shown in the settings footnote, and the current side of the
- * update check: the version of the package THIS Host runs from — read from the
- * installed manifest, so a `link:` checkout under the development profile and a
- * registry tarball under stable each state their own truth. It is not a
- * hand-maintained string: the 0.1.14 bundle shipped with `0.1.13` written in
- * it, which made the footnote name the previous release and the update check
- * offer the release the user already had.
+ * update check: the version of the package THIS Host runs from — the installed
+ * manifest's, read once at load through `./installed-manifest.ts`, so a `link:`
+ * checkout under the development profile and a registry tarball under stable
+ * each state their own truth. It is not a hand-maintained string: the 0.1.14
+ * bundle shipped with `0.1.13` written in it, which made the footnote name the
+ * previous release and the update check offer the release the user already had.
  *
- * Resolved once at load, three levels above this module — `packages/agent-team/{src,lib}`
- * sits that deep in both layouts, the same relative positioning
- * `member-runtime.ts` uses to find `core-skills`. An unreadable or malformed
- * manifest degrades to `'unknown'`: the Remote's `version: string` contract
- * holds and the update comparison simply compares nothing. The footnote is
- * informational only and never gates behavior.
+ * An unreadable or malformed manifest degrades to `'unknown'`: the Remote's
+ * `version: string` contract holds and the update comparison simply compares
+ * nothing. The footnote is informational only and never gates behavior.
  */
-export const HUMAN_PROFILE_VERSION = readInstalledBundleVersion()
-
-/** Version of the manifest this package installed from, or `'unknown'`. */
-function readInstalledBundleVersion(): string {
-  try {
-    const manifestPath = resolve(dirname(fileURLToPath(import.meta.url)), '../../../package.json')
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { readonly version?: unknown }
-    if (typeof manifest.version === 'string' && manifest.version !== '') return manifest.version
-  } catch {
-    // Reading our own manifest must never fail the Host boot: a host that
-    // cannot find its own package.json is a broken install, and the footnote
-    // reporting 'unknown' says so more honestly than a stale number.
-  }
-  return 'unknown'
-}
+export const HUMAN_PROFILE_VERSION = bundleVersionOf(readInstalledManifest())
 
 /**
  * Schemastery schema of the Human profile: the Team Host row's Config. Both

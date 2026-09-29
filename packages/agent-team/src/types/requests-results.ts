@@ -354,13 +354,24 @@ export interface AgentTeamHumanProfileResult {
 export interface AgentTeamEnvironmentRequest {
 }
 
+/**
+ * The one of three shapes the page renders. `undetermined` is the answer for
+ * every fact this Host cannot establish — an unreadable runtime version, a
+ * support range the manifest does not state — and never a guessed verdict; its
+ * two causes are not distinguished to the reader, only recorded in `reason`.
+ */
+export type AgentTeamEnvironmentVerdict = 'ok' | 'out-of-range' | 'undetermined'
+
+/** Declared DSH support line, stated in words by the page rather than as a range string. */
+export interface AgentTeamEnvironmentSupportRange {
+  /** Lower bound of the declared range, which is also the certified baseline. */
+  readonly lower: string
+  /** Exclusive upper bound of the declared range. */
+  readonly upper: string
+}
+
 export interface AgentTeamEnvironmentResult {
-  /**
-   * The one of three shapes the page renders. `undetermined` is the answer for
-   * every fact this Host cannot establish — an unreadable runtime version, a
-   * support range the manifest does not state — and never a guessed verdict.
-   */
-  readonly verdict: 'ok' | 'out-of-range' | 'undetermined'
+  readonly verdict: AgentTeamEnvironmentVerdict
   /** Host-side diagnostic behind an `undetermined` verdict; not rendered as user copy. */
   readonly reason?: string | undefined
   // Every fact below is optional by contract: a missing one is never a
@@ -375,11 +386,7 @@ export interface AgentTeamEnvironmentResult {
   readonly dshVersion?: string | undefined
   /** Lower bound of the declared range: the certified, actually-tested DSH line. */
   readonly certifiedDshVersion?: string | undefined
-  /** Declared DSH support line, stated in words by the page rather than as a range string. */
-  readonly supportRange?: {
-    readonly lower: string
-    readonly upper: string
-  } | undefined
+  readonly supportRange?: AgentTeamEnvironmentSupportRange | undefined
 }
 
 /**
