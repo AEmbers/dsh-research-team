@@ -40,7 +40,7 @@ npm run duplication
 npm pack --dry-run
 npm run check:artifact
 npm run check:public-baseline
-git diff --check
+git diff --check HEAD
 ```
 
 这些命令的职责如下：
