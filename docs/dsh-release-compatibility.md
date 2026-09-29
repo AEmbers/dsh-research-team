@@ -167,9 +167,9 @@ Record candidate tag, symptom, affected interface, reproduction command, and nex
 
 ## 6. Current baseline
 
-The current certified baseline is DSH `0.2.0-rc.1`; the paragraphs below preserve the history that produced the preceding baselines.
+The current certified baseline is DSH `0.2.0-rc.2`; the paragraphs below preserve the history that produced the preceding baselines.
 
-The DSH peers state exactly that certified line, `>=0.2.0-rc.1 <0.2.1`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim.
+The DSH peers state exactly that certified line, `>=0.2.0-rc.2 <0.2.1`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim.
 
 The routed sqlite backend is a vendored fork, not a dependency at all (GitHub issue #28): the upstream package stays a devDependency pinned at the fork source, 0.1.5-rc.2, as the byte-compatibility fixture reference, and every compat round diffs the fork against that version's file before anything else.
 
@@ -298,3 +298,7 @@ Evidence on the certified tree: `npm run typecheck` (509 Harness mappings), `npm
 Section 3.5 resolves a single DSH generation: 278 `@deepseek-ai/dsh-*` copies, every one at `0.2.0-rc.2`, with no nested copy and no peer-conflict warning.
 
 The published `0.2.0` bundle was installed against the candidate and booted from a real profile: 278 DSH copies all at the candidate, 188 composed rows, no skipped bundle, and its Client module served at 654,554 bytes.
+
+The certified baseline advanced to this candidate on 2026-09-29, after the certification rather than as part of it: the operator moved all 45 DSH peers to `>=0.2.0-rc.2 <0.2.1`, with the CI harness tag and the Hoplite tag to `dsh-v0.2.0-rc.2` and every wording spot that names the range.
+
+The move narrows the declared line to `0.2.0-rc.2` and later. The published `0.2.0` tarball keeps its wider `>=0.2.0-rc.1 <0.2.1` declaration, so only a later release refuses a host still on `0.2.0-rc.1`.
