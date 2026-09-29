@@ -64,6 +64,15 @@ const spots = [
   { file: 'docs/development/environments-and-install.zh.md', pattern: /最低兼容版本是 DSH `([^`]+)`/u },
   { file: 'README.md', pattern: /certified against DSH `([^`]+)`/u },
   { file: 'README.zh.md', pattern: /针对 DSH `([^`]+)` 完成认证/u },
+  // Quick start starts the host itself, and must start the certified line: an
+  // unversioned `npx @deepseek-ai/dsh web` resolves `latest`, which would hand
+  // the reader a host this bundle's peers refuse.
+  { file: 'README.md', pattern: /npx @deepseek-ai\/dsh@([0-9][^ ]*) web/u },
+  { file: 'README.zh.md', pattern: /npx @deepseek-ai\/dsh@([0-9][^ ]*) web/u },
+  // The global install named right after it is a second way to get the same
+  // host line, and `extract` reads one match per spot, so it needs its own.
+  { file: 'README.md', pattern: /npm i -g @deepseek-ai\/dsh@([0-9][^` ]*)/u },
+  { file: 'README.zh.md', pattern: /npm i -g @deepseek-ai\/dsh@([0-9][^` ]*)/u },
   { file: 'docs/architecture/host-authority.md', pattern: /targets DSH `([^`]+)`/u },
   { file: 'docs/architecture/host-authority.zh.md', pattern: /目标为 DSH `([^`]+)`/u },
   { file: 'docs/dsh-release-compatibility.md', pattern: /current certified baseline is DSH `([^`]+)`/u },

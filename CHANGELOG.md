@@ -2,10 +2,12 @@
 
 All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning. Team bundle versions evolve independently of DeepSeek Harness versions; DeepSeek Harness compatibility is expressed through `peerDependencies` and [`docs/dsh-release-compatibility.md`](docs/dsh-release-compatibility.md).
 
-## [Unreleased]
+## [0.2.0] - 2026-09-29
 
-- The Team Client follows DSH 0.1.7-rc.2's design language: focus rings take the shipped ring tokens (one ring colour everywhere, and a ring no longer paints over a mouse click on controls the platform suppresses it for), and radii move onto the shipped scale — the composer card, menu rows, result rows and chips pick up the sizes rc.2 re-rounded. Written with the previous literal as the fallback, so a run on rc.1 keeps rendering exactly what it renders today.
-- Settings now says whether the DSH you are running is one this bundle supports. It sits above the version footnote, states the running version and the supported range in words rather than as a version expression, names the certified combination only when both versions are actually known, and when the running DSH is outside the range it says so plainly and links the release notes instead of warning about a failure it cannot see. A version it cannot read is reported as not determined rather than as unsupported, and a newer DSH certified inside the same range keeps reading as supported.
+- `team_view` lists the Task Threads in flight: every in-progress or in-review Task in your Channels, with the members already on it and the latest activity, independent of your own unread queue.
+- Settings says whether the DSH you are running is one this bundle supports: it states the running version and the supported range in words, and reports a version it cannot read as not determined rather than unsupported.
+- Interface details follow DSH 0.1.7-rc.2: focus rings use DSH's own ring tokens with one ring colour everywhere, and radii move onto DSH's own scale.
+- Certified against DSH `0.2.0-rc.1`: every `@deepseek-ai/dsh-*` peer moves together to `>=0.2.0-rc.1 <0.2.1`, and the context-continuity engine floor moves to `^0.1.6`.
 
 ## [0.1.15] - 2026-09-24
 
