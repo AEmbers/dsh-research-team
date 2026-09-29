@@ -41,7 +41,7 @@ If this looks useful, a star on [GitHub](https://github.com/wowyuarm/dsh-agent-t
 
 ### 1. Check DSH
 
-This release is certified against DSH `0.2.0-rc.1`. The current `latest` of `@deepseek-ai/dsh` is `0.1.7-rc.2`, and `0.2.0-rc.1` is published on its `next` tag, so ask for that version explicitly — starting from `latest` skips this bundle on load. On DSH `0.1.7-rc.2`, stay on `@wowyuarm/dsh-agent-team` `0.1.15`.
+This release is certified against DSH `0.2.0-rc.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on `@wowyuarm/dsh-agent-team` `0.1.15`.
 
 ```sh
 npx @deepseek-ai/dsh@0.2.0-rc.1 web

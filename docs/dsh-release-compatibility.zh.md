@@ -339,3 +339,25 @@ Client 占用的五个 slot 座位（`sidebar.workspaces`、`main`、`sidebar.se
 没有任何东西加载这份拷贝——引擎对该包只有一处 type-only import，本 bundle 从不指名它，且引擎是库而非 profile bundle，其 peers 不会进入 `evaluatePluginCompatibility`。
 
 依赖下界随引擎一起前移，锁文件里仍钉着 `0.1.5` 的树无法让旧声明继续生效；引擎自己的区间现在接纳 `0.2.0` 线，因此在 `0.2.0-rc.1` profile 根部安装它不再撞上排除该宿主的区间。引擎这次移动与本线同一窗口出门，因为命名 `0.2.0-rc.1` 的引擎会在仍停在 `0.1.7-rc.2` 的树里放进一份该世代的拷贝。
+
+### DSH 0.2.0-rc.2
+
+DSH `0.2.0-rc.2` 在同一 peer 区间上认证通过，manifest 无改动。候选落在 `>=0.2.0-rc.1 <0.2.1` 之内，因此按 §4 记录基线而不移动 peer，所有版本位仍指向该区间下界。
+
+tag `639ed01`（2026-09-29）在 `dsh-v0.2.0-rc.1` 之后 187 个提交。认证时 npm `next` 已指向它，而 `latest` 仍停在 `0.1.7-rc.2`，所以这一轮不构成发布阻塞。
+
+本 bundle 引入的符号没有被删除或改名。peer 包内共 86 个文件变化，其中 45 个是 `package.json`：9 个 peer 真动了源码，另外 35 个只改 manifest。
+
+动源码的 9 个集中在 bundle 组合进去的随包 Client 界面——`ui-primitives` 9、`ui-conversation` 3、`ui-settings-general` 3、`ui-workspace` 2、`ui-sidebar`、`ui-renderer`、`api-remotes`——外加 `tool-bash` 与 `tool-pwsh` 各一个文件。
+
+两处最大的 Client 改动都是只增不改：`ui-primitives` 在原有导出之上新增 `MenuGroup` 与 `observeStickyMenuGroups`，`api-remotes` 的 Client 入口新增一处 `@deepseek-ai/dsh-user-questions/remote` import。
+
+不重新触发 §3.6：`session-format-catalog`、`session-persistence`、`session-telemetry` 与 `agent-preset-registry` 只改了 manifest，`agent-preset` 唯一的非 manifest 变化是一份随包 skill 参考文档。
+
+`ui-sidebar/SidebarRoot.tsx` 被改动——非 darwin 平台的新会话按钮去掉了 `Tooltip` 包装——但 bundle 钉住测试所依赖的 `panelList` 锚点仍在第 280 行。
+
+认证树上的证据：`npm run typecheck`（509 个 Harness mapping）、`npm test`（776 通过、1 跳过）、`npm run lint`、`npm run build`、`npm pack --dry-run`（263 文件）、`check:artifact`、`git diff --check`、`npm run test:browser`（5 条 journey）。
+
+§3.5 解析出单一 DSH 世代：278 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.0-rc.2`，没有嵌套拷贝，也没有 peer 冲突告警。
+
+已发布的 `0.2.0` bundle 装到候选上并从真实 profile 启动：278 份 DSH 拷贝都在候选版本、组合出 188 行、没有 skipped bundle，Client 模块以 654,554 字节送达。

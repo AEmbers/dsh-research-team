@@ -23,6 +23,17 @@ radius scale on named tokens, and re-rounded several surfaces (the composer
 card 22px → 28px, menu and result rows 8px → 12px and 16px, chips 6px → 8px).
 See the two-checkout rule below for how one sheet serves both rc.1 and rc.2.
 
+Re-verified on the **0.2.0-rc.1** line (the certified peer line; see
+[dsh-release-compatibility.md](../dsh-release-compatibility.md)), and again on
+**0.2.0-rc.2** at source level: the radius tiers and the focus-ring chain are
+unchanged, the sheets this table mirrors are byte-identical, and the theme only
+gains aliases. What 0.2 did move belongs to shipped surfaces this contract does
+not mirror: overlays read the new frame insets, transcript shimmer moved to
+`TextShimmer`, and the chat flow gap tightened to 6px — 12px after a response.
+The Team timeline keeps its own rhythm: seat-style rows with reserved identity
+space and Markdown bodies whose margins set the spacing, so a fixed transcript
+gap has no equivalent.
+
 | Dimension | Rule | Shipped reference |
 | --- | --- | --- |
 | Icon-only control | 28×28 circle, `border-radius: 999px`, `corner-shape: round`, transparent fill, hover `--dsw-alias-interactive-bg-hover-solid` (composer) / `--dsw-alias-interactive-bg-hover` (sidebar) | `InputBar.module.css .add`, `SidebarRoot.module.css .iconButton` |

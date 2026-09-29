@@ -276,3 +276,25 @@ The trailing declared range is closed: `@wowyuarm/dsh-context-continuity@0.1.6` 
 Nothing loaded that copy: the engine's only reference to the package is a type-only import, this bundle never names it, and the engine is a library rather than a profile bundle, so its peers never reach `evaluatePluginCompatibility`.
 
 The dependency floor moves with the engine so a lockfile still holding `0.1.5` cannot keep the older declaration alive, and the engine's own range now admits the `0.2.0` line, so installing it at the root of a `0.2.0-rc.1` profile no longer meets a range that excludes the host. The engine's move ships in the same window as this line, because an engine naming `0.2.0-rc.1` puts a stray copy of that generation into trees still on `0.1.7-rc.2`.
+
+### DSH 0.2.0-rc.2
+
+DSH `0.2.0-rc.2` is certified on the same peers with no manifest change. The candidate falls inside `>=0.2.0-rc.1 <0.2.1`, so section 4 records a baseline instead of a peer move, and every version spot keeps naming the range's lower bound.
+
+Tag `639ed01` (2026-09-29) sits 187 commits after `dsh-v0.2.0-rc.1`. At certification time npm `next` already pointed at it while `latest` still pointed at `0.1.7-rc.2`, so the round was not release-blocking.
+
+No symbol this bundle imports was removed or renamed. Inside the 45 peered packages 86 files changed, 45 of them `package.json`: nine peers changed real source, and the other 35 changed nothing but their manifest.
+
+Those nine are the shipped Client surface this bundle composes into — `ui-primitives` 9, `ui-conversation` 3, `ui-settings-general` 3, `ui-workspace` 2, `ui-sidebar`, `ui-renderer`, `api-remotes` — plus `tool-bash` and `tool-pwsh`, one file each.
+
+Its two widest Client changes are additive. `ui-primitives` exports `MenuGroup` and `observeStickyMenuGroups` on top of its existing surface, and `api-remotes` adds a `@deepseek-ai/dsh-user-questions/remote` import to its Client entry.
+
+Section 3.6 is not re-triggered: `session-format-catalog`, `session-persistence`, `session-telemetry`, and `agent-preset-registry` changed only their manifests, and `agent-preset`'s only non-manifest change is a shipped skill reference document.
+
+`ui-sidebar/SidebarRoot.tsx` is touched — the non-darwin new-session button loses its `Tooltip` wrapper — but the `panelList` anchor the bundle's pinning test holds on still exists at line 280.
+
+Evidence on the certified tree: `npm run typecheck` (509 Harness mappings), `npm test` (776 passed, 1 skipped), `npm run lint`, `npm run build`, `npm pack --dry-run` (263 files), `check:artifact`, `git diff --check`, and `npm run test:browser` (5 journeys).
+
+Section 3.5 resolves a single DSH generation: 278 `@deepseek-ai/dsh-*` copies, every one at `0.2.0-rc.2`, with no nested copy and no peer-conflict warning.
+
+The published `0.2.0` bundle was installed against the candidate and booted from a real profile: 278 DSH copies all at the candidate, 188 composed rows, no skipped bundle, and its Client module served at 654,554 bytes.

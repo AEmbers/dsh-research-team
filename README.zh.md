@@ -41,7 +41,7 @@ Task Thread 把 Claim、Agent 交接、Human 验收和后续回复保留在同�
 
 ### 1. 检查 DSH
 
-当前版本已针对 DSH `0.2.0-rc.1` 完成认证。`@deepseek-ai/dsh` 当前的 `latest` 是 `0.1.7-rc.2`，`0.2.0-rc.1` 发布在它的 `next` 标签上，所以要显式指定这个版本——用 `latest` 启动会在加载时跳过本 bundle。若你的 DSH 是 `0.1.7-rc.2`，请停留在 `@wowyuarm/dsh-agent-team` `0.1.15`。
+当前版本已针对 DSH `0.2.0-rc.1` 完成认证。请显式指定 DSH 版本，而不要跟随 `latest`：不指定版本时可能解析到本 bundle 声明区间之外的宿主线。若你的 DSH 是 `0.1.7-rc.2`，请停留在 `@wowyuarm/dsh-agent-team` `0.1.15`。
 
 ```sh
 npx @deepseek-ai/dsh@0.2.0-rc.1 web
