@@ -11,8 +11,9 @@
 // sources and the harness checkout (through the shared harness-dir.mjs
 // pointer), applies the documented language rules, and prints a report.
 // Design judgment stays in docs; the script only reports mechanical drift.
-// It must stay green on both the rc.1 daily checkout and an rc.2 checkout —
-// DSH_HARNESS_DIR points it at either.
+// It must stay green on the checkout the peers are certified against
+// (DSH_HARNESS_DIR points it at one): since the 0.2.0 peer move the shipped
+// theme defines every --dsw-* token the Team Client references.
 
 import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -464,38 +465,18 @@ const shippedTokens = collectShippedTokens()
 if (shippedTokens.size === 0) {
   note('error', 'shipped theme', 'cannot read --dsw-* token definitions from the harness checkout — re-verify the parity baseline')
 } else {
-  // Tokens that entered the shipped theme in 0.1.7-rc.2. The daily checkout is
-  // still rc.1, so they are legitimately absent there — but only these, only
-  // with a fallback, and only while the sheet must read right on both. Every
-  // entry is a deliberate claim about a shipped version: delete an entry once
-  // the checkout defines the token again and the rule below takes over.
-  const FORWARD_DECLARED = new Set([
-    '--dsw-focus-ring-width',
-    '--dsw-focus-ring-color',
-    '--dsw-radius-xs',
-    '--dsw-radius-sm',
-    '--dsw-radius-md',
-    '--dsw-radius-lg',
-    '--dsw-radius-xl',
-    '--dsw-radius-panel',
-  ])
   const teamRefs = new Map()
   for (const file of readdirSync(clientDir).filter(name => /\.(css|tsx|ts)$/.test(name))) {
     const text = readFileSync(join(clientDir, file), 'utf8')
-    for (const match of text.matchAll(/var\(--dsw-[\w-]+(\s*,)?/g)) {
-      const token = match[0].slice(4).replace(/\s*,$/, '')
-      if (!teamRefs.has(token)) teamRefs.set(token, { files: new Set(), bare: new Set() })
-      const ref = teamRefs.get(token)
-      ref.files.add(file)
-      if (match[1] === undefined) ref.bare.add(file)
+    for (const match of text.matchAll(/var\(--dsw-[\w-]+/g)) {
+      const token = match[0].slice(4)
+      if (!teamRefs.has(token)) teamRefs.set(token, new Set())
+      teamRefs.get(token).add(file)
     }
   }
-  for (const [token, ref] of teamRefs) {
-    const forward = FORWARD_DECLARED.has(token)
-    if (!shippedTokens.has(token) && !forward) {
-      note('error', [...ref.files].sort().join(', '), `references '${token}' which the shipped theme does not define — a typo, or a DSH upgrade renamed it`)
-    } else if (forward && ref.bare.size > 0) {
-      note('error', [...ref.bare].sort().join(', '), `references '${token}' without a fallback; a token the pinned checkout may not define yet must declare one (var(${token}, <fallback>))`)
+  for (const [token, files] of teamRefs) {
+    if (!shippedTokens.has(token)) {
+      note('error', [...files].sort().join(', '), `references '${token}' which the shipped theme does not define — a typo, or a DSH upgrade renamed it`)
     }
   }
 }

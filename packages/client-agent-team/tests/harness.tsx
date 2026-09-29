@@ -496,14 +496,7 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; workspaceId?: s
   }
   // The environment check double: one read, no write, seeded before the Team
   // Client mounts because its projection reads on the first subscriber.
-  let environmentValue: {
-    verdict: 'ok' | 'out-of-range' | 'undetermined'
-    reason?: string
-    bundleVersion?: string
-    dshVersion?: string
-    certifiedDshVersion?: string
-    supportRange?: { lower: string; upper: string }
-  } = {
+  let environmentValue: EnvironmentSeed & { readonly verdict: 'ok' | 'out-of-range' | 'undetermined' } = {
     verdict: 'ok',
     bundleVersion: '0.1.15',
     dshVersion: '0.1.7-rc.1',

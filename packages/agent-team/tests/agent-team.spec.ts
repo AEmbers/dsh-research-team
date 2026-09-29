@@ -796,7 +796,7 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     // A claimed Task (in_progress), a done Task still in review, and an untouched
     // Task with no Claim. The radar should carry the first two and drop the third.
     const claimed = withTask(committed((await ledger.sendMessage({ asTask: true, requestId: requestId('claimed'), workspaceId: alpha, channelRef: channel.channel.channelRef, body: 'Claimed work', actor: agentTeamHumanActor() })).value))
-    const claim = committed((await ledger.changeClaim({ requestId: requestId('claim'), workspaceId: alpha, taskRef: claimed.task.taskRef, action: 'claim', direction: 'building it', baseRevision: claimed.thread.revision, actor })).value)
+    committed((await ledger.changeClaim({ requestId: requestId('claim'), workspaceId: alpha, taskRef: claimed.task.taskRef, action: 'claim', direction: 'building it', baseRevision: claimed.thread.revision, actor })).value)
     const reviewed = withTask(committed((await ledger.sendMessage({ asTask: true, requestId: requestId('reviewed'), workspaceId: alpha, channelRef: channel.channel.channelRef, body: 'Reviewed work', actor: agentTeamHumanActor() })).value))
     const reviewClaim = committed((await ledger.changeClaim({ requestId: requestId('review-claim'), workspaceId: alpha, taskRef: reviewed.task.taskRef, action: 'claim', direction: 'reviewing it', baseRevision: reviewed.thread.revision, actor })).value)
     committed((await ledger.changeClaim({ requestId: requestId('review-done'), workspaceId: alpha, taskRef: reviewed.task.taskRef, action: 'done', claimRef: reviewClaim.claim.claimRef, baseRevision: reviewClaim.thread.revision, actor })).value)
@@ -809,7 +809,6 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     expect(claimedRow).toMatchObject({ status: 'in_progress', subject: 'Claimed work', taskNumber: 1 })
     expect(claimedRow.members.map(m => m.memberId)).toEqual([member.memberId])
     expect(radar.find(row => row.threadRef === reviewed.task.threadRef)).toMatchObject({ status: 'in_review', subject: 'Reviewed work' })
-    void claim
   })
 
   it('keeps an active Task Thread in the radar even while the reader has it unread', async () => {
