@@ -23,8 +23,6 @@ export interface TeamEnvironmentSnapshot {
   readonly status: 'loading' | 'ready'
   /** The report to render; undefined until the first read settles. */
   readonly report?: AgentTeamEnvironmentResult | undefined
-  /** Last failure, kept beside the last accepted report so the page can report it. */
-  readonly error?: string | undefined
 }
 
 /** Read-side face the settings page binds. */
@@ -65,8 +63,8 @@ export class TeamEnvironmentCheck implements TeamEnvironmentSource {
 
   /**
    * Read the Host projection. Concurrent callers share one round trip, and a
-   * failed read keeps the last accepted report beside the reported error — the
-   * block never blanks out over a background read.
+   * failed read keeps the last accepted report — the block never blanks out
+   * over a background read.
    * @returns settlement of this read (or of the read already in flight).
    */
   refresh(): Promise<void> {
@@ -87,24 +85,26 @@ export class TeamEnvironmentCheck implements TeamEnvironmentSource {
     try {
       const result = await this.loader.loadEnvironment()
       if (!result.ok) {
-        this.fail(result.error.message)
+        this.fail()
         return
       }
       report = result.value
-    } catch (error) {
+    } catch {
       // A dropped connection surfaces as a thrown carrier error, not a result:
       // both are read failures and both keep whatever report already stands.
-      this.fail(error instanceof Error ? error.message : String(error))
+      this.fail()
       return
     }
     this.commit({ status: 'ready', report })
   }
 
-  private fail(message: string): void {
-    const held = this.snapshot
-    this.commit(held.report === undefined
-      ? { status: 'ready', error: message }
-      : { ...held, error: message })
+  /**
+   * Settle a read that produced no report, so a reader stops waiting on a
+   * `loading` that will never finish. A report that already stands is left
+   * untouched: a failed background read never blanks the block.
+   */
+  private fail(): void {
+    if (this.snapshot.report === undefined) this.commit({ status: 'ready' })
   }
 
   private commit(snapshot: TeamEnvironmentSnapshot): void {

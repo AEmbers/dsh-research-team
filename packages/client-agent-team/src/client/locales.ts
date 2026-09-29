@@ -134,7 +134,6 @@ export const zh = {
   // The environment check. The support line is stated in words, never as a bare
   // semver range, and the tested-combination line prints only versions the Host
   // could derive — the page adds no version of its own.
-  environmentTitle: '环境检查',
   environmentOkTitle: '在支持范围内',
   environmentOkDetail: '正在运行的 DSH {version} 在我们声明的支持范围内。',
   environmentOutOfRangeTitle: '不在支持范围内',
@@ -357,7 +356,6 @@ export const en = {
   humanSettingsUnavailable: 'The profile could not be read: {message}',
   humanSettingsVersion: 'Version {version}',
   humanSettingsUpdateAvailable: 'New version {version} available — see the release notes',
-  environmentTitle: 'Environment check',
   environmentOkTitle: 'Within the supported range',
   environmentOkDetail: 'The running DSH {version} is within the range we declare support for.',
   environmentOutOfRangeTitle: 'Outside the supported range',

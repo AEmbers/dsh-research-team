@@ -52,7 +52,7 @@ describe('environment projection', () => {
     offSecond()
   })
 
-  it('keeps the last report when a later read fails, and reports the failure beside it', async () => {
+  it('keeps the last report when a later read fails', async () => {
     let failure: string | undefined
     const { check } = storeWith(async () => failure === undefined
       ? { ok: true as const, value: REPORT }
@@ -61,16 +61,17 @@ describe('environment projection', () => {
     failure = 'the connection dropped'
     await check.refresh()
     expect(check.getSnapshot().report).toEqual(REPORT)
-    expect(check.getSnapshot().error).toBe('the connection dropped')
+    expect(check.getSnapshot().status).toBe('ready')
   })
 
   it('treats a thrown carrier error as a read failure rather than a verdict', async () => {
     const { check } = storeWith(async () => { throw new Error('socket closed') })
     await check.refresh()
     // No report, so the page states nothing: an unreachable Host is not the
-    // same fact as "the environment could not be determined".
+    // same fact as "the environment could not be determined". The read has
+    // settled, so a reader is not left waiting on a `loading` that is over.
     expect(check.getSnapshot().report).toBeUndefined()
-    expect(check.getSnapshot().error).toBe('socket closed')
+    expect(check.getSnapshot().status).toBe('ready')
   })
 
   it('stops notifying a listener that unsubscribed', async () => {
