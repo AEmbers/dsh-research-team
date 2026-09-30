@@ -23,6 +23,8 @@ sidebar.settings            Team shadow, priority -100
 
 Activation mounts `agentTeamRemote`, waits for `remote.agentTeam`, then registers Team footer and mode shadows. `dsh.client.inject` describes the module graph but does not guarantee apply order or service readiness; use `ctx.slots.inject()` when a declaration may appear later.
 
+Team mode also owns the shell's main-panel selection: entering it, or navigating inside it, returns the column to the conversation panel — the seat the Team shadows — whenever a shipped global panel (the plugin manager) still holds it. Outside Team mode the Team never touches that selection.
+
 A slot parent's `children` declaration is both render site and authority. Team's `sidebar.workspaces` shadow must not redeclare shipped `sidebar.workspaces.directoryFlow`; Harness SlotCore rejects duplicate live declarations. Do not copy private WorkspaceBrowser, ConversationRoot, Shell, or private CSS. Use public Harness services and exports, such as `ctx.workspaces.pickDirectory()`, and record limitations rather than depending silently on private implementation.
 
 ## Client data and presentation boundary

@@ -8,7 +8,7 @@ import { COMMON_NS, LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
 import { en as commonEn, zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/index.ts'
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { SlotTestRuntime, stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
+import type { PropsRenderSlots, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import { apply as applySidebar, inject as injectSidebar } from '@deepseek-ai/dsh-client-ui-sidebar/client'
 import { apply as applyConversation, inject as injectConversation } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import { apply, inject } from '../src/client/index.ts'
@@ -22,13 +22,17 @@ class ResizeObserverStub {
 }
 vi.stubGlobal('ResizeObserver', ResizeObserverStub)
 
-type FrameProps = PropsRenderSlots<'sidebar' | 'main'>
-function Frame({ renderSlot }: FrameProps) {
+type FrameProps = PropsRuntime<'root'> & PropsRenderSlots<'sidebar' | 'main'>
+function Frame({ renderSlot, usePanelInfo }: FrameProps) {
   const [collapsed, setCollapsed] = useState(false)
+  // The shipped frame renders the keyed main cell for the selected global panel
+  // and falls back to the conversation seat, so the bench follows the same rule
+  // instead of pinning that seat.
+  const panelId = usePanelInfo(info => info.activePanelId)
   return <>
     <button type="button" data-test-control onClick={() => { setCollapsed(value => !value) }}>Toggle fixture sidebar</button>
     {renderSlot('sidebar', { collapsed, width: collapsed ? 56 : 280 })}
-    {renderSlot('main', {}, { entryKey: 'conversation' })}
+    {renderSlot('main', {}, { entryKey: panelId ?? 'conversation' })}
   </>
 }
 
@@ -59,17 +63,28 @@ interface SeededMessage {
   readonly mentions?: readonly string[]
 }
 
-export async function runtimeWithTeam(options?: { mode?: 'team'; workspaceId?: string; initialChannels?: boolean; remainingUnreadCounts?: readonly number[]; seededMessages?: readonly SeededMessage[]; seedTaskRef?: string; seedThreadRef?: string; seedTaskStatus?: AgentTeamTask['status']; seedFollowers?: readonly string[]; humanProfile?: HumanProfileSeed; humanProfileFailure?: string; environment?: EnvironmentSeed; environmentFailure?: string }) {
+export async function runtimeWithTeam(options?: { mode?: 'team'; mainPanelId?: string; workspaceId?: string; initialChannels?: boolean; remainingUnreadCounts?: readonly number[]; seededMessages?: readonly SeededMessage[]; seedTaskRef?: string; seedThreadRef?: string; seedTaskStatus?: AgentTeamTask['status']; seedFollowers?: readonly string[]; humanProfile?: HumanProfileSeed; humanProfileFailure?: string; environment?: EnvironmentSeed; environmentFailure?: string }) {
   if (options?.mode !== undefined) {
     localStorage.setItem('dsh.agent-team.navigation', JSON.stringify({ mode: options.mode, ...(options.workspaceId === undefined ? {} : { workspaceId: options.workspaceId }) }))
   }
   const runtime = await SlotTestRuntime.create()
+  // A selected global panel is part of the state a reload restores: the shipped
+  // plugin page was open, the persisted Team mode comes back with it.
+  if (options?.mainPanelId !== undefined) runtime.panelInfo.set({ activePanelId: options.mainPanelId as never })
   const locale = new LocaleRuntime(runtime.ctx)
   // rc.1: shipped sidebar chrome (brand row) reads the common namespace.
   locale.register(COMMON_NS, { zh: commonZh, en: commonEn })
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)
-  runtime.ctx.provide('layout', { toggleSidebar: vi.fn() })
+  // The layout face: the shipped frame's panel store is the runtime's own
+  // panelInfo source (the same one `usePanelInfo` reads), so a spec selects a
+  // global panel exactly the way the shipped sidebar and plugin manager do.
+  const selectPanel = vi.fn((panelId: string | null): void => { runtime.panelInfo.set({ activePanelId: panelId as never }) })
+  runtime.ctx.provide('layout', {
+    toggleSidebar: vi.fn(),
+    selectPanel,
+    panelInfo: runtime.panelInfo,
+  } as never)
   // rc.2: the shipped layout and sidebar inject 'shortcuts'. The takeover bench
   // mounts both, so it provides an empty command catalog for the sidebar's
   // keycap reads and a registrer that only reports success — no keyboard
@@ -555,5 +570,5 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; workspaceId?: s
   const disposeSettings = runtime.slots.register({ name: 'sidebar.settings', priority: 0 }, BaselineSettings as never)
   const team = await runtime.mount({ inject: [...inject], apply })
   const view = runtime.renderRoot()
-  return { runtime, team, view, disposeWorkspace, disposeSettings, members, humanProfile, setHumanProfile, getHumanAvatar, putHumanAvatar, removeHumanAvatar, seedHumanProfile, failHumanProfile, failHumanProfileWrite, environment, seedEnvironment, failEnvironment, joinWorkspace, leaveWorkspace, addMember, status, viewChannels, createChannel, updateChannel, archiveChannel, putAttachment, getAttachment, updateMember, recoverMember, clearMemberContext, archiveMember, modelCatalog, joinChannel, removeChannelMember, sendMessage, reply, changeTask, promoteThread, resolveTaskRefs, publishAgentReply, publishPresence, seedChannel, publishChannelUpdate, failChanges, recoverChanges, readThread, loadThreadHistory, threadObservations, changes, inbox, seedInbox, openSession }
+  return { runtime, team, view, panelInfo: runtime.panelInfo, selectPanel, disposeWorkspace, disposeSettings, members, humanProfile, setHumanProfile, getHumanAvatar, putHumanAvatar, removeHumanAvatar, seedHumanProfile, failHumanProfile, failHumanProfileWrite, environment, seedEnvironment, failEnvironment, joinWorkspace, leaveWorkspace, addMember, status, viewChannels, createChannel, updateChannel, archiveChannel, putAttachment, getAttachment, updateMember, recoverMember, clearMemberContext, archiveMember, modelCatalog, joinChannel, removeChannelMember, sendMessage, reply, changeTask, promoteThread, resolveTaskRefs, publishAgentReply, publishPresence, seedChannel, publishChannelUpdate, failChanges, recoverChanges, readThread, loadThreadHistory, threadObservations, changes, inbox, seedInbox, openSession }
 }

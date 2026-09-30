@@ -1539,14 +1539,27 @@ it('drives the complete opt-in Agent Team journey in real Web', async () => {
   const globalPanelsNav = page.locator('nav[class*="panelList"]')
   await expect.poll(() => globalPanelsNav.count()).toBe(1)
   await expect.poll(() => globalPanelsNav.isVisible()).toBe(true)
+  // Selecting that panel keys the shell's single main cell to it. Team mode owns
+  // that cell, so a Team destination opening behind the foreign page would move
+  // the sidebar alone — the reported failure. Enter Team mode from here, and the
+  // assertions below prove the column came back rather than merely covering it.
+  const pluginsEntry = globalPanelsNav.getByRole('button', { name: '插件' })
+  await pluginsEntry.click()
+  await expect.poll(() => pluginsEntry.getAttribute('aria-current')).toBe('page')
+  const pluginPanel = page.locator('[data-plugin-panel]')
+  await pluginPanel.waitFor()
 
-  const enterTeamKeyboard = page.getByRole('button', { name: '团队' })
+  // The plugin page lists this very bundle under a matching name ("智能体团队"),
+  // so the Team entry is addressed exactly while that page is on screen.
+  const enterTeamKeyboard = page.getByRole('button', { name: '团队', exact: true })
   await enterTeamKeyboard.focus()
   await expect.poll(() => enterTeamKeyboard.evaluate(element => element === document.activeElement)).toBe(true)
-  await expect.poll(() => page.getByRole('button', { name: '团队' }).getAttribute('data-team-action')).toBe('enter')
+  await expect.poll(() => page.getByRole('button', { name: '团队', exact: true }).getAttribute('data-team-action')).toBe('enter')
   await enterTeamKeyboard.press('Enter')
   await expect.poll(() => page.getByRole('button', { name: '成员', exact: true }).count()).toBe(1)
   await page.getByRole('heading', { name: '# delivery' }).waitFor()
+  // The selected global panel is unmounted, not sitting behind the Team seat.
+  await expect.poll(() => pluginPanel.count()).toBe(0)
   await expect.poll(() => globalPanelsNav.count()).toBe(1)
   await expect.poll(() => globalPanelsNav.isVisible()).toBe(false)
 

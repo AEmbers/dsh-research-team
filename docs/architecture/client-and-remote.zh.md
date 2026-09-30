@@ -40,6 +40,8 @@ Client plugin apply
 
 `dsh.client.inject` 描述 client module graph；它不保证 apply order、service readiness 或 slot declaration order。如果 declaration 可能稍后出现，使用 `ctx.slots.inject()`，让 registration 跟随 declaration lifetime，并随 owning fiber disposal。
 
+Team mode 同时拥有 shell 的 main panel selection：进入 team mode、或在其中导航时，只要 shipped global panel（插件管理页）还占着中栏，就把中栏交回 conversation panel —— 也就是 Team shadow 的那个 seat。离开 team mode 后，Team 不再碰这个 selection。
+
 Slot parent 的 `children` declaration 同时是 render site 和 render authority。两个存活的 parent entries 不能声明同一个 child slot。特别是 Team 的 `sidebar.workspaces` shadow 不得重新声明 shipped `sidebar.workspaces.directoryFlow`；即使 Team entry priority 更高，Harness SlotCore 也会拒绝这个 duplicate。不要复制 private WorkspaceBrowser、ConversationRoot、Shell 或 private CSS 来规避它。
 
 Team feature 需要现有 Harness capability 时，使用 public service 或 package export。对于 directory selection，先检查 `ctx.workspaces.pickDirectory()` 和 `host.pickDirectory` path，再考虑 Team-specific picker。如果 public contract 无法表达目标 composition，记录这个 limitation，选择 Team-owned plugin 或新设计，不要静默依赖 private implementation details。

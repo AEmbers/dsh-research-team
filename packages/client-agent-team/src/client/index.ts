@@ -60,7 +60,7 @@ export { TeamNavigation } from './navigation.ts'
 const NS = 'team'
 
 export const inject = [
-  'slots', 'workspaces', 'locale', 'remote', 'remote.session', 'sessions', 'connection', 'conversation', 'uiWorkspace',
+  'slots', 'workspaces', 'layout', 'locale', 'remote', 'remote.session', 'sessions', 'connection', 'conversation', 'uiWorkspace',
 ]
 
 /**
@@ -272,6 +272,24 @@ function applyUi(ctx: ClientContext): void {
       restore()
     }
   }, 'agent-team: member session restore')
+
+  // The shell renders one keyed main panel at a time — `activePanelId ?? 'conversation'`
+  // — so a shipped global panel (the plugin manager) stays on screen after Team mode is
+  // entered, and every Team destination then opens behind it: the sidebar moves while the
+  // column keeps rendering the foreign page. Team mode owns the conversation seat, so
+  // entering it, or navigating inside it, hands the column back to that seat. A null
+  // selection — and every mode but Team, where panel choice belongs to the shipped
+  // sidebar — is left untouched, so this never fights the shell's own selection.
+  ctx.effect(() => {
+    const releaseMainPanel = (): void => {
+      if (navigation.getSnapshot().mode !== 'team') return
+      if (ctx.layout.panelInfo.getSnapshot().activePanelId === null) return
+      ctx.layout.selectPanel(null)
+    }
+    const unsubscribe = navigation.subscribe(releaseMainPanel)
+    releaseMainPanel()
+    return unsubscribe
+  }, 'agent-team: main panel ownership')
 
   const changes = new TeamChangeStream(ctx.remote)
   ctx.effect(() => () => changes.dispose(), 'agent-team: change subscriptions')

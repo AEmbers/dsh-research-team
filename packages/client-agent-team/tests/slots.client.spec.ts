@@ -35,6 +35,20 @@ async function bench(persisted: string | null = null) {
   } as never)
   const uiWorkspace = { openSession: vi.fn(), startSession: vi.fn(), connectWorkspace: vi.fn(async () => 'workspace:one') }
   ctx.provide('uiWorkspace', uiWorkspace as never)
+  // The layout face behind ctx.layout: the plugin injects it to own the shell's
+  // main panel, so the bench supplies panel selection plus the store the shipped
+  // frame's usePanelInfo hook reads.
+  let activePanelId: string | null = null
+  const panelListeners = new Set<() => void>()
+  const panelInfo = {
+    getSnapshot: () => ({ activePanelId }),
+    subscribe: (listener: () => void) => { panelListeners.add(listener); return () => { panelListeners.delete(listener) } },
+  }
+  const selectPanel = vi.fn((panelId: string | null): void => {
+    activePanelId = panelId
+    for (const listener of panelListeners) listener()
+  })
+  ctx.provide('layout', { toggleSidebar: vi.fn(), selectPanel, panelInfo } as never)
   ctx.provide('connection', { api: { llm: { models: vi.fn(async () => ({ result: { ok: true, value: { groups: [], failures: [] } } })) } } } as never)
   ctx.provide('workspaces', {
     list: workspaceFeed(),
