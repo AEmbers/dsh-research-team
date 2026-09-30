@@ -130,11 +130,12 @@
             - id: tool-skill
               name: '@deepseek-ai/dsh-tool-skill'
 
-            - id: tool-todo
-              name: '@deepseek-ai/dsh-tool-todo'
-              config:
-                allowParallelInProgress: true
-
+            # No `tool-todo` row: Team Members plan through the ledger (Tasks,
+            # Claims, Thread updates) rather than a session-local todo list, so
+            # the tool is deliberately absent from this surface. The web bundle
+            # disables every model-facing tool row on the host plane, so this
+            # preset's plugin list is the whole surface — the absence is real,
+            # not shadowed by a host-plane default.
             - id: member-context
               name: '@wowyuarm/dsh-agent-team/member-context'
 
