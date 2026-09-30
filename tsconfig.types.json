@@ -137,6 +137,9 @@
       "@deepseek-ai/dsh/profile-boot": [
         "../deepseek-harness/apps/cli/lib/types/profile-boot.d.ts"
       ],
+      "@deepseek-ai/dsh/lib/bin.js": [
+        "../deepseek-harness/apps/cli/lib/types/bin.d.ts"
+      ],
       "@deepseek-ai/dsh-browser-use": [
         "../deepseek-harness/packages/browser-use/browser-use/lib/types/index.d.ts"
       ],
