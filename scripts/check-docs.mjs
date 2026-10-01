@@ -18,6 +18,15 @@
 // the first; a paragraph that keeps absorbing facts is the one behind the
 // second.
 //
+// A third judgment compares the two halves of a pair to each other: they carry
+// the same outline — the same headings at the same levels, in the same order —
+// because a translation rewords a heading but never adds, drops, or re-levels
+// one. Lists and tables are deliberately out of scope: the two languages
+// legitimately render one rule set as bullets in one half and as a table or
+// prose in the other, so gating presentation would fail correct documents and
+// train everyone to work around the gate. What it catches is the drifted
+// outline a translation quietly leaves behind.
+//
 // It deliberately runs standalone — no Harness checkout, no Vitest config — so a
 // documentation edit can be checked in a second: `npm run check:docs`, which is
 // also part of `npm test`. `--root <dir>` points the same checks at another tree
@@ -219,6 +228,26 @@ function documentAnchors(text) {
   return anchors
 }
 
+// The outline a document declares: each heading's level and rendered text, in
+// source order. Fenced code is skipped for the same reason as above — a
+// `# comment` inside a shell sample is not a heading — so a shell block that
+// gains a comment cannot tip a pair out of alignment.
+function documentHeadings(text) {
+  const headings = []
+  let fence = null
+  for (const line of text.replaceAll('\r\n', '\n').split('\n')) {
+    const marker = /^\s*(`{3,}|~{3,})/.exec(line)
+    if (marker) {
+      fence = fence === null ? marker[1][0] : null
+      continue
+    }
+    if (fence !== null) continue
+    const heading = /^ {0,3}(#{1,6})\s+(.*?)\s*#*\s*$/.exec(line)
+    if (heading) headings.push({ level: heading[1].length, text: renderedHeading(heading[2]) })
+  }
+  return headings
+}
+
 // The rendered blocks of a document, in source order. Soft-wrapped lines join
 // the paragraph they belong to; one list item, one table cell, one heading, and
 // one line of a fenced code sample are each a block of their own. Blank lines
@@ -328,6 +357,7 @@ if (!existsSync(docsDirectory) || !statSync(docsDirectory).isDirectory()) {
 // 1. Bilingual pairing and switcher integrity, in every page set.
 const linkFiles = new Set()
 let pagePairs = 0
+let pairOutlines = 0
 for (const set of PAGE_SETS) {
   const directory = join(root, set.directory)
   if (!existsSync(directory) || !statSync(directory).isDirectory()) {
@@ -371,6 +401,21 @@ for (const set of PAGE_SETS) {
     const sibling = { source: basename(name), pair: basename(pairName) }
     checkSwitcher(source, set.switcher.english, sibling)
     checkSwitcher(pair, set.switcher.chinese, sibling)
+    // Both halves carry the same outline. Only the levels are compared, never
+    // the heading text: a translation rewords a heading by design.
+    const englishHeadings = documentHeadings(readFileSync(source, 'utf8'))
+    const chineseHeadings = documentHeadings(readFileSync(pair, 'utf8'))
+    pairOutlines += 1
+    if (englishHeadings.length !== chineseHeadings.length) {
+      fail(pair, `outline has ${chineseHeadings.length} headings, but ${basename(source)} has ${englishHeadings.length}`)
+    } else {
+      for (const [index, heading] of englishHeadings.entries()) {
+        const translated = chineseHeadings[index]
+        if (heading.level !== translated.level) {
+          fail(pair, `heading "${translated.text}" is level ${translated.level}, but "${heading.text}" is level ${heading.level} in ${basename(source)}`)
+        }
+      }
+    }
   }
 }
 
@@ -498,6 +543,7 @@ if (failures.length > 0) {
 
 console.log(
   `Documentation check OK: ${actual.size} maintained documents, ${actual.size} bilingual pairs, `
-  + `${pagePairs} page pairs, ${linkCount} relative links resolved, ${anchorCount} heading anchors resolved, `
+  + `${pagePairs} page pairs, ${pairOutlines} pair outlines matched, ${linkCount} relative links resolved, `
+  + `${anchorCount} heading anchors resolved, `
   + `${budgetRows.length} files inside their longest-block ceiling, both indexes agree.`,
 )
