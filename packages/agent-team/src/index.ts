@@ -26,7 +26,7 @@ import type {} from '@deepseek-ai/dsh-tools'
 import type { SettingsPathOp } from '@deepseek-ai/dsh-settings'
 import type { Domain } from '@deepseek-ai/dsh-storage-domain'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace'
-import { ATTACHMENT_MAX_BYTES, attachmentPayloadPath, attachmentsRoot, copyPathAttachment, newAttachmentId, readAttachment, sanitizeMediaType, sweepAttachmentCache, validatePathAttachment, writeAttachment } from './attachments.ts'
+import { ATTACHMENT_MAX_BYTES, attachmentPayloadPath, attachmentsRoot, copyPathAttachment, pathAttachmentId, readAttachment, removeAttachment, sanitizeMediaType, sweepAttachmentCache, validatePathAttachment, writeRequestScopedAttachment } from './attachments.ts'
 import { reportEnvironment } from './environment-check.ts'
 import { HUMAN_PROFILE_DEFAULT_NAME, HUMAN_PROFILE_REPO_URL, HUMAN_PROFILE_SETTINGS_NAMESPACE, HUMAN_PROFILE_SETTINGS_SCHEMA, HUMAN_PROFILE_VERSION, assertValidHumanName, normalizeHumanName, parseLegacyHumanProfile, planLegacyAdoption, type LegacyHumanProfileFields } from './human-profile.ts'
 import { humanAvatarsRoot, readHumanAvatar, removeHumanAvatar, writeHumanAvatar } from './human-avatar.ts'
@@ -1499,13 +1499,17 @@ export default class AgentTeam extends TypertRemoteService {
   /**
    * Resolve uploaded ids and agent-supplied absolute paths into one attachment
    * metadata list. Paths are all validated before anything is copied, so one
-   * rejection leaves the cache untouched and the message uncommitted.
+   * rejection leaves the cache untouched and the message uncommitted. Each copy
+   * takes the id its request derives, so a retry converges on the entry the
+   * first attempt prepared instead of writing an orphan.
    */
-  private async resolveMessageAttachments(request: { readonly attachments?: readonly AgentTeamAttachmentId[] | undefined; readonly attachmentPaths?: readonly string[] | undefined }): Promise<readonly AgentTeamMessageAttachment[]> {
+  private async resolveMessageAttachments(request: { readonly requestId: AgentTeamRequestId; readonly attachments?: readonly AgentTeamAttachmentId[] | undefined; readonly attachmentPaths?: readonly string[] | undefined }): Promise<readonly AgentTeamMessageAttachment[]> {
     const fromPaths: AgentTeamMessageAttachment[] = []
     if (request.attachmentPaths !== undefined && request.attachmentPaths.length > 0) {
       for (const absolutePath of request.attachmentPaths) await validatePathAttachment(absolutePath)
-      for (const absolutePath of request.attachmentPaths) fromPaths.push(Object.freeze(await copyPathAttachment(attachmentsRoot(), absolutePath)))
+      for (const [index, absolutePath] of request.attachmentPaths.entries()) {
+        fromPaths.push(Object.freeze(await copyPathAttachment(attachmentsRoot(), absolutePath, pathAttachmentId(request.requestId, index), request.requestId)))
+      }
     }
     return [...fromPaths, ...await this.prepareAttachments(request.attachments)]
   }
@@ -1533,7 +1537,12 @@ export default class AgentTeam extends TypertRemoteService {
     return `${trimmed}\n${lines.join('\n')}`
   }
 
-  /** Upload one composer attachment into the cache; bytes are immutable once written. */
+  /**
+   * Upload one composer attachment into the cache; bytes are immutable once
+   * written. The requestId is the idempotency key: a retried upload derives
+   * the same cache id and replays the original result, while reusing that key
+   * for a different payload is refused as a request collision.
+   */
   @Remote('putAttachment')
   async putAttachment(request: AgentTeamPutAttachmentRequest): Promise<AgentTeamPutAttachmentResult> {
     this.requireAccepting()
@@ -1542,8 +1551,7 @@ export default class AgentTeam extends TypertRemoteService {
     if (bytes.byteLength === 0) throw new Error('attachment must not be empty')
     if (bytes.byteLength > ATTACHMENT_MAX_BYTES) throw new Error(`attachment exceeds the ${ATTACHMENT_MAX_BYTES} byte limit`)
     const mediaType = sanitizeMediaType(request.mediaType)
-    const attachmentId = newAttachmentId()
-    return Object.freeze(await writeAttachment(attachmentsRoot(), attachmentId, request.name, mediaType, bytes))
+    return Object.freeze(await writeRequestScopedAttachment(attachmentsRoot(), request.requestId, request.name, mediaType, bytes))
   }
 
   /** Read one cached attachment back for client display; gone entries throw and the UI degrades to a chip. */
@@ -2537,26 +2545,65 @@ export default class AgentTeam extends TypertRemoteService {
 
   /** Shared Task-creation commit: resolve uploads into metadata lines and append through the ledger. */
   private async sendMessageAs(actor: AgentTeamHumanActor | AgentTeamMemberActor, request: AgentTeamSendMessageRequest): Promise<AgentTeamSendMessageResult> {
-    const metadata = await this.resolveMessageAttachments(request)
-    const result = await this.requireLedger().sendMessage({
-      ...request, body: this.appendAttachmentLines(request.body, metadata),
-      ...(metadata.length === 0 ? {} : { resolvedAttachments: metadata }),
-      actor,
-    })
-    this.emitCommittedOutcome(result)
-    return result.value
+    try {
+      const metadata = await this.resolveMessageAttachments(request)
+      const result = await this.requireLedger().sendMessage({
+        ...request, body: this.appendAttachmentLines(request.body, metadata),
+        ...(metadata.length === 0 ? {} : { resolvedAttachments: metadata }),
+        actor,
+      })
+      this.emitCommittedOutcome(result)
+      return result.value
+    } catch (error) {
+      await this.dropUnreferencedPrepared(request, error)
+      throw error
+    }
   }
 
   /** Shared existing-Thread reply commit: same upload resolution and outcome emission. */
   private async replyAs(actor: AgentTeamHumanActor | AgentTeamMemberActor, request: AgentTeamReplyRequest): Promise<AgentTeamReplyResult> {
-    const metadata = await this.resolveMessageAttachments(request)
-    const result = await this.requireLedger().reply({
-      ...request, body: this.appendAttachmentLines(request.body, metadata),
-      ...(metadata.length === 0 ? {} : { resolvedAttachments: metadata }),
-      actor,
-    })
-    this.emitCommittedOutcome(result)
-    return result.value
+    try {
+      const metadata = await this.resolveMessageAttachments(request)
+      const result = await this.requireLedger().reply({
+        ...request, body: this.appendAttachmentLines(request.body, metadata),
+        ...(metadata.length === 0 ? {} : { resolvedAttachments: metadata }),
+        actor,
+      })
+      this.emitCommittedOutcome(result)
+      return result.value
+    } catch (error) {
+      await this.dropUnreferencedPrepared(request, error)
+      throw error
+    }
+  }
+
+  /**
+   * After a failed message or reply attempt, remove the cache entries this
+   * attempt could have prepared — the request-stable path copies — unless a
+   * committed Message references them. The ledger's own reference set is the
+   * guard, so a post-commit failure or a colliding retry can never delete bytes
+   * a stored Message still points at; uploads are untouched, because an
+   * unreferenced upload is a legitimate state the GC owns. Cleanup failures are
+   * logged and never mask the original error.
+   */
+  private async dropUnreferencedPrepared(request: { readonly requestId: AgentTeamRequestId; readonly attachmentPaths?: readonly string[] | undefined }, cause: unknown): Promise<void> {
+    const prepared = (request.attachmentPaths ?? []).map((_, index) => pathAttachmentId(request.requestId, index))
+    if (prepared.length === 0) return
+    let referenced: ReadonlySet<AgentTeamAttachmentId>
+    try {
+      referenced = this.requireLedger().referencedAttachmentIds()
+    } catch (failure) {
+      this.ctx.logger.warn(`agent-team: could not consult the attachment reference set after a failed message attempt (${String(cause)}): ${String(failure)}`)
+      return
+    }
+    for (const attachmentId of prepared) {
+      if (referenced.has(attachmentId)) continue
+      try {
+        await removeAttachment(attachmentsRoot(), attachmentId)
+      } catch (failure) {
+        this.ctx.logger.warn(`agent-team: could not drop unreferenced prepared attachment '${attachmentId}' after a failed message attempt: ${String(failure)}`)
+      }
+    }
   }
 
   /** Fence one Human Remote call: accepting Host, known Workspace, Human actor. */

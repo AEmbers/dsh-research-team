@@ -71,9 +71,15 @@ When changing a Host capability, read package source/tests first and then the ma
 
 Attachments live in the bounded cache `$DSH_HOME/agent-team/attachments/v1/<attachmentId>/`, with a sanitized original name and `meta.json`; they are never ledger bytes or an archive. `putAttachment` enforces a 10 MB file cap and sanitizes names; `getAttachment` serves Client display. Messages record metadata while the stored body contains machine-facing `[attachment] <absolute path>` lines. The Client strips those lines and renders thumbnails/chips.
 
+The request's `requestId` is an upload's idempotency key. Retrying the same payload replays the original result instead of writing a second entry, reusing that key for a different payload is refused as a request collision, and the cache id derives from the request id alone — so a retry converges on the same entry after a Host restart without a second durable store or an in-memory map.
+
 The Channel and Thread composers accept files both through the "+" picker and by pasting into the draft; a paste that carries files is intercepted and joins the same pending-file chips, while plain-text pastes keep their native insertion.
 
-Garbage collection runs at startup and every 24 hours: referenced uploads older than 72 hours and orphaned uploads older than 24 hours are removed, while metadata remains. Agent-sent absolute paths are validated as absolute non-empty regular files under 10 MB, copied into a fresh immutable cache entry, and rejected atomically if any path fails. A manually pasted absolute path is simply read by the Agent; Host touches nothing it does not own.
+Garbage collection runs at startup and every 24 hours: referenced uploads older than 72 hours and orphaned uploads older than 24 hours are removed, while metadata remains. Agent-sent absolute paths are validated as absolute non-empty regular files under 10 MB and rejected atomically if any path fails; each surviving path is copied into an immutable cache entry whose id derives from the message or reply request and the path's position in it. A manually pasted absolute path is simply read by the Agent; Host touches nothing it does not own.
+
+That request-derived identity is what makes retries cheap: a repeated send or reply converges on the entry the first attempt prepared instead of writing an orphan, so the stored body — one `[attachment]` line per file — stays identical across retries. A message or reply that fails after preparation removes the entries this attempt prepared which no committed Message references, with the ledger's reference set as the guard; genuinely unreferenced uploads stay GC's to reclaim.
+
+On a reused request id the ledger compares the recorded resolved attachment ids with the retry's resolved ids, so a retry carrying a different attachment set is refused as a collision.
 
 ## Human profile and version footnote
 

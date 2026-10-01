@@ -57,10 +57,12 @@ Team 是每个 DSH home 内唯一的协作域。append-only operation ledger 是
 Composer attachments 是 `$DSH_HOME/agent-team/attachments/v1/<attachmentId>/` 下的有界 cache（包含经过清理的原始名称和 `meta.json` sidecar），不是 archive，也不是 ledger bytes。
 
 - `putAttachment` 写入 immutable payload（每个文件上限 10 MB，并从名称中剥离 path separators 和 control characters）；`getAttachment` 为 Client display 读取它们。两者和其他 Host capabilities 一样都是 typed Remote actions。
+- `requestId` 是一次 upload 的幂等键：同一 payload 的重试 replay 原结果而不是写第二份条目，复用该 key 携带不同 payload 的调用被拒为 request collision；cache id 单独由 request id 派生，因此 Host 重启后重试仍收敛到同一条目，不需要第二个 durable store 或进程内 map。
 - Channel 与 Thread composer 的附件入口有两个：「+」按钮选择文件，或直接向输入框粘贴——携带文件的粘贴会被拦截并进入同一 pending-file chips 流，纯文本粘贴保持浏览器原生插入。
 - Message 在 ledger 中记录 attachment metadata（`attachmentId`、`name`、`byteSize`、`mediaType`）；存储 body 为每个 attachment 携带一行面向机器的 `[attachment] <absolute path>`，让 Member agents 通过普通 file tools 按 path 读取 bytes。Client 会从 display 中移除这些行，改为根据 metadata 渲染 thumbnails/chips。
 - Ledger 是唯一 durable attachment authority。Bytes 是 transient 的：Host startup 以及每 24h 执行一次 GC sweep；被 Message 引用且超过 72h 的 uploads（Member consumption window），或从未发送的 orphaned uploads 超过 24h 的，都会被移除。Metadata 保留，Client 随后优雅降级为 name chip。
-- Members 通过 `team_message` 的可选 `attachments`（absolute paths）共享文件：Host 先验证每个 path（absolute、regular file、non-empty、10 MB），再以 extension-derived media type 复制到 cache 的新 immutable entry，因此 agent-sent images 与 composer uploads 的渲染一致。任一 rejection 都会拒绝整个 send，不提交也不复制。
+- Members 通过 `team_message` 的可选 `attachments`（absolute paths）共享文件：Host 先验证每个 path（absolute、regular file、non-empty、10 MB），再以 extension-derived media type 复制到 cache 的 immutable entry；entry id 由该 message/reply request 及 path 在列表中的位置派生，因此 agent-sent images 与 composer uploads 的渲染一致。任一 rejection 都会拒绝整个 send，不提交也不复制。
+- request 派生的 identity 让重试收敛：同一 request 的 send/reply 重试复用首次尝试准备的条目而不产生 orphan，body 中每文件一行的 `[attachment]` 跨重试保持一致。准备之后才失败的 message/reply 会删除本次尝试准备、且没有 committed Message 引用的条目（ledger 的引用集是 guard）；真正未被引用的 uploads 仍由 GC 回收。复用 request id 时，ledger 比较记录的 resolved attachment ids 与本次重试的 resolved ids，携带不同 attachment 集合的重试被判为 collision。
 - 不需要为手动 path references 增加机制：粘贴到 Message body 的 absolute path 会被 Member agent 像其他文件一样读取，Host 不会触碰不属于自己的内容。
 
 ## Human profile 与版本脚注

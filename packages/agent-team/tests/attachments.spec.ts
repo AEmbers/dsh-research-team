@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, sep } from 'node:path'
 
@@ -13,7 +13,7 @@ import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
 import type { KvTable } from '@deepseek-ai/dsh-storage-domain'
 import { WorkspaceId } from '@deepseek-ai/dsh-workspace'
 import { MemoryMediaPool, MemoryStorageBackend } from './helpers/memory-backend.ts'
-import { ATTACHMENT_MAX_BYTES, attachmentsRoot, mediaTypeForPath, newAttachmentId, readAttachment, sanitizeFileName, sanitizeMediaType, sweepAttachmentCache, validatePathAttachment, writeAttachment } from '../src/attachments.ts'
+import { ATTACHMENT_MAX_BYTES, attachmentsRoot, mediaTypeForPath, newAttachmentId, pathAttachmentId, readAttachment, requestScopedAttachmentId, sanitizeFileName, sanitizeMediaType, sweepAttachmentCache, validatePathAttachment, writeAttachment } from '../src/attachments.ts'
 import AgentTeam from '../src/index.ts'
 import { AgentTeamLedger } from '../src/ledger.ts'
 import * as agentTeamInvariant from '../src/invariant.ts'
@@ -30,7 +30,7 @@ afterEach(async () => {
   else process.env.DSH_HOME = originalDshHome
 })
 
-async function harness(): Promise<{ readonly ctx: Context; readonly facility: DomainFacility }> {
+async function harness(): Promise<{ readonly ctx: Context; readonly facility: DomainFacility; readonly restart: () => Promise<void> }> {
   const ctx = new Context()
   await ctx.plugin(Storage)
   ctx.storage.backend.register('memory', new MemoryStorageBackend(new MemoryMediaPool()))
@@ -50,9 +50,21 @@ async function harness(): Promise<{ readonly ctx: Context; readonly facility: Do
   await ctx.plugin(InvariantRegistry)
   await ctx.plugin(agentTeamInvariant)
   await ctx.plugin(SessionProjectionRegistry)
-  const fiber = await ctx.plugin(AgentTeam)
+  let fiber = await ctx.plugin(AgentTeam)
+  // Restart the Host in place: the ledger and the attachment cache are durable,
+  // so a fresh plugin instance must converge on the entries the old one wrote.
+  // The cleanup below always disposes whichever instance is live at the end.
+  const restart = async (): Promise<void> => {
+    await fiber.dispose()
+    fiber = await ctx.plugin(AgentTeam)
+  }
   cleanups.push(async () => { await fiber.dispose(); await facility.closeAll() })
-  return { ctx, facility }
+  return { ctx, facility, restart }
+}
+
+/** Every attachment cache entry this spec's shared DSH home currently holds, order-independent. */
+async function cacheEntries(): Promise<readonly string[]> {
+  return (await readdir(attachmentsRoot()).catch(() => [] as string[])).sort()
 }
 
 function replayLedger(facility: DomainFacility): AgentTeamLedger {
@@ -183,7 +195,7 @@ describe('Agent Team attachment remotes', () => {
     const { ctx } = await harness()
     const channel = await ctx.agentTeam.createChannel({ requestId: requestId('channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' })
     const uploaded = await ctx.agentTeam.putAttachment({
-      requestId: requestId('put'), workspaceId: alpha,
+      requestId: requestId('put-upload'), workspaceId: alpha,
       name: 'design.png', mediaType: 'image/png', bytesBase64: Buffer.from('png-bytes').toString('base64'),
     })
     expect(uploaded.mediaType).toBe('image/png')
@@ -208,7 +220,7 @@ describe('Agent Team attachment remotes', () => {
     const { ctx, facility } = await harness()
     const channel = await ctx.agentTeam.createChannel({ requestId: requestId('channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' })
     const uploaded = await ctx.agentTeam.putAttachment({
-      requestId: requestId('put'), workspaceId: alpha,
+      requestId: requestId('put-message'), workspaceId: alpha,
       name: 'design.png', mediaType: 'image/png', bytesBase64: Buffer.from('png').toString('base64'),
     })
     const sent = await ctx.agentTeam.sendMessage({ asTask: true,
@@ -223,11 +235,13 @@ describe('Agent Team attachment remotes', () => {
     expect(sent.message.body).toMatch(new RegExp(`\\[attachment\\] .*attachments${escapeRegExp(sep)}v1${escapeRegExp(sep)}`))
 
     // Idempotent resend with the same request resolves to the same message.
+    const beforeResend = await cacheEntries()
     const resent = await ctx.agentTeam.sendMessage({ asTask: true,
       requestId: requestId('send'), workspaceId: alpha, channelRef: channel.channel.channelRef,
       body: '请看这张图', attachments: [uploaded.attachmentId],
     })
     expect(resent.kind).toBe('committed')
+    expect(await cacheEntries()).toEqual(beforeResend)
 
     // An unknown attachment id is rejected before the ledger append.
     await expect(ctx.agentTeam.sendMessage({ asTask: true,
@@ -244,22 +258,79 @@ describe('Agent Team attachment remotes', () => {
     expect(history.facts.some(fact => fact.kind === 'message' && fact.message.attachments?.[0]?.name === 'design.png')).toBe(true)
   })
 
-  it('copies a new path attachment before rejecting a reused request', async () => {
+  it('replays a retried path send on the entry the first attempt prepared', async () => {
     const { ctx } = await harness()
     const sourceRoot = await mkdtemp(join(tmpdir(), 'dsh-attachment-source-'))
     cleanups.push(async () => { await rm(sourceRoot, { recursive: true, force: true }) })
     const source = join(sourceRoot, 'report.txt')
     await writeFile(source, 'path payload')
     const channel = await ctx.agentTeam.createChannel({ requestId: requestId('path-retry-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' })
+    const request = { asTask: false, requestId: requestId('path-retry'), workspaceId: alpha,
+      channelRef: channel.channel.channelRef, body: 'same request', attachmentPaths: [source] } as const
 
-    const first = await ctx.agentTeam.sendMessage({ asTask: false, requestId: requestId('path-retry'), workspaceId: alpha,
-      channelRef: channel.channel.channelRef, body: 'same request', attachmentPaths: [source] })
+    const first = await ctx.agentTeam.sendMessage(request)
     expect(first.kind).toBe('committed')
-    const beforeRetry = await readdir(attachmentsRoot())
-    await expect(ctx.agentTeam.sendMessage({ asTask: false, requestId: requestId('path-retry'), workspaceId: alpha,
-      channelRef: channel.channel.channelRef, body: 'same request', attachmentPaths: [source] })).rejects.toThrow(/reused with a different operation or payload/)
-    const afterRetry = await readdir(attachmentsRoot())
-    expect(afterRetry.length).toBeGreaterThan(beforeRetry.length)
+    const beforeRetry = await cacheEntries()
+    // Same request and same payload: the retry resolves to the original
+    // message instead of rejecting, and prepares no new cache entry.
+    const resent = await ctx.agentTeam.sendMessage(request)
+    expect(resent.kind).toBe('committed')
+    if (first.kind === 'committed' && resent.kind === 'committed') {
+      expect(resent.message.messageRef).toBe(first.message.messageRef)
+      expect(resent.message.body).toBe(first.message.body)
+      expect(resent.message.attachments?.[0]?.attachmentId).toBe(first.message.attachments?.[0]?.attachmentId)
+    }
+    expect(await cacheEntries()).toEqual(beforeRetry)
+    expect(beforeRetry).toContain(pathAttachmentId('path-retry', 0))
+  })
+
+  it('replays a retried upload on its request id and refuses a different payload', async () => {
+    const { ctx } = await harness()
+    const request = { requestId: requestId('put-retry'), workspaceId: alpha, name: 'design.png',
+      mediaType: 'image/png', bytesBase64: Buffer.from('png-bytes').toString('base64') }
+    const first = await ctx.agentTeam.putAttachment(request)
+    const before = await cacheEntries()
+    const replayed = await ctx.agentTeam.putAttachment(request)
+    expect(replayed).toEqual(first)
+    expect(await cacheEntries()).toEqual(before)
+    await expect(ctx.agentTeam.getAttachment({ attachmentId: first.attachmentId }))
+      .resolves.toMatchObject({ name: 'design.png', mediaType: 'image/png' })
+    // Reusing the idempotency key for another payload must not become a second upload.
+    await expect(ctx.agentTeam.putAttachment({ ...request, bytesBase64: Buffer.from('other-bytes').toString('base64') }))
+      .rejects.toThrow(/reused with a different operation or payload/)
+    await expect(ctx.agentTeam.putAttachment({ ...request, name: 'renamed.png' }))
+      .rejects.toThrow(/reused with a different operation or payload/)
+    expect(await cacheEntries()).toEqual(before)
+  })
+
+  it('replays an upload retry after the Host restarts', async () => {
+    const { ctx, restart } = await harness()
+    const request = { requestId: requestId('put-restart'), workspaceId: alpha, name: 'restart.png',
+      mediaType: 'image/png', bytesBase64: Buffer.from('png-bytes').toString('base64') }
+    const first = await ctx.agentTeam.putAttachment(request)
+    const before = await cacheEntries()
+    await restart()
+    // The derived identity is durable, so the restarted Host converges on the
+    // entry the previous instance wrote instead of minting another one.
+    const replayed = await ctx.agentTeam.putAttachment(request)
+    expect(replayed.attachmentId).toBe(first.attachmentId)
+    expect(replayed.path).toBe(first.path)
+    expect(await cacheEntries()).toEqual(before)
+    await expect(ctx.agentTeam.getAttachment({ attachmentId: first.attachmentId }))
+      .resolves.toMatchObject({ name: 'restart.png', bytesBase64: Buffer.from('png-bytes').toString('base64') })
+  })
+
+  it('converges a half-written request-scoped entry instead of colliding', async () => {
+    const { ctx } = await harness()
+    const attachmentId = requestScopedAttachmentId('put-half-written')
+    const dir = join(attachmentsRoot(), attachmentId)
+    await mkdir(dir, { recursive: true })
+    // A payload without its metadata sidecar is unreadable state the retry repairs.
+    await writeFile(join(dir, 'design.png'), Buffer.from('png-bytes'))
+    const stored = await ctx.agentTeam.putAttachment({ requestId: requestId('put-half-written'), workspaceId: alpha,
+      name: 'design.png', mediaType: 'image/png', bytesBase64: Buffer.from('png-bytes').toString('base64') })
+    expect(stored.attachmentId).toBe(attachmentId)
+    expect(await readAttachment(attachmentsRoot(), attachmentId)).toMatchObject({ name: 'design.png', mediaType: 'image/png', byteSize: 9 })
   })
 
   it('resolves Human reply attachments from the upload cache and replays them', async () => {
@@ -270,7 +341,7 @@ describe('Agent Team attachment remotes', () => {
     })
     if (started.kind !== 'committed') throw new Error('expected committed')
     const uploaded = await ctx.agentTeam.putAttachment({
-      requestId: requestId('put'), workspaceId: alpha,
+      requestId: requestId('put-reply'), workspaceId: alpha,
       name: 'reply.png', mediaType: 'image/png', bytesBase64: Buffer.from('png').toString('base64'),
     })
     const replied = await ctx.agentTeam.reply({
@@ -371,5 +442,75 @@ describe('agent-supplied attachment paths', () => {
     const coldAfterFailure = replayLedger(facility)
     expect(() => coldAfterFailure.validate()).not.toThrow()
     expect(await readdir(attachmentsRoot())).toEqual(entriesBefore)
+  })
+
+  it('replays a retried reply with the same path attachment and refuses a changed payload', async () => {
+    const { ctx } = await harness()
+    const sourceRoot = await mkdtemp(join(tmpdir(), 'dsh-attachment-source-'))
+    cleanups.push(async () => { await rm(sourceRoot, { recursive: true, force: true }) })
+    const source = join(sourceRoot, 'note.txt')
+    await writeFile(source, 'reply payload')
+    const channel = await ctx.agentTeam.createChannel({ requestId: requestId('reply-path-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' })
+    const started = await ctx.agentTeam.sendMessage({ asTask: true, requestId: requestId('reply-path-start'), workspaceId: alpha,
+      channelRef: channel.channel.channelRef, body: '开个任务' })
+    if (started.kind !== 'committed') throw new Error('expected committed')
+    const request = { requestId: requestId('reply-path-retry'), workspaceId: alpha, taskRef: started.task!.taskRef,
+      body: '带一个附件', baseRevision: started.thread.revision, attachmentPaths: [source] } as const
+
+    const first = await ctx.agentTeam.reply(request)
+    expect(first.kind).toBe('committed')
+    const before = await cacheEntries()
+    const resent = await ctx.agentTeam.reply(request)
+    expect(resent.kind).toBe('committed')
+    if (first.kind === 'committed' && resent.kind === 'committed') {
+      expect(resent.message.messageRef).toBe(first.message.messageRef)
+      expect(resent.message.attachments?.[0]?.attachmentId).toBe(first.message.attachments?.[0]?.attachmentId)
+    }
+    expect(await cacheEntries()).toEqual(before)
+
+    // Reusing the reply's request id for another payload stays a collision.
+    await writeFile(source, Buffer.from('changed payload'))
+    await expect(ctx.agentTeam.reply(request)).rejects.toThrow(/reused with a different operation or payload/)
+    expect(await cacheEntries()).toEqual(before)
+  })
+
+  it('drops a prepared path entry when the send fails and keeps referenced bytes on a collision', async () => {
+    const { ctx, facility } = await harness()
+    const sourceDir = await mkdtemp(join(tmpdir(), 'dsh-attach-cleanup-'))
+    cleanups.push(async () => { await rm(sourceDir, { recursive: true, force: true }) })
+    const screenshot = join(sourceDir, 'evidence.png')
+    await writeFile(screenshot, Buffer.from('png-bytes'))
+    const channel = await ctx.agentTeam.createChannel({ requestId: requestId('cleanup-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' })
+    const before = await cacheEntries()
+
+    // A referenced upload that is not in the cache fails after the path copy:
+    // the entry this attempt prepared is unreferenced, so it is removed again.
+    await expect(ctx.agentTeam.sendMessage({ asTask: true, requestId: requestId('fail-cleanup'), workspaceId: alpha,
+      channelRef: channel.channel.channelRef, body: '不应提交', attachmentPaths: [screenshot], attachments: [newAttachmentId()] }))
+      .rejects.toThrow(/not in the upload cache/)
+    expect(await cacheEntries()).toEqual(before)
+    expect(() => replayLedger(facility).validate()).not.toThrow()
+
+    const request = { asTask: false, requestId: requestId('collision-keep'), workspaceId: alpha,
+      channelRef: channel.channel.channelRef, body: 'first body', attachmentPaths: [screenshot] } as const
+    const sent = await ctx.agentTeam.sendMessage(request)
+    expect(sent.kind).toBe('committed')
+    const committed = await cacheEntries()
+    expect(committed.length).toBe(before.length + 1)
+
+    // Same request id, different body: the ledger refuses it, and the cleanup
+    // guard leaves the committed entry alone because the ledger references it.
+    await expect(ctx.agentTeam.sendMessage({ ...request, body: 'different body' }))
+      .rejects.toThrow(/reused with a different operation or payload/)
+    expect(await cacheEntries()).toEqual(committed)
+
+    // Same request id, different source bytes: the copy refuses it before any
+    // write, and the committed bytes stay intact.
+    await writeFile(screenshot, Buffer.from('other bytes'))
+    await expect(ctx.agentTeam.sendMessage(request)).rejects.toThrow(/reused with a different operation or payload/)
+    expect(await cacheEntries()).toEqual(committed)
+    const prepared = pathAttachmentId('collision-keep', 0)
+    expect(committed).toContain(prepared)
+    expect(await readFile(join(attachmentsRoot(), prepared, 'evidence.png'), 'utf8')).toBe('png-bytes')
   })
 })

@@ -1,6 +1,6 @@
 import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, extname, isAbsolute, join } from 'node:path'
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths'
 import type { AgentTeamAttachmentId } from './types.ts'
 
@@ -28,6 +28,34 @@ export function attachmentPayloadPath(attachmentId: AgentTeamAttachmentId, name:
 
 export function newAttachmentId(): AgentTeamAttachmentId {
   return randomUUID() as AgentTeamAttachmentId
+}
+
+/**
+ * Request-stable cache identity for one upload of an idempotent request: the
+ * same `requestId` always derives the same id, so a retried upload converges
+ * on the entry the first attempt wrote instead of minting a second one, while
+ * a different payload for that id is caught by the byte comparison at write
+ * time. Pure and namespaced, so it is restart-safe without a second durable
+ * store or an in-memory map. `scope` separates several attachments prepared
+ * by one request (path copies) from the request's upload itself.
+ */
+export function requestScopedAttachmentId(requestId: string, scope?: string): AgentTeamAttachmentId {
+  const uuid = createHash('sha256')
+    .update(`agent-team:attachment-request:${requestId}${scope === undefined ? '' : `#${scope}`}`)
+    .digest()
+    .subarray(0, 16)
+  const shaped = Buffer.from(uuid)
+  // Present the digest as an ordinary uuid so cache directory names keep the
+  // shape `newAttachmentId()` produces: version 4, RFC 4122 variant bits.
+  shaped[6] = (shaped[6]! & 0x0f) | 0x40
+  shaped[8] = (shaped[8]! & 0x3f) | 0x80
+  const hex = shaped.toString('hex')
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}` as AgentTeamAttachmentId
+}
+
+/** The request-stable id of the `index`-th path copy one message or reply request prepares. */
+export function pathAttachmentId(requestId: string, index: number): AgentTeamAttachmentId {
+  return requestScopedAttachmentId(requestId, `path:${index}`)
 }
 
 /** Strip path separators, control characters, Windows-illegal characters, reserved device names, and leading dots from one client-supplied name. */
@@ -82,11 +110,46 @@ export async function validatePathAttachment(raw: string): Promise<void> {
   if (info.size > ATTACHMENT_MAX_BYTES) throw new Error(`attachment '${basename(raw)}' exceeds the ${ATTACHMENT_MAX_BYTES} byte limit`)
 }
 
-/** Copy one validated file into the cache as a fresh immutable entry. */
-export async function copyPathAttachment(root: string, raw: string): Promise<{ attachmentId: AgentTeamAttachmentId; name: string; byteSize: number; mediaType: string }> {
+/**
+ * Copy one validated file into the cache under the caller's request-stable id.
+ * A committed Message may already reference that id, so an existing entry is
+ * never overwritten: identical name and bytes replay it, and anything else is
+ * refused as the same request-id collision the ledger reports.
+ */
+export async function copyPathAttachment(root: string, raw: string, attachmentId: AgentTeamAttachmentId, requestId: string): Promise<{ attachmentId: AgentTeamAttachmentId; name: string; byteSize: number; mediaType: string }> {
   const bytes = await readFile(raw)
-  const stored = await writeAttachment(root, newAttachmentId(), basename(raw), mediaTypeForPath(raw), bytes)
+  const name = sanitizeFileName(basename(raw))
+  const mediaType = mediaTypeForPath(raw)
+  const existing = await readAttachment(root, attachmentId)
+  if (existing !== undefined) {
+    collideUnlessSamePayload(existing, name, mediaType, bytes, requestId)
+    return { attachmentId, name: existing.name, byteSize: existing.byteSize, mediaType: existing.mediaType }
+  }
+  const stored = await writeAttachment(root, attachmentId, basename(raw), mediaType, bytes)
   return { attachmentId: stored.attachmentId, name: stored.name, byteSize: stored.byteSize, mediaType: stored.mediaType }
+}
+
+/**
+ * Store one upload under the id its `requestId` derives. The first attempt
+ * writes the entry; a later attempt with the same request replays it, and a
+ * different payload for that same request is refused instead of silently
+ * becoming a second upload of the same idempotency key.
+ */
+export async function writeRequestScopedAttachment(root: string, requestId: string, rawName: string, mediaType: string, bytes: Buffer): Promise<{ attachmentId: AgentTeamAttachmentId; path: string; name: string; byteSize: number; mediaType: string }> {
+  const attachmentId = requestScopedAttachmentId(requestId)
+  const existing = await readAttachment(root, attachmentId)
+  if (existing !== undefined) {
+    collideUnlessSamePayload(existing, sanitizeFileName(rawName), mediaType, bytes, requestId)
+    return { attachmentId, path: join(attachmentDir(root, attachmentId), existing.name), name: existing.name, byteSize: existing.byteSize, mediaType: existing.mediaType }
+  }
+  return writeAttachment(root, attachmentId, rawName, mediaType, bytes)
+}
+
+/** Refuse a reused request id whose stored payload no longer matches this attempt. */
+function collideUnlessSamePayload(existing: StoredAttachment, name: string, mediaType: string, bytes: Buffer, requestId: string): void {
+  if (existing.name !== name || existing.mediaType !== mediaType || !existing.bytes.equals(bytes)) {
+    throw new Error(`agent-team request id '${requestId}' was reused with a different operation or payload`)
+  }
 }
 
 interface AttachmentMeta {

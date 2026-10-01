@@ -4205,7 +4205,8 @@ export class AgentTeamLedger {
     if (operation.kind !== 'team/message-sent' || !this.sameActor(operation.actor, request.actor)
       || operation.data.workspaceId !== request.workspaceId || operation.data.message.channelRef !== request.channelRef
       || operation.data.message.body !== request.body.trim() || !this.sameList(operation.data.mentions, recipients)
-      || !this.sameList(operation.data.message.attachments?.map(attachment => attachment.attachmentId) ?? [], request.attachments ?? [])
+      || !this.sameList(operation.data.message.attachments?.map(attachment => attachment.attachmentId) ?? [],
+        request.resolvedAttachments?.map(attachment => attachment.attachmentId) ?? [])
       || (request.asTask !== false) !== (operation.data.task !== undefined)) this.throwRequestCollision(request.requestId)
   }
 
@@ -4216,6 +4217,8 @@ export class AgentTeamLedger {
       || (request.taskRef !== undefined && operation.data.task?.taskRef !== request.taskRef)
       || (request.threadRef === undefined && request.taskRef === undefined)
       || operation.data.message.body !== request.body.trim() || operation.data.baseRevision !== request.baseRevision
+      || !this.sameList(operation.data.message.attachments?.map(attachment => attachment.attachmentId) ?? [],
+        request.resolvedAttachments?.map(attachment => attachment.attachmentId) ?? [])
       || !this.sameList(operation.data.mentions, recipients)) this.throwRequestCollision(request.requestId)
   }
 
