@@ -11,6 +11,13 @@ Host face declaration → generate:typert → Typert Host + Remote client → ct
 
 `InvocationDescriptor` is local reflection metadata, not a wire message. Wire fields remain explicit typed values. Update declarations/tests, regenerate, and run typecheck/build; never hand-edit artifacts.
 
+## Remote failure vocabulary
+Generated Remote methods resolve a `RemoteResult`: `{ ok: true, value }` carries the business result, `{ ok: false, error }` carries a failure whose stable `code` discriminates and whose `details` the code narrows without a cast.
+
+- Business rejections — `unread_required`, `stale_revision`, `confirmation_required` — stay result unions: they are the normal control flow the Client already models, not Remote errors.
+- An expected cross-Remote failure that needs its own Client branch is thrown as a `RemoteError`; the owner declares its code by merging it into `RemoteErrorDetailsMap`, and Team merges its codes into the public types entry both faces compile against. Team's first code is `team/attachment-not-found`: the attachment read separates a gone cache entry from every other failure.
+- Clients branch on `code`, never on message text — the message is a human diagnostic, not contract. Unknown codes and unclassified Host exceptions arrive as `gateway/internal`, so each branch keeps a generic fallback: the attachment preview settles a not-found into the expired chip, caches no other failure, and lets a later render retry the Host.
+
 ## Client plugin and slot composition
 The external Client plugin leaves the shipped Shell as outer-layout owner. Team adds one footer action and shadows three seats:
 

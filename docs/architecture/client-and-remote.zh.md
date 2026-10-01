@@ -19,6 +19,13 @@ Client remote service
 
 `InvocationDescriptor` 是 local reflection metadata，不是 wire message。Wire request 和 response fields 保持为显式 typed values。修改 Remote 时更新 declaration 和 tests，重新生成，然后运行 typecheck/build；不要手工编辑 artifact。
 
+## Remote failure vocabulary
+生成的 Remote methods resolve 为 `RemoteResult`：`{ ok: true, value }` 携带业务结果，`{ ok: false, error }` 携带失败——稳定的 `code` 是判别字段，`details` 随 `code` 收窄，无需 cast。
+
+- 业务拒绝——`unread_required`、`stale_revision`、`confirmation_required`——保持 result union：它们是 Client 已经建模的正常控制流，不是 Remote error。
+- 需要 Client 独立分支的预期跨 Remote 失败以 `RemoteError` 抛出：owner 通过向 `RemoteErrorDetailsMap` merge 声明自己的 code；Team 把 codes merge 进两个 face 共同编译的公开 types 入口。Team 的第一个 code 是 `team/attachment-not-found`：attachment read 把已消失的 cache entry 与其他一切失败分开。
+- Client 按 `code` 分支，绝不解析 message 文本——message 只是人类诊断，不是契约。未知 code 与未分类的 Host 异常以 `gateway/internal` 到达，因此每个分支都保留通用 fallback：attachment preview 把 not-found 结算为过期 chip，不缓存任何其他失败，让下一次渲染重试 Host。
+
 ## Client plugin 和 slot composition
 Team browser plugin 是 external Client plugin。Shipped Shell 继续拥有 outer layout。Team 增加一个 additive footer action，并动态 shadow 三个 seats：
 

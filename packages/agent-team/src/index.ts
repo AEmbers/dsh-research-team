@@ -22,7 +22,7 @@ import { scopeOf } from '@deepseek-ai/dsh-scope'
 import { Session, SessionId, SessionLogOffset, type SessionEvent } from '@deepseek-ai/dsh-session'
 import type {} from '@deepseek-ai/dsh-session-persistence'
 import { setSandboxMode } from '@deepseek-ai/dsh-sandbox-policy'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
+import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import type {} from '@deepseek-ai/dsh-tools'
 import type { SettingsPathOp } from '@deepseek-ai/dsh-settings'
 import type { Domain } from '@deepseek-ai/dsh-storage-domain'
@@ -1555,11 +1555,16 @@ export default class AgentTeam extends TypertRemoteService {
     return Object.freeze(await writeRequestScopedAttachment(attachmentsRoot(), request.requestId, request.name, mediaType, bytes))
   }
 
-  /** Read one cached attachment back for client display; gone entries throw and the UI degrades to a chip. */
+  /**
+   * Read one cached attachment back for client display. A gone entry is the
+   * one expected failure on this path, so it carries the stable
+   * `team/attachment-not-found` code the Client branches on; anything else
+   * (unreadable metadata, filesystem trouble) stays an unknown Host error.
+   */
   @Remote('getAttachment')
   async getAttachment(request: AgentTeamGetAttachmentRequest): Promise<AgentTeamGetAttachmentResult> {
     const stored = await readAttachment(attachmentsRoot(), request.attachmentId)
-    if (stored === undefined) throw new Error(`attachment '${request.attachmentId}' is no longer cached`)
+    if (stored === undefined) throw new RemoteError('team/attachment-not-found', `attachment '${request.attachmentId}' is no longer cached`, { attachmentId: request.attachmentId })
     return Object.freeze({ name: stored.name, mediaType: stored.mediaType, byteSize: stored.byteSize, bytesBase64: stored.bytes.toString('base64') })
   }
 

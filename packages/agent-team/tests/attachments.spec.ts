@@ -213,6 +213,19 @@ describe('Agent Team attachment remotes', () => {
       name: 'empty.bin', bytesBase64: '',
     })).rejects.toThrow(/must not be empty/)
     await expect(ctx.agentTeam.getAttachment({ attachmentId: newAttachmentId() })).rejects.toThrow(/no longer cached/)
+    // A gone entry is an expected cross-Remote failure: it carries the stable
+    // code so the Client branches on it without parsing the message.
+    const missing = newAttachmentId()
+    await expect(ctx.agentTeam.getAttachment({ attachmentId: missing }))
+      .rejects.toMatchObject({ name: 'RemoteError', code: 'team/attachment-not-found', details: { attachmentId: missing } })
+    // An entry whose payload never landed is equally settled: same code, so
+    // the Client cannot tell the two apart — and does not need to.
+    const invalid = newAttachmentId()
+    await mkdir(join(attachmentsRoot(), invalid), { recursive: true })
+    await writeFile(join(attachmentsRoot(), invalid, 'meta.json'),
+      JSON.stringify({ name: 'half.png', mediaType: 'image/png', uploadedAt: new Date().toISOString() }), 'utf8')
+    await expect(ctx.agentTeam.getAttachment({ attachmentId: invalid }))
+      .rejects.toMatchObject({ name: 'RemoteError', code: 'team/attachment-not-found', details: { attachmentId: invalid } })
     void channel
   })
 
