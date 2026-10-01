@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { LlmError } from '@deepseek-ai/dsh-llm'
 import { classifyRecoverableError, RecoveryCoordinator, RECOVERY_DELAY_MS, RECOVERY_MAX_CONSECUTIVE_ERRORS } from '../src/recovery.ts'
 import type { AgentTeamMemberId } from '../src/types.ts'
 
@@ -23,6 +24,33 @@ describe('recoverable error classification', () => {
     ['TypeError: cannot read properties of undefined'],
   ])('leaves %j manual (no auto recovery)', message => {
     expect(classifyRecoverableError(message)).toBeUndefined()
+  })
+
+  it('reads the structured Harness failure before any message text', () => {
+    expect(classifyRecoverableError(new LlmError('DeepSeek Messages transport failed', 'TRANSPORT'))).toBe('transient network')
+    expect(classifyRecoverableError(new LlmError('DeepSeek Messages stream idle timeout', 'TIMEOUT'))).toBe('transient network')
+    expect(classifyRecoverableError(new LlmError('DeepSeek rate limited', 'RATE_LIMIT', { status: 429 }))).toBe('rate limiting')
+    expect(classifyRecoverableError(new LlmError('DeepSeek Messages request failed', 'SERVER', { status: 503 }))).toBe('rate limiting')
+  })
+
+  it('trusts a structurally carried code even without the Harness class identity', () => {
+    // A cross-package copy preserves own data but not `instanceof`; the code
+    // field alone must classify.
+    expect(classifyRecoverableError({ message: 'slow down please', code: 'RATE_LIMIT', failure: { message: 'slow down please', code: 'RATE_LIMIT' } })).toBe('rate limiting')
+    expect(classifyRecoverableError({ message: 'connection reset by peer', failure: { message: 'connection reset by peer', code: 'TRANSPORT' } })).toBe('transient network')
+  })
+
+  it('lets a structured terminal code outweigh misleading message text', () => {
+    expect(classifyRecoverableError(new LlmError('upstream answered 429 while settling quota', 'QUOTA', { status: 402 }))).toBeUndefined()
+    expect(classifyRecoverableError(new LlmError('context length exceeded after the provider mentioned rate limits', 'CONTEXT_WINDOW_EXCEEDED'))).toBeUndefined()
+    expect(classifyRecoverableError(new LlmError('credential rejected; 503 was the gateway page', 'AUTH'))).toBeUndefined()
+  })
+
+  it('falls back to narrow message matching only when no structured code exists', () => {
+    expect(classifyRecoverableError(new Error('fetch failed'))).toBe('transient network')
+    expect(classifyRecoverableError(new Error('gateway returned 503 service unavailable'))).toBe('rate limiting')
+    expect(classifyRecoverableError(new Error('cannot read properties of undefined'))).toBeUndefined()
+    expect(classifyRecoverableError({ message: 'unknown failure shape' })).toBeUndefined()
   })
 })
 
@@ -144,5 +172,20 @@ describe('RecoveryCoordinator', () => {
     expect(vi.getTimerCount()).toBe(2)
     coordinator.dispose()
     expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('counts a structured recoverable failure like any other occurrence', () => {
+    const { coordinator, wakeups } = harness()
+    coordinator.onError(memberId, new LlmError('DeepSeek Messages transport failed', 'TRANSPORT'))
+    vi.advanceTimersByTime(RECOVERY_DELAY_MS)
+    expect(wakeups).toEqual([memberId])
+  })
+
+  it('a structured terminal failure stops tracking despite recoverable wording in its message', () => {
+    const { coordinator, wakeups } = harness()
+    coordinator.onError(memberId, new LlmError('DeepSeek Messages transport failed', 'TRANSPORT'))
+    coordinator.onError(memberId, new LlmError('upstream answered 429 while settling quota', 'QUOTA', { status: 402 }))
+    vi.advanceTimersByTime(RECOVERY_DELAY_MS * 3)
+    expect(wakeups).toEqual([])
   })
 })

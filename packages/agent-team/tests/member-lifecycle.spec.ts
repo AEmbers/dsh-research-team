@@ -18,7 +18,7 @@ import AgentRegistry from '@deepseek-ai/dsh-agent'
 import AgentLoop from '@deepseek-ai/dsh-agent-loop'
 import AgentPresetPlugin from '@deepseek-ai/dsh-agent-preset'
 import AgentPresetRegistry, { type AgentPreset, type PresetDefinition } from '@deepseek-ai/dsh-agent-preset-registry'
-import LlmRuntime, { ToolCallId, createUserMessage, LlmAdapter } from '@deepseek-ai/dsh-llm'
+import LlmRuntime, { LlmError, ToolCallId, createUserMessage, LlmAdapter } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
 import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
 import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
@@ -1590,6 +1590,48 @@ describe('Agent Team Member lifecycle', () => {
       await vi.advanceTimersByTimeAsync(RECOVERY_DELAY_MS)
 
       expect(adapter.requests).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('wakes a Member for a structured transport failure carried by the Harness event', async () => {
+    vi.useFakeTimers()
+    try {
+      const adapter = new ScriptedAdapter()
+      const { ctx, workspaceId } = await realHarness(adapter)
+      const builder = await ctx.agentTeam.addMember({ requestId: requestId('structured-transport-builder'), workspaceId, handle: 'builder', description: 'Builds changes', presetId: 'team-member', channelRefs: [] })
+      const agent = ctx.agents.get(builder.status.member.sessionId)!
+
+      ctx.emit('agent/error', { agent, turn: 1, step: 1, error: new LlmError('DeepSeek Messages transport failed', 'TRANSPORT') })
+      adapter.enqueue(textResponse('Continuing after the transport failure.'))
+      await vi.advanceTimersByTimeAsync(RECOVERY_DELAY_MS)
+      await agent.whenIdle()
+
+      expect(adapter.requests.length).toBeGreaterThan(0)
+      const request = JSON.stringify(adapter.requests.at(-1)!.messages)
+      expect(request).toContain('temporary service error')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('leaves a structured terminal failure to manual recovery while keeping its diagnostic', async () => {
+    vi.useFakeTimers()
+    try {
+      const adapter = new ScriptedAdapter()
+      const { ctx, workspaceId } = await realHarness(adapter)
+      const builder = await ctx.agentTeam.addMember({ requestId: requestId('structured-terminal-builder'), workspaceId, handle: 'builder', description: 'Builds changes', presetId: 'team-member', channelRefs: [] })
+      const agent = ctx.agents.get(builder.status.member.sessionId)!
+
+      ctx.emit('agent/error', { agent, turn: 1, step: 1, error: new LlmError('upstream answered 429 while settling quota', 'QUOTA', { status: 402 }) })
+      adapter.enqueue(textResponse('Never reached.'))
+      await vi.advanceTimersByTimeAsync(RECOVERY_DELAY_MS)
+
+      expect(adapter.requests).toEqual([])
+      const row = ctx.agentTeam.members().find(status => status.member.memberId === builder.status.member.memberId)
+      expect(row).toMatchObject({ availability: 'active', presence: 'error', diagnostic: { class: 'runtime' } })
+      expect(row?.diagnostic?.detail).toContain('429')
     } finally {
       vi.useRealTimers()
     }

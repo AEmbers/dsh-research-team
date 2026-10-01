@@ -643,9 +643,9 @@ export default class AgentTeam extends TypertRemoteService {
       if (member === undefined) return
       const message = error instanceof Error ? error.message : String(error)
       this.setMemberFailure(member.memberId, 'runtime', message)
-      const kind = classifyRecoverableError(message)
+      const kind = classifyRecoverableError(error)
       if (kind !== undefined) this.ctx.logger.warn(`agent-team: member '${member.handle}' hit a recoverable ${kind} error; recording a consecutive error occurrence`)
-      this.recovery.onError(member.memberId, message)
+      this.recovery.onError(member.memberId, error)
       this.emitMemberPresenceChanged(member)
     })
     this.ctx.on('agent/status', ({ agent, status }) => {
