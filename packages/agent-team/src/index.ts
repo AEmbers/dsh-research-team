@@ -17,6 +17,7 @@ import type {} from '@deepseek-ai/dsh-agent-default-model'
 import type {} from '@deepseek-ai/dsh-agent-preset-registry'
 import type {} from '@deepseek-ai/dsh-app-boot'
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths'
+import { InvariantError } from '@deepseek-ai/dsh-invariants'
 import { scopeOf } from '@deepseek-ai/dsh-scope'
 import { Session, SessionId, SessionLogOffset, type SessionEvent } from '@deepseek-ai/dsh-session'
 import type {} from '@deepseek-ai/dsh-session-persistence'
@@ -3027,37 +3028,61 @@ export default class AgentTeam extends TypertRemoteService {
   }
 
   private emitCommitted(receipt: AgentTeamOperationReceipt): void {
-    this.ctx.emit('agent-team/committed', { receipt })
+    // Everything below runs after the ledger append, so nothing here may turn
+    // a committed operation into a failed Remote call. Each effect that runs
+    // third-party code — Cordis listeners, change waiters, agent wakes — goes
+    // through `afterCommit`; the ordering itself is unchanged: listeners,
+    // then Client invalidation, then the participation notice, then wakes.
+    this.afterCommit('commit listener dispatch', () => this.ctx.emit('agent-team/committed', { receipt }))
     const operation = this.ledger?.getOperation(receipt.operationId)
     if (operation === undefined) {
-      this.emitChanged()
+      this.afterCommit('change invalidation', () => this.emitChanged())
       return
     }
     const ledger = this.requireLedger()
-    this.emitChanged(ledger.changeScopesOf(operation))
+    this.afterCommit('change invalidation', () => this.emitChanged(ledger.changeScopesOf(operation)))
     if (operation.kind === 'team/member-workspace-joined' || operation.kind === 'team/member-workspace-left') {
-      const agent = this.handles.get(operation.data.memberId)?.agent
-      if (agent !== undefined) {
+      this.afterCommit('participation notice', () => {
+        const agent = this.handles.get(operation.data.memberId)?.agent
+        if (agent === undefined) return
         const path = this.ctx.workspaceRegistry.get(operation.data.workspaceId)?.path
         const text = `Team participation changed: you have ${operation.kind === 'team/member-workspace-joined' ? 'joined' : 'left'} Workspace ${operation.data.workspaceId}${path === undefined ? ' (path unavailable)' : ` (${JSON.stringify(path)})`}.\nCurrent Workspace ids: ${ledger.workspacesOf(operation.data.memberId).join(', ')}. This replaces earlier participation information. Your Session and cwd have not moved.`
         const notice = createUserMessage({ content: [{ type: 'text', text }],
           source: { kind: AGENT_TEAM_PLUGIN_ID, form: 'notice', summary: 'Team Workspace participation changed' } })
-        try {
-          if (agent.status === 'idle' || agent.inbox.nextTurn.some(message => message.source.kind === 'user')) agent.followup(notice)
-          else agent.steer(notice)
-        } catch (error) {
-          // Notification delivery cannot roll back a committed participation.
-          this.ctx.logger.warn(`agent-team: participation notice not delivered: ${error instanceof Error ? error.message : String(error)}`)
-        }
-      }
+        // Delivered from durable facts; a failed wake cannot roll back the
+        // committed participation — the next notice rederives it.
+        if (agent.status === 'idle' || agent.inbox.nextTurn.some(message => message.source.kind === 'user')) agent.followup(notice)
+        else agent.steer(notice)
+      })
     }
     for (const memberId of ledger.affectedMembersOf(operation)) {
       const handle = this.handles.get(memberId)
-      if (handle !== undefined) this.notifyMember(handle.agent)
+      if (handle !== undefined) this.afterCommit(`notification for '${this.memberLabel(memberId)}'`, () => this.notifyMember(handle.agent))
     }
     // Task acceptance no longer schedules standalone auto compaction: it is
     // a semantic checkpoint/context cue (delivered as ordinary Team
     // notification), and the Team pressure policy owns compaction entry.
+  }
+
+  /**
+   * Run one effect that follows the ledger append. The operation is durable by
+   * the time this runs, so a delivery or listener failure degrades to a log
+   * line: the Remote answer stays the committed result instead of a false
+   * rollback, and an Inbox wake that failed clears its own signature, so the
+   * next commit touching that Member rederives the same durable facts and
+   * retries without appending a second operation.
+   *
+   * An invariant divergence is the deliberate exception — the invariant
+   * companion re-raises it on the caller's frame precisely to stay loud, and
+   * swallowing it would silence a failed integrity check.
+   */
+  private afterCommit(label: string, effect: () => void): void {
+    try {
+      effect()
+    } catch (error) {
+      if (error instanceof InvariantError) throw error
+      this.ctx.logger.warn(`agent-team: post-commit ${label} failed: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
   /** Model-visible active-Claim labels for the pressure notice. */

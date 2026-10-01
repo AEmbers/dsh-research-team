@@ -1232,8 +1232,12 @@ describe('Agent Team Member lifecycle', () => {
     // the DM durably but surfaces the structured delivery error to the sender.
     await ctx.agentTeam.resumeMember({ requestId: requestId('dm-resume'), memberId: reviewer.status.member.memberId })
     ctx.agentTeam['handles'].delete(reviewer.status.member.memberId)
+    const beforeUndeliveredDm = ctx.agentTeam.status().sequence
     await expect(ctx.agentTeam.dmForAgent(sender, { requestId: requestId('dm-undelivered'), workspaceId,
       recipientMemberId: reviewer.status.member.memberId, body: 'are you back?' })).rejects.toMatchObject({ name: 'AgentTeamDmDeliveryError', recipientHandle: 'reviewer' })
+    // The delivery error reports a committed write, not a failed one: the
+    // dm-sent operation is the durable fact the error is talking about.
+    expect(ctx.agentTeam.status().sequence).toBe(beforeUndeliveredDm + 1)
     expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
   })
 
