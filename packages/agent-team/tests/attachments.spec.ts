@@ -21,10 +21,13 @@ import type { AgentTeamOperation, AgentTeamOperationId, AgentTeamRequestId } fro
 
 const cleanups: Array<() => Promise<void>> = []
 const alpha = WorkspaceId('workspace:alpha')
+const originalDshHome = process.env.DSH_HOME
 const requestId = (value: string): AgentTeamRequestId => value as AgentTeamRequestId
 
 afterEach(async () => {
   await Promise.all(cleanups.splice(0).map(cleanup => cleanup()))
+  if (originalDshHome === undefined) delete process.env.DSH_HOME
+  else process.env.DSH_HOME = originalDshHome
 })
 
 async function harness(): Promise<{ readonly ctx: Context; readonly facility: DomainFacility }> {
@@ -239,6 +242,24 @@ describe('Agent Team attachment remotes', () => {
     expect(cold.referencedAttachmentIds().has(uploaded.attachmentId)).toBe(true)
     const history = ctx.agentTeam.threadHistory({ workspaceId: alpha, taskRef: sent.task!.taskRef })
     expect(history.facts.some(fact => fact.kind === 'message' && fact.message.attachments?.[0]?.name === 'design.png')).toBe(true)
+  })
+
+  it('copies a new path attachment before rejecting a reused request', async () => {
+    const { ctx } = await harness()
+    const sourceRoot = await mkdtemp(join(tmpdir(), 'dsh-attachment-source-'))
+    cleanups.push(async () => { await rm(sourceRoot, { recursive: true, force: true }) })
+    const source = join(sourceRoot, 'report.txt')
+    await writeFile(source, 'path payload')
+    const channel = await ctx.agentTeam.createChannel({ requestId: requestId('path-retry-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' })
+
+    const first = await ctx.agentTeam.sendMessage({ asTask: false, requestId: requestId('path-retry'), workspaceId: alpha,
+      channelRef: channel.channel.channelRef, body: 'same request', attachmentPaths: [source] })
+    expect(first.kind).toBe('committed')
+    const beforeRetry = await readdir(attachmentsRoot())
+    await expect(ctx.agentTeam.sendMessage({ asTask: false, requestId: requestId('path-retry'), workspaceId: alpha,
+      channelRef: channel.channel.channelRef, body: 'same request', attachmentPaths: [source] })).rejects.toThrow(/reused with a different operation or payload/)
+    const afterRetry = await readdir(attachmentsRoot())
+    expect(afterRetry.length).toBeGreaterThan(beforeRetry.length)
   })
 
   it('resolves Human reply attachments from the upload cache and replays them', async () => {

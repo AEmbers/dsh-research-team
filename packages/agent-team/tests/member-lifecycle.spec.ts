@@ -176,6 +176,8 @@ async function realHarness(
   readonly teamFiber: Awaited<ReturnType<Context['plugin']>>
   /** Sessions the fake workspace registry archived, in archive order. */
   readonly archived: readonly SessionId[]
+  /** One-shot failures for the workspace archive side effect. */
+  readonly archiveFailures: { remaining: number }
   readonly presets: TestablePresets
   /** Writable fake meter pressure; tests drive the thresholds through it. */
   readonly pressureState: { usageTokens: number; bySession: Map<string, number>; failFor: Set<string> }
@@ -248,15 +250,22 @@ async function realHarness(
   ctx.provide('storageDomain', facility)
   const workspaceId = WorkspaceId('workspace:member-test')
   const archived: SessionId[] = []
+  const archiveFailures = { remaining: 0 }
   const workspaces = new Map([[workspaceId, { id: workspaceId, path: project, attachSession: async () => {} }]])
   ctx.provide('workspaceRegistry', {
     get: (id: WorkspaceId) => workspaces.get(id),
     list: () => [],
-    archiveSession: async (sessionId: SessionId) => { archived.push(sessionId) },
+    archiveSession: async (sessionId: SessionId) => {
+      if (archiveFailures.remaining > 0) {
+        archiveFailures.remaining -= 1
+        throw new Error('workspace archive failed (test seam)')
+      }
+      archived.push(sessionId)
+    },
   })
   const teamFiber = await ctx.plugin(AgentTeam)
   cleanups.push(async () => { await ctx.fiber.dispose(); await facility.closeAll(); await rm(root, { recursive: true, force: true }) })
-  return { ctx, workspaceId, root, project, workspaces, teamFiber, archived, presets: ctx.agentPresets as TestablePresets, pressureState, jobsState }
+  return { ctx, workspaceId, root, project, workspaces, teamFiber, archived, archiveFailures, presets: ctx.agentPresets as TestablePresets, pressureState, jobsState }
 }
 
 describe('Agent Team Member lifecycle', () => {
@@ -354,6 +363,39 @@ describe('Agent Team Member lifecycle', () => {
     expect(removed.member.state).toBe('inactive')
     await expect(access(added.status.member.privateMemoryPath)).rejects.toThrow()
     expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('retries an archive after the post-commit Session archive fails', async () => {
+    const { ctx, workspaceId, archived, archiveFailures } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('archive-retry-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    archiveFailures.remaining = 1
+
+    await expect(ctx.agentTeam.archiveMember({ requestId: requestId('archive-retry'), memberId }))
+      .rejects.toThrow('workspace archive failed')
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === memberId)?.availability).toBe('archived')
+    expect(archived).toEqual([])
+
+    const retried = await ctx.agentTeam.archiveMember({ requestId: requestId('archive-retry'), memberId })
+    expect(retried.member.state).toBe('archived')
+    expect(archived).toEqual([added.status.member.sessionId])
+  })
+
+  it('cannot retry context renewal after the post-commit Session archive fails', async () => {
+    const { ctx, workspaceId, archiveFailures } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('clear-retry-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    archiveFailures.remaining = 1
+
+    await expect(ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-retry'), workspaceId, memberId }))
+      .rejects.toThrow('workspace archive failed')
+    const status = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
+    expect(status?.member.sessionId).toBe(`agent-team-${requestId('clear-retry')}`)
+    expect(status?.availability).toBe('unavailable')
+    await expect(ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-retry'), workspaceId, memberId }))
+      .rejects.toThrow('has no active session to clear')
   })
 
   it('creates, suspends, resumes, and removes an exact Team-owned Agent session', async () => {
