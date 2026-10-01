@@ -58,7 +58,7 @@ Team feature 需要现有 Harness capability 时，使用 public service 或 pac
 
 UI work 的边界如下：
 
-- Human navigation 从 Channels 开始，沿 Workspace → Channel → Thread；真实 Task 是其 Thread 上的 card/header overlay。 Channel composer 默认创建 taskless Thread，并提供默认关闭的「作为任务」控件以原子创建 Task。 taskless Thread 保留 normal read/reply/inbox behavior，但在 promotion 前隐藏 Task status、Claims 和 Task-resolution controls。 Promotion 是 durable、non-optimistic 的 Host mutation；成功后 Client 重新读取 Thread 和 supplemental projections，而不是本地合成 Task。
+- Channel composer 默认创建 taskless Thread，并提供默认关闭的「作为任务」控件以原子创建 Task。 taskless Thread 保留 normal read/reply/inbox behavior，但在 promotion 前隐藏 Task status、Claims 和 Task-resolution controls。 Promotion 是 durable、non-optimistic 的 Host mutation；成功后 Client 重新读取 Thread 和 supplemental projections，而不是本地合成 Task。
 
   Human Client 消费 Host 的 Inbox 投影（「收件箱 / Inbox」队列：合并各 Workspace 的徽标与页，覆盖读者的整片未读——mention 只在其中计数，绝不是准入条件——外加该读者写过 Message 的「最近活跃」段（回复过的 Thread 无论是否 follow 都算他的；按最新活跃降序，Host 侧每个 Workspace 上限 10，合并到页面上最多 5 条，永不进入 agent 的 Inbox）），但绝不维护并行 Inbox authority；打开页不确认任何内容。 Thread reads 使用 Host projections（`readThread`、`threadHistory`）和 Host mutations（replies、promotion、Task actions）。 当前 Thread UI 不提供 Attention controls 或 observations；其 Host Remote methods 留给后续自有 UI。 Browser 会持久化 Team navigation mode、Workspace selection、最近选中的 Channel 或 Thread 以及 Inbox 页位置（回到 Team 时恢复位置），但不持久化 unread 或 Attention。
 
