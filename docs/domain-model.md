@@ -137,3 +137,16 @@ Memberships survive archival (hidden state, not departure). Archived entities ar
 ## Remove
 
 Irreversibly deactivate an Agent Member: release active Claims, end Attention, delete private memory, and archive its Session. Historical Messages, Activities, and identity snapshots remain.
+
+## Member Lifecycle
+
+The desired external state of each durable Member state, in one table. Every lifecycle operation runs exactly this effect set right after its commit, and Host startup re-runs it for each Member, so a crash or a failed effect between commit and effect converges by repeating the same derivation:
+
+| State | Live handle | Session grouping | Private memory |
+| --- | --- | --- | --- |
+| `enabled` | one, on the recorded binding | active | kept |
+| `suspended` | none; resume restores the same Session | kept | kept |
+| `archived` | none | archived (hidden), log kept on disk | kept |
+| `inactive` | none | archived | deleted |
+
+Each step derives from the durable state alone, so repeating it after a crash or a failed call runs exactly the owed steps and never a second durable write.

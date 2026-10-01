@@ -127,3 +127,16 @@ Member 通过 `context_rollover` 传递的私有桥接正文；它绝不是 ledg
 ## Remove
 
 不可逆地停用 Agent Member。Remove 释放 active claims、结束 Thread Attention、删除私有 memory、归档 session；历史 Message、Activity 和身份快照永久保留。
+
+## Member Lifecycle
+
+每个 durable Member state 的外部期望状态只用一张表定义。每一次 lifecycle operation 在 commit 之后跑的正是这组 effect，Host 启动时也对每个 Member 重跑同一组，因此 commit 与 effect 之间 crash 或 effect 失败后，重跑同一条推导即可收敛：
+
+| State | Live handle | Session grouping | Private memory |
+| --- | --- | --- | --- |
+| `enabled` | 一个，运行在记录的 binding 上 | active | 保留 |
+| `suspended` | 无；resume 恢复同一 Session | 保留 | 保留 |
+| `archived` | 无 | 归档（隐藏），log 留在磁盘 | 保留 |
+| `inactive` | 无 | 归档 | 删除 |
+
+每一步都只从 durable state 推导，因此 crash 或调用失败后重复执行时只补做还欠的步骤，绝不再写一次 durable 状态。

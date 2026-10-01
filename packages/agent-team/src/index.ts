@@ -725,8 +725,31 @@ export default class AgentTeam extends TypertRemoteService {
     const persistedSessions = new Set((await this.persistedSessionHeaders()).map(snapshot => snapshot.header.id))
     await this.sweepWorkspaceParticipations(ledger)
     for (const member of ledger.listMembers()) {
-      if (member.state === 'enabled') await this.activateMember(member, undefined, persistedSessions)
-      else if (member.state === 'inactive') await this.memberRuntime.cleanupRemovedMember(member)
+      if (member.state === 'enabled') {
+        // A renewal or rollover that committed but never finished leaves no
+        // live handle to reveal it: startup derives the outstanding effects
+        // from the ledger and the registry's archive set. A Workspace fault
+        // must not keep the Member from running on its recorded binding, so
+        // the ordinary activation path still runs when the retire half cannot
+        // be finished here.
+        try {
+          await this.finishMemberTransition(member.memberId, { knownSessions: persistedSessions })
+        } catch (error) {
+          this.ctx.logger.warn(`agent-team: could not finish the recorded Session transition for member '${member.handle}': ${error instanceof Error ? error.message : String(error)}`)
+        }
+        if (!this.handles.has(member.memberId)) await this.activateMember(member, undefined, persistedSessions)
+      } else {
+        // Every other durable state converges through the same effect table
+        // its operation runs after the commit, so a crash or a failed call
+        // between commit and effect is finished here. One Member's fault
+        // must not fail the boot: it is logged and retried at the next
+        // startup, where the call that failed may have healed.
+        try {
+          await this.convergeMemberEffects(member)
+        } catch (error) {
+          this.ctx.logger.warn(`agent-team: could not converge member '${member.handle}' to its '${member.state}' state: ${error instanceof Error ? error.message : String(error)}`)
+        }
+      }
     }
   }
 
@@ -921,12 +944,12 @@ export default class AgentTeam extends TypertRemoteService {
     })
   }
 
-  /** Commit suspended intent, then wait for the owned AgentHandle to become quiescent. */
+  /** Commit suspended intent, then run the suspended row of the effect table: the owned AgentHandle is disposed, the Session stays. */
   async suspendMember(request: AgentTeamSetMemberStateRequest): Promise<AgentTeamMemberResult> {
     return this.enqueueLifecycle(async () => {
       const result = await this.requireLedger().suspendMember({ ...request, actor: agentTeamHumanActor() })
       if (result.committed) this.emitCommitted(result.value.receipt)
-      await this.disposeMemberSession(request.memberId, result.value.member)
+      await this.convergeMemberEffects(result.value.member)
       return Object.freeze({ receipt: result.value.receipt, status: this.memberStatus(result.value.member) })
     })
   }
@@ -953,7 +976,9 @@ export default class AgentTeam extends TypertRemoteService {
    * continuation prompt into its live session, rebuild it after an orphaned
    * preset composition, or re-run activation when no live session exists.
    * Runtime-only — no ledger operation, no suspend. Taking over manually also
-   * cancels any pending automatic recovery episode.
+   * cancels any pending automatic recovery episode. A non-enabled Member
+   * still holding a live handle is an interrupted suspend/archive/remove,
+   * not a stalled one; recovery finishes that cleanup instead of nudging it.
    */
   @Remote('recoverMember')
   async recoverMember(request: AgentTeamRecoverMemberRequest): Promise<AgentTeamRecoverMemberResult> {
@@ -961,9 +986,36 @@ export default class AgentTeam extends TypertRemoteService {
     const member = this.requireLedger().getMember(request.memberId)
     if (member === undefined || !this.requireLedger().participatesIn(request.memberId, request.workspaceId)) throw new Error(`unknown Member '${request.memberId}' in workspace '${request.workspaceId}'`)
     this.recovery.stopTracking(request.memberId)
+    const handle = this.handles.get(request.memberId)
+    // A committed renewal or rollover whose retire or activation never finished
+    // is what leaves a Member with no live generation on its binding, or with
+    // the retired generation still live: this explicit recovery path finishes
+    // that recorded transition rather than restarting a Session the ledger has
+    // already moved off. Every other stranded case keeps its old behavior.
+    const stranded = handle === undefined || handle.agent.id !== member.sessionId
+    if (stranded && member.state === 'enabled' && this.requireLedger().lastTransitionForMember(request.memberId) !== undefined) {
+      this.ctx.logger.info(`agent-team: finishing the recorded Session transition for member '${member.handle}'`)
+      const settled = await this.enqueueLifecycle(async () => {
+        await this.finishMemberTransition(request.memberId)
+        return this.requireLedger().getMember(request.memberId) ?? member
+      })
+      return Object.freeze({ status: this.memberStatus(settled) })
+    }
+    // A live handle on a non-enabled Member is the residue of a suspend,
+    // archive, or removal whose disposal failed after its commit: the
+    // durable state already says no live generation, so explicit recovery
+    // re-runs that state's effects rather than feeding the stray generation
+    // a resume prompt or rebuilding it as if it were enabled.
+    if (member.state !== 'enabled' && handle !== undefined) {
+      this.ctx.logger.info(`agent-team: finishing the interrupted ${member.state} cleanup for member '${member.handle}'`)
+      const settled = await this.enqueueLifecycle(async () => {
+        await this.convergeMemberEffects(member)
+        return this.requireLedger().getMember(request.memberId) ?? member
+      })
+      return Object.freeze({ status: this.memberStatus(settled) })
+    }
     // An orphaned composition cannot be steered: its tools are gone, so a
     // continuation prompt reaches an inert Member. Rebuild the Agent in place.
-    const handle = this.handles.get(request.memberId)
     if (handle !== undefined && this.ctx.agentPresets.composedPreset(handle.agent.ctx) === undefined) {
       this.ctx.logger.info(`agent-team: rebuilding member '${member.handle}' after its preset composition was orphaned by a reload`)
       await this.reactivateMember(request.memberId)
@@ -1006,24 +1058,49 @@ export default class AgentTeam extends TypertRemoteService {
       const stored = this.requireLedger().getMember(request.memberId)
       if (stored === undefined || !this.requireLedger().participatesIn(request.memberId, request.workspaceId)) throw new Error(`unknown Member '${request.memberId}' in workspace '${request.workspaceId}'`)
       if (stored.state !== 'enabled') throw new Error(`Agent Member '${stored.handle}' is ${stored.state}; only enabled Members can start from a new context`)
-      const active = this.handles.get(request.memberId)
-      if (active === undefined) throw new Error(`Agent Member '${stored.handle}' has no active session to clear`)
-      if (this.runningAgents.has(active.agent.id)) throw new Error(`Agent Member '${stored.handle}' is still running; wait for the current turn to end before starting from a new context`)
-      const previousSessionId = stored.sessionId
       // The fresh id derives from the requestId, so a retried identical
       // request mints the same id and the ledger dedupes it instead of
       // colliding; the format matches addMember's `agent-team-<uuid>`.
       const sessionId = SessionId(`agent-team-${request.requestId}`)
-      const result = await this.requireLedger().renewMemberSession({ ...request, sessionId, actor: agentTeamHumanActor() })
-      if (result.committed) this.emitCommitted(result.value.receipt)
-      else {
-        // A retried identical request already renewed this Member; report the
-        // recorded outcome without another dispose/reactivate cycle.
-        return Object.freeze({ receipt: result.value.receipt, status: this.memberStatus(result.value.member) })
+
+      // A renewal this request already committed IS the desired binding: its
+      // retire or activation effects may still be outstanding, so finish them
+      // first, then answer with the recorded result either way. A repeat never
+      // commits a second binding, and never reports an effect that did not run
+      // as though it had — the status below carries that truth.
+      if (this.requireLedger().hasCommitted(request.requestId)) {
+        try {
+          await this.finishMemberTransition(request.memberId)
+        } catch (error) {
+          this.ctx.logger.warn(`agent-team: could not finish the recorded context renewal for member '${stored.handle}': ${error instanceof Error ? error.message : String(error)}`)
+        }
+        const recorded = await this.requireLedger().renewMemberSession({ ...request, sessionId, actor: agentTeamHumanActor() })
+        const current = this.requireLedger().getMember(request.memberId) ?? stored
+        return Object.freeze({ receipt: recorded.value.receipt, status: this.memberStatus(current) })
       }
+
+      const active = this.handles.get(request.memberId)
+      if (active === undefined) {
+        // With no live generation to retire, an earlier transition may be what
+        // left the Member here; finishing it is what lets this request run at
+        // all. With none, the ordinary no-session refusal below stands.
+        await this.finishMemberTransition(request.memberId)
+      }
+      const retiring = this.handles.get(request.memberId)
+      if (retiring === undefined) throw new Error(`Agent Member '${stored.handle}' has no active session to clear`)
+      if (this.runningAgents.has(retiring.agent.id)) throw new Error(`Agent Member '${stored.handle}' is still running; wait for the current turn to end before starting from a new context`)
+      const result = await this.requireLedger().renewMemberSession({ ...request, sessionId, actor: agentTeamHumanActor() })
+      if (!result.committed) {
+        // Another caller recorded this requestId between the check above and
+        // the write; report its recorded outcome as the retry path does.
+        const current = this.requireLedger().getMember(request.memberId) ?? stored
+        return Object.freeze({ receipt: result.value.receipt, status: this.memberStatus(current) })
+      }
+      this.emitCommitted(result.value.receipt)
       const renewed = result.value.member
-      await this.retireMemberGeneration(request.memberId, active, previousSessionId)
-      await this.activateMember(renewed, undefined, undefined, previousSessionId)
+      // This request retired the previous generation itself, so the activation
+      // is planned rather than recovered: pass the fork parent it just left.
+      await this.finishMemberTransition(renewed.memberId, { forkedFrom: stored.sessionId })
       const reactivated = this.handles.get(request.memberId)
       if (reactivated === undefined) {
         // Reactivation failed; the activation diagnostic carries the reason and
@@ -1032,6 +1109,80 @@ export default class AgentTeam extends TypertRemoteService {
       }
       return Object.freeze({ receipt: result.value.receipt, status: this.memberStatus(renewed) })
     })
+  }
+
+  /**
+   * Finish one Member's committed Session transition, whichever half a failure
+   * interrupted. The ledger already records the binding the Member should run
+   * and the Session it left, so only external effects remain and each is
+   * derived fresh: a generation still live on the old Session is retired, the
+   * retired Session is archived once the registry does not yet report it
+   * archived, and the target activates when no live generation runs it.
+   *
+   * A live handle alone never decides completion — disposal can succeed and
+   * leave the archive half owed — so the registry's own archive set is the
+   * evidence for that step.
+   *
+   * `forkedFrom` marks a PLANNED in-process activation (the caller just
+   * retired that Session in this same request): `activateMember` reads its
+   * absence as a recovered Session that may never have materialized and runs
+   * the handoff-reconstruction path. Startup, retry, and explicit recovery
+   * therefore leave it unset; only the request that committed the transition
+   * supplies it.
+   *
+   * Callers must already hold the lifecycle queue (or run before any other
+   * lifecycle work): this method does not re-enter it.
+   */
+  private async finishMemberTransition(memberId: AgentTeamMemberId, options?: {
+    readonly knownSessions?: ReadonlySet<SessionId>
+    readonly forkedFrom?: SessionId
+  }): Promise<void> {
+    const member = this.requireLedger().getMember(memberId)
+    if (member === undefined || member.state !== 'enabled') return
+    const transition = this.requireLedger().lastTransitionForMember(memberId)
+    if (transition === undefined) return
+    const live = this.handles.get(memberId)
+    if (live !== undefined && live.agent.id !== member.sessionId) {
+      await this.retireMemberGeneration(memberId, live, live.agent.id)
+    }
+    if (!this.ctx.workspaceRegistry.archivedSessionIds.includes(transition.previousSessionId)) {
+      await this.ctx.workspaceRegistry.archiveSession(transition.previousSessionId)
+    }
+    if (this.handles.get(memberId) === undefined) {
+      await this.activateMember(member, undefined, options?.knownSessions, options?.forkedFrom)
+    }
+  }
+
+  /**
+   * Converge one Member's external effects onto its durable lifecycle state
+   * — the single effect table every lifecycle operation runs right after its
+   * commit and startup re-runs for every non-enabled Member:
+   *
+   * - `suspended`: no live handle; the Session and private memory stay.
+   * - `archived`: no live handle; the Session is hidden from grouping
+   *   surfaces while its log and private memory stay on disk.
+   * - `inactive`: no live handle; the Session is archived and the private
+   *   memory deleted — removeMember's cleanup primitives.
+   *
+   * `enabled` has no entry here: its effects belong to the recorded Session
+   * transition and activation. Every step is derived from the durable state
+   * and safe to repeat — the registry's archive set decides whether the
+   * hide half is owed, disposal tolerates an absent handle, and removal
+   * cleanup force-tolerates an already-cleaned target — so a repeat after a
+   * crash or a failed call runs exactly the owed steps and never a second
+   * durable write. Callers must already hold the lifecycle queue (or run
+   * before any other lifecycle work, as startup does).
+   */
+  private async convergeMemberEffects(member: AgentTeamAgentMember): Promise<void> {
+    if (member.state === 'enabled') return
+    await this.disposeMemberSession(member.memberId, member)
+    if (member.state === 'archived') {
+      if (!this.ctx.workspaceRegistry.archivedSessionIds.includes(member.sessionId)) {
+        await this.ctx.workspaceRegistry.archiveSession(member.sessionId)
+      }
+    } else if (member.state === 'inactive') {
+      await this.memberRuntime.cleanupRemovedMember(member)
+    }
   }
 
   /**
@@ -1260,8 +1411,7 @@ export default class AgentTeam extends TypertRemoteService {
     return this.enqueueLifecycle(async () => {
       const result = await this.requireLedger().removeMember({ ...request, actor: agentTeamHumanActor() })
       if (result.committed) this.emitCommitted(result.value.receipt)
-      await this.disposeMemberSession(request.memberId, result.value.member)
-      await this.memberRuntime.cleanupRemovedMember(result.value.member)
+      await this.convergeMemberEffects(result.value.member)
       return result.value
     })
   }
@@ -1277,8 +1427,7 @@ export default class AgentTeam extends TypertRemoteService {
     return this.enqueueLifecycle(async () => {
       const result = await this.requireLedger().archiveMember({ ...request, actor: agentTeamHumanActor() })
       if (result.committed) this.emitCommitted(result.value.receipt)
-      await this.disposeMemberSession(request.memberId, result.value.member)
-      await this.ctx.workspaceRegistry.archiveSession(result.value.member.sessionId)
+      await this.convergeMemberEffects(result.value.member)
       return result.value
     })
   }

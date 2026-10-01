@@ -13,6 +13,9 @@ Team 是每个 DSH home 内唯一的协作域。append-only operation ledger 是
 
 ## Lifecycle 与通知
 - Agent lifecycle、JSON/SQLite replay、authorization、idempotency 和 revision checks 都留在 Host 侧。durable unread 变化可以通过 public Agent safe-boundary API 产生一条有界、合并后的 Agent context notification：direct mentions 携带其 Message 和 source，Task/Claim Activities 携带简要状态变化，ordinary unread 只携带不含正文的 Thread-first route（若存在则带 Task overlay）。Promotion 与其他 Task transition 一样是 Task activity，通过 Activity markers 到达 followers。这类 notification 不是第二权威，也不保证模型恰好处理一次。
+- 已提交的 Session transition（`team/member-session-renewed`、`team/member-session-rolled-over`）记录的是 desired binding，而不是已完成的切换：retire 旧代与 activate 目标都是 ledger 写入之外的 Host 效果。startup 与 Member 的显式 recovery 动作都会依据记录的 previous Session 补完被中断的 transition；每个效果各自推导是否已完成——live handle 不能证明 archive 那一半跑过——因此重复请求返回已记录的 receipt 与诚实状态，而不是再提交一次绑定。
+- 每个 durable Member state 只有一组期望的外部 effect——[Member Lifecycle](../domain-model.zh.md#member-lifecycle) 表。每一次 lifecycle operation 在 commit 之后重跑这组 effect，startup 对每个非 enabled Member 也重跑同一组，因此被 crash 或失败的 Workspace/Session/filesystem 调用打断的 archive、suspension、remove 通过重跑同一条推导收敛，而不是第二次 durable 写入。
+- startup 绝不把非 enabled Member 激活为 enabled：启动阶段失败的 effect 只记日志并在下一次 boot 重试，而不是让 boot 失败；lifecycle operation 继续通过现有队列严格串行。
 
 ## 变更流与 Projection
 - `changes()` 是流式 Remote，可声明一个 scope（workspace/channel/thread/presence）；省略 scope 时观察共享 Team 投影变化，不包含 presence。Host 先注册监听，再发送当前基线，之后只发送匹配的变更通知；消费者暂停期间仅保留最新待发送版本。取消或 Host 释放时关闭订阅。Thread read 与 `team/dm-sent` 不改变共享投影，因此既不推进其版本也不唤醒订阅者。Presence 使用进程内 epoch，其余 scope 使用最近一次共享投影提交的 ledger sequence。版本只在同一 scope 和 Host 生命周期内有意义。Host 只为受 operation 影响的 Members 重算 Inbox hints。

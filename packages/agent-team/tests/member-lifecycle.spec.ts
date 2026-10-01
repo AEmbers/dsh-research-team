@@ -44,7 +44,28 @@ const requestId = (value: string): AgentTeamRequestId => value as AgentTeamReque
 const persistenceRaceError = (): Error =>
   Object.assign(new Error("scandir ENOENT: transient win32 staging directory raced the walk (test seam)"), { code: 'ENOENT' })
 
+/**
+ * One-shot filesystem fault for the private-memory half of Member cleanup:
+ * while `match` names a path fragment, `rm` on a matching target fails as a
+ * real permissions fault would, on every platform this suite runs on. The
+ * default (empty) passes every call through unchanged.
+ */
+const rmFault = vi.hoisted(() => ({ match: '' }))
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>()
+  return {
+    ...actual,
+    rm: ((path: import('node:fs').PathLike, options?: import('node:fs').RmOptions): Promise<void> => {
+      if (rmFault.match.length > 0 && typeof path === 'string' && path.includes(rmFault.match)) {
+        return Promise.reject(Object.assign(new Error(`private memory removal failed (test seam): ${path}`), { code: 'EACCES' }))
+      }
+      return actual.rm(path, options)
+    }) as typeof actual.rm,
+  }
+})
+
 afterEach(async () => {
+  rmFault.match = ''
   await Promise.all(cleanups.splice(0).map(cleanup => cleanup()))
   if (originalDshHome === undefined) delete process.env.DSH_HOME
   else process.env.DSH_HOME = originalDshHome
@@ -255,7 +276,14 @@ async function realHarness(
   ctx.provide('workspaceRegistry', {
     get: (id: WorkspaceId) => workspaces.get(id),
     list: () => [],
+    // The registry-global archive set the real registry exposes: the Host
+    // reads it to decide whether a retired Session's archive effect is still
+    // owed, so the fake has to report the same durable truth.
+    get archivedSessionIds(): readonly SessionId[] { return archived },
     archiveSession: async (sessionId: SessionId) => {
+      // The real registry resolves an already-archived id without writing;
+      // the fake mirrors that so repeated cleanup cannot record a duplicate.
+      if (archived.includes(sessionId)) return
       if (archiveFailures.remaining > 0) {
         archiveFailures.remaining -= 1
         throw new Error('workspace archive failed (test seam)')
@@ -382,20 +410,273 @@ describe('Agent Team Member lifecycle', () => {
     expect(archived).toEqual([added.status.member.sessionId])
   })
 
-  it('cannot retry context renewal after the post-commit Session archive fails', async () => {
-    const { ctx, workspaceId, archiveFailures } = await realHarness()
+  it('finishes a context renewal whose Session archive failed when the same request is retried', async () => {
+    const { ctx, workspaceId, archived, archiveFailures } = await realHarness()
     const added = await ctx.agentTeam.addMember({ requestId: requestId('clear-retry-add'), workspaceId,
       handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
     const memberId = added.status.member.memberId
+    const target = SessionId(`agent-team-${requestId('clear-retry')}`)
     archiveFailures.remaining = 1
 
     await expect(ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-retry'), workspaceId, memberId }))
       .rejects.toThrow('workspace archive failed')
-    const status = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
-    expect(status?.member.sessionId).toBe(`agent-team-${requestId('clear-retry')}`)
-    expect(status?.availability).toBe('unavailable')
-    await expect(ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-retry'), workspaceId, memberId }))
-      .rejects.toThrow('has no active session to clear')
+    const stranded = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
+    expect(stranded?.member.sessionId).toBe(target)
+    expect(stranded?.availability).toBe('unavailable')
+    // The retire half disposed the old generation but never archived it, so
+    // the recorded binding and the live effects disagree until it is finished.
+    expect(archived).toEqual([])
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    expect(ctx.agents.get(target)).toBeUndefined()
+
+    // The durable renewal is the desired binding: the same request finishes
+    // the outstanding effects and answers with that recorded result instead
+    // of refusing with "has no active session to clear".
+    const retried = await ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-retry'), workspaceId, memberId })
+    expect(retried.status.member.sessionId).toBe(target)
+    expect(retried.status.availability).toBe('active')
+    expect(archived).toEqual([added.status.member.sessionId])
+    expect(ctx.agents.get(target)).toBeDefined()
+
+    // Still exactly one renewal: repeating the request never mints a second
+    // binding, and the recorded receipt is what comes back.
+    const again = await ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-retry'), workspaceId, memberId })
+    expect(again.receipt.operationId).toBe(retried.receipt.operationId)
+    expect(again.status.availability).toBe('active')
+    expect(archived).toEqual([added.status.member.sessionId])
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('finishes an interrupted context renewal during startup', async () => {
+    const { ctx, workspaceId, archived, archiveFailures, teamFiber } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('clear-boot-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    const target = SessionId(`agent-team-${requestId('clear-boot')}`)
+    archiveFailures.remaining = 1
+
+    await expect(ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-boot'), workspaceId, memberId }))
+      .rejects.toThrow('workspace archive failed')
+    expect(archived).toEqual([])
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === memberId)?.availability).toBe('unavailable')
+
+    // Restarting replays the same ledger through the boot path: no live handle
+    // survives a restart, so startup itself must archive the retired Session
+    // and start the recorded binding rather than the pre-renewal one.
+    await teamFiber.dispose()
+    await ctx.plugin(AgentTeam)
+
+    expect(archived).toEqual([added.status.member.sessionId])
+    const restored = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
+    expect(restored?.member.sessionId).toBe(target)
+    expect(restored?.availability).toBe('active')
+    expect(ctx.agents.get(target)).toBeDefined()
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('finishes a context renewal whose target Session activation failed', async () => {
+    const { ctx, workspaceId, archived, presets } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('clear-activation-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    const target = SessionId(`agent-team-${requestId('clear-activation')}`)
+    presets.failingMount = true
+
+    await expect(ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-activation'), workspaceId, memberId }))
+      .rejects.toThrow('failed to start a new context')
+    const stranded = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
+    expect(stranded?.member.sessionId).toBe(target)
+    expect(stranded?.availability).toBe('unavailable')
+    // Here the retire half completed and the target never started — the two
+    // failure windows are distinguishable, which is what reconciliation reads.
+    expect(archived).toEqual([added.status.member.sessionId])
+    expect(ctx.agents.get(target)).toBeUndefined()
+
+    presets.failingMount = false
+    const retried = await ctx.agentTeam.clearMemberContext({ requestId: requestId('clear-activation'), workspaceId, memberId })
+    expect(retried.status.member.sessionId).toBe(target)
+    expect(retried.status.availability).toBe('active')
+    expect(ctx.agents.get(target)).toBeDefined()
+    expect(archived).toEqual([added.status.member.sessionId])
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('converges an archive interrupted after its commit during startup', async () => {
+    const { ctx, workspaceId, archived, archiveFailures, teamFiber } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('arch-boot-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    await writeFile(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'), 'persistent note')
+    archiveFailures.remaining = 1
+
+    // The commit landed and the disposal succeeded; only the hide half
+    // failed, so the durable state already says archived while no effect
+    // hid the Session from grouping surfaces.
+    await expect(ctx.agentTeam.archiveMember({ requestId: requestId('arch-boot'), memberId }))
+      .rejects.toThrow('workspace archive failed')
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === memberId)?.availability).toBe('archived')
+    expect(archived).toEqual([])
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+
+    await teamFiber.dispose()
+    await ctx.plugin(AgentTeam)
+
+    // Startup finishes the owed hide half from the durable state alone and
+    // never activates the archived Member as an enabled one.
+    expect(archived).toEqual([added.status.member.sessionId])
+    const restored = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
+    expect(restored).toMatchObject({ availability: 'archived', presence: 'unavailable' })
+    expect(restored?.member.sessionId).toBe(added.status.member.sessionId)
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(false)
+    await expect(access(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'))).resolves.toBeUndefined()
+    expect(ctx.agentTeam.view({ workspaceId }).members).toEqual([])
+    expect(ctx.agentTeam.members().filter(item => item.member.memberId === memberId)).toHaveLength(1)
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('converges an archive whose Agent disposal failed during startup', async () => {
+    const { ctx, workspaceId, archived, teamFiber } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('arch-dispose-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    await writeFile(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'), 'persistent note')
+    const handle = ctx.agentTeam['handles'].get(memberId)!
+    vi.spyOn(handle, 'dispose').mockRejectedValueOnce(new Error('agent disposal failed (test seam)'))
+
+    // Durable state says archived while the generation is still live — the
+    // window a caller that never retries would leave standing.
+    await expect(ctx.agentTeam.archiveMember({ requestId: requestId('arch-dispose'), memberId }))
+      .rejects.toThrow('agent disposal failed')
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === memberId)?.availability).toBe('archived')
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeDefined()
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(true)
+
+    await teamFiber.dispose()
+    await ctx.plugin(AgentTeam)
+
+    expect(archived).toEqual([added.status.member.sessionId])
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(false)
+    await expect(access(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'))).resolves.toBeUndefined()
+    expect(ctx.agentTeam.members().filter(item => item.member.memberId === memberId)).toHaveLength(1)
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('finishes a removal whose private-memory cleanup failed when the Host restarts', async () => {
+    const { ctx, workspaceId, archived, teamFiber } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('remove-fs-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    const memoryPath = added.status.member.privateMemoryPath
+    await writeFile(join(memoryPath, 'notes', 'kept.md'), 'persistent note')
+    rmFault.match = join('agent-team', 'members')
+
+    await expect(ctx.agentTeam.removeMember({ requestId: requestId('remove-fs'), memberId }))
+      .rejects.toThrow('failed to clean up removed Member')
+    rmFault.match = ''
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === memberId)?.availability).toBe('inactive')
+    // The Session half of the cleanup already ran; the memory half is owed.
+    expect(archived).toEqual([added.status.member.sessionId])
+    await expect(access(join(memoryPath, 'notes', 'kept.md'))).resolves.toBeUndefined()
+
+    await teamFiber.dispose()
+    await ctx.plugin(AgentTeam)
+
+    await expect(access(memoryPath)).rejects.toThrow()
+    expect(archived).toEqual([added.status.member.sessionId])
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(false)
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('keeps a failing private-memory cleanup from failing startup and retries it at the next boot', async () => {
+    const { ctx, workspaceId, archived, teamFiber } = await realHarness()
+    const removed = await ctx.agentTeam.addMember({ requestId: requestId('boot-fs-remove'), workspaceId,
+      handle: 'victim', description: '', presetId: 'team-member', channelRefs: [] })
+    const keeper = await ctx.agentTeam.addMember({ requestId: requestId('boot-fs-keep'), workspaceId,
+      handle: 'keeper', description: '', presetId: 'team-member', channelRefs: [] })
+    await writeFile(join(removed.status.member.privateMemoryPath, 'notes', 'kept.md'), 'persistent note')
+    rmFault.match = join('agent-team', 'members')
+    await expect(ctx.agentTeam.removeMember({ requestId: requestId('boot-fs'), memberId: removed.status.member.memberId }))
+      .rejects.toThrow('failed to clean up removed Member')
+
+    // Restart while the fault still stands: startup retries the owed
+    // cleanup, fails again, and must neither take the Host down with it nor
+    // cost the rest of the roster their activation.
+    await teamFiber.dispose()
+    const boot = await ctx.plugin(AgentTeam)
+    expect(boot).toBeDefined()
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === removed.status.member.memberId)?.availability).toBe('inactive')
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === keeper.status.member.memberId)?.availability).toBe('active')
+    await expect(access(removed.status.member.privateMemoryPath)).resolves.toBeUndefined()
+    expect(archived).toEqual([removed.status.member.sessionId])
+
+    // The fault clears like the failed call it stands for; the next startup
+    // finishes what is still owed.
+    rmFault.match = ''
+    await boot.dispose()
+    await ctx.plugin(AgentTeam)
+    await expect(access(removed.status.member.privateMemoryPath)).rejects.toThrow()
+    expect(archived).toEqual([removed.status.member.sessionId])
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === keeper.status.member.memberId)?.availability).toBe('active')
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('keeps a suspended Member suspended across startup and finishes a disposal-failed suspension on retry', async () => {
+    const { ctx, workspaceId, archived, teamFiber } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('susp-boot-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    await writeFile(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'), 'persistent note')
+    const handle = ctx.agentTeam['handles'].get(memberId)!
+    vi.spyOn(handle, 'dispose').mockRejectedValueOnce(new Error('agent disposal failed (test seam)'))
+
+    await expect(ctx.agentTeam.suspendMember({ requestId: requestId('susp-boot'), memberId }))
+      .rejects.toThrow('agent disposal failed')
+    expect(ctx.agentTeam.members().find(item => item.member.memberId === memberId)?.availability).toBe('suspended')
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(true)
+
+    const retried = await ctx.agentTeam.suspendMember({ requestId: requestId('susp-boot'), memberId })
+    expect(retried.status.availability).toBe('suspended')
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(false)
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    // Suspended keeps the Session: nothing archives it, memory stays.
+    expect(archived).toEqual([])
+    await expect(access(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'))).resolves.toBeUndefined()
+
+    await teamFiber.dispose()
+    await ctx.plugin(AgentTeam)
+
+    const restored = ctx.agentTeam.members().find(item => item.member.memberId === memberId)
+    expect(restored).toMatchObject({ availability: 'suspended', presence: 'unavailable' })
+    expect(restored?.member.sessionId).toBe(added.status.member.sessionId)
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(false)
+    expect(archived).toEqual([])
+    await expect(access(join(added.status.member.privateMemoryPath, 'notes', 'kept.md'))).resolves.toBeUndefined()
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
+  it('finishes an interrupted suspension through explicit recovery instead of steering the stray generation', async () => {
+    const { ctx, workspaceId, archived } = await realHarness()
+    const added = await ctx.agentTeam.addMember({ requestId: requestId('susp-recover-add'), workspaceId,
+      handle: 'builder', description: '', presetId: 'team-member', channelRefs: [] })
+    const memberId = added.status.member.memberId
+    const handle = ctx.agentTeam['handles'].get(memberId)!
+    vi.spyOn(handle, 'dispose').mockRejectedValueOnce(new Error('agent disposal failed (test seam)'))
+    await expect(ctx.agentTeam.suspendMember({ requestId: requestId('susp-recover'), memberId }))
+      .rejects.toThrow('agent disposal failed')
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(true)
+
+    // The durable state already says no live generation, so explicit
+    // recovery converges the stray handle instead of feeding it a resume.
+    const recovered = await ctx.agentTeam.recoverMember({ requestId: requestId('susp-recover-recover'), workspaceId, memberId })
+    expect(recovered.status.availability).toBe('suspended')
+    expect(ctx.agentTeam['handles'].has(memberId)).toBe(false)
+    expect(ctx.agents.get(added.status.member.sessionId)).toBeUndefined()
+    expect(archived).toEqual([])
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
   })
 
   it('creates, suspends, resumes, and removes an exact Team-owned Agent session', async () => {
