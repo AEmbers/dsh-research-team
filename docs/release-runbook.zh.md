@@ -18,7 +18,7 @@
    - 这些位置的清单在 [`scripts/check-version-consistency.mjs`](../scripts/check-version-consistency.mjs)——不要手工维护第二份。
    - `.hoplite/settings.json` 里的声明位于一个 JSON 字符串中、引号是转义的，所以朴素的 `grep` 在那里什么都找不到；这道门读得对。
    - 这些位置只在该版本真正发布的同一轮里推进。
-4. **扫正文里被本次发布证伪的句子。** 在维护文档里检索那些以「发布尚未发生」为前提的表述——`latest` 是 `<上一个版本>`、某项能力被描述为尚未发布、某个 peer 范围被描述为待定。修正文档的当前状态声明确实属于发布提交的一部分；改写已发布的历史则不属于（§7）。
+4. **扫正文里被本次发布证伪的句子。** 在维护文档里检索那些以「发布尚未发生」为前提的表述——`latest` 是 `<上一个版本>`、某项能力被描述为尚未发布、某个 peer 范围被描述为待定，或一条把更旧的 DSH 线与最后仍支持它的 bundle 版本配在一起的 warm-line pin。修正文档的当前状态声明确实属于发布提交的一部分；改写已发布的历史则不属于（§7）。
 5. **确认工作树没有未提交的构建输入。** `prepack` 是 `npm run build`，而 `packages/*/lib/**` 在发布的 `files` 白名单内，所以未提交的 `src/` 改动会被打进 tarball。白名单之外的未跟踪文件（`scripts/`、`.scratch/`）不会被打包，也不阻塞发布。绝不要为了让工作树干净而 stash 或回退其他成员的工作——先弄清那是谁的。
 6. **清楚 CI 会做什么、不会做什么。** 发布提交自身那一次运行必须在**两条 lane** 上都绿，然后才打 tag（§5）。纯文档推送根本不会产生运行：`ci.yml` 忽略 `**.md`、`docs/**`、`assets/**`，所以它的证据是 `git diff --check`、链接解析，以及从远端读回。
 
@@ -57,8 +57,8 @@
 
 1. tag 恰好是 `v<package.json version>`——manifest 与 tag 之间不得漂移。
 2. 预发布后缀与 GitHub Release 的 prerelease 标记一致；稳定版不得被标为 prerelease。
-3. 预发布绝不占用 `latest` dist-tag；只有稳定版可以持有它。
-4. 发布绝不把 `latest` 往回移：当前 `latest` 必须 semver 上低于即将发布的版本。
+3. 发布命令必须显式指名 dist-tag——`npm publish --tag <dist-tag> --access public`，稳定版用 `latest`、预发布用它自己的 tag。npm 会拒绝在默认 tag 下发布预发布，所以省略 `--tag` 根本表达不了这笔发布：运行会停在这里，而不会移动 `latest`。
+4. 占用 `latest` 的发布绝不把它往回移：当前 `latest` 必须 semver 上低于即将发布的版本。
 
 ```sh
 git add package.json CHANGELOG.md
@@ -73,7 +73,7 @@ git push origin master
 git tag vX.Y.Z
 git push --dry-run origin vX.Y.Z            # 栅栏：这里必须只列这个 tag
 git push origin vX.Y.Z
-npm publish --access public
+npm publish --tag <dist-tag> --access public
 ```
 
 显式 refspec 与它们的 dry-run 栅栏是承重的，不是仪式。本地克隆可能带着改写前的备份分支与仅本地 tag，其提交是刻意不进远端的，而 `--all` / `--tags` 会把它们静默推上去。本仓库是公开的：推错的 ref 无法收回。如果某次 dry run 列出了第三个 ref，停下来查清那是谁的。
@@ -82,7 +82,7 @@ npm publish --access public
 
 ## 6. 发布后核验
 
-1. `npm view @wowyuarm/dsh-agent-team version dist-tags.latest`——两者都等于 `X.Y.Z`。
+1. `npm view @wowyuarm/dsh-agent-team dist-tags.<dist-tag>`——等于 §5 发布时所用的那个 tag 值 `X.Y.Z`。占用 `latest` 的发布同时会移动 packument 自身的 `version`；预发布停在自己的 tag 上，`latest` 留在原处。
 2. GitHub Release 存在、带显式标题，两种语言段落都能渲染。
 3. 置顶的兼容性讨论里能看到新的发布评论。
 4. 稳定 profile 按**精确版本**安装：`dsh plugin --profile web add @wowyuarm/dsh-agent-team@X.Y.Z`。直接 `update` 可能报「Already Up to date」，因为 lockfile 钉住了解析结果；不能让 profile 停留在「读更新的 ledger、跑更旧的 bundle」的状态——两个 profile 共用 `$DSH_HOME/storages/`。

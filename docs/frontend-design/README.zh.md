@@ -8,7 +8,7 @@
 
 | Page | Owns |
 | --- | --- |
-| [principles-and-language.zh.md](principles-and-language.zh.md) | 复用优先的设计原则与 DSH 0.1.5 设计语言对齐 |
+| [principles-and-language.zh.md](principles-and-language.zh.md) | 复用优先的设计原则与 DSH 设计语言对齐 |
 | [layout-and-typography.zh.md](layout-and-typography.zh.md) | 布局骨架、排版体系，以及颜色与身份 |
 | [components.zh.md](components.zh.md) | 每个 Team 组件一份合同：消息、消息块、ref、计数胶囊、花名册、资料页、失败态与 Thread 顶层栏 |
 | [thread-and-composer.zh.md](thread-and-composer.zh.md) | 时间线滚动、composer 与 mention、Thread/Task 入口行，以及状态胶囊与弹层 |

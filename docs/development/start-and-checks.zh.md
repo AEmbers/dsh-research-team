@@ -74,7 +74,7 @@ npm run test:browser
 node scripts/audit-ui-parity.mjs
 ```
 
-该审计把 Team Client 的 CSS/TSX 与 `docs/frontend-design/principles-and-language.md` 中的 DSH 0.1.5 语言契约对照：焦点可见性、控件节奏、图标语义、硬编码颜色与 shipped 参考是否存在。任何可见 UI 改动后、每次 DSH 升级后都应运行。
+该审计把 Team Client 的 CSS/TSX 与 `docs/frontend-design/principles-and-language.md` 中的设计语言契约对照：焦点可见性、控件节奏、图标语义、硬编码颜色与 shipped 参考是否存在。任何可见 UI 改动后、每次 DSH 升级后都应运行。
 
 它会先 build，然后在临时 profile 中复制已构建 package，启动 Harness 官方 Web scaffold，用 `/usr/bin/google-chrome` 跑真实 journey；`CHROME_PATH` 可以覆盖浏览器路径。沙箱 setup 会在基础镜像没有浏览器时，把 Playwright 自带的 chromium 装到该路径。测试结束后会清理临时 profile 和 Harness 测试文件。
 

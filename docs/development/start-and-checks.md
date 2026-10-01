@@ -75,7 +75,7 @@ Visible UI changes touching Team controls or surfaces additionally run the mecha
 node scripts/audit-ui-parity.mjs
 ```
 
-The audit compares Team Client CSS/TSX against the DSH 0.1.5 language contract in `docs/frontend-design/principles-and-language.md`: focus visibility, control rhythm, icon semantics, hardcoded colors, and shipped-reference presence. Run it after any visible-UI change and after every DSH upgrade.
+The audit compares Team Client CSS/TSX against the design-language contract in `docs/frontend-design/principles-and-language.md`: focus visibility, control rhythm, icon semantics, hardcoded colors, and shipped-reference presence. Run it after any visible-UI change and after every DSH upgrade.
 
 This builds first, copies built packages into a temporary profile, starts the official Harness Web scaffold, and runs the real journey with `/usr/bin/google-chrome` (override with `CHROME_PATH`). The sandbox setup provisions Playwright's own chromium at that path when the base image ships no browser. It cleans the temporary profile and Harness test files afterward.
 

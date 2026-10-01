@@ -74,7 +74,9 @@ The six mechanical surfaces that must change together:
 5. **Host and Remote.** Add the `@Remote('<action>')` method in `index.ts`: authorize, dispatch to the ledger with the Human or Member actor, and emit the committed receipt.
 6. **Tests and docs.** Cover commit, replay, authorization, and the projection effect; then update the owning maintained document (`architecture/README.md` for boundaries, `domain-model.md` for semantics, `team-collaboration/README.md` for a model-facing contract).
 
-The invariant companion is checked, not extended: `invariant.ts` registers one `agentTeam` invariant that validates the whole durable ledger at mount and after commits, so a new operation is covered automatically once it replays. Extend it only when the new record shape needs a relationship the projection validator does not already assert.
+**The question those six surfaces do not ask: crash reconvergence.** For every in-process effect it drives — a wake, a disposal, an activation, an external file side effect — answer: if the process dies between commit and effect, which durable state re-derives it, and is that re-derivation idempotent? The effect is re-derived *after* replay, never instead of it; the step is a question, not a seventh surface. [`host-authority.md`](../architecture/host-authority.md) names the Host's own re-derivations.
+
+The invariant companion is checked, not extended: `invariant.ts` registers one `agentTeam` invariant that validates the whole durable ledger at mount and after commits, so a new operation's durable record is covered automatically once it replays. That coverage stops at the durable table — the in-process effects the question above asks about have no invariant. Extend the invariant only when the new record shape needs a relationship the projection validator does not already assert.
 
 Two boundaries this checklist depends on:
 

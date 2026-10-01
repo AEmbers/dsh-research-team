@@ -18,7 +18,7 @@ This document is the procedure for publishing a version of `@wowyuarm/dsh-agent-
    - The list of spots lives in [`scripts/check-version-consistency.mjs`](../scripts/check-version-consistency.mjs) — never keep a second copy by hand.
    - The declaration in `.hoplite/settings.json` sits inside a JSON string with escaped quotes, so a naive `grep` reports nothing there; the gate reads it correctly.
    - Advance these spots only in the pass that publishes the version they name.
-4. **Sweep the prose for statements this release falsifies.** Grep the maintained documents for sentences conditioned on the release *not* having happened — `latest` is `<previous version>`, a capability described as unpublished, a peer range described as pending. Correcting a document's current-state claim belongs in the release commit; rewriting shipped history does not (§7).
+4. **Sweep the prose for statements this release falsifies.** Grep the maintained documents for sentences conditioned on the release *not* having happened — `latest` is `<previous version>`, a capability described as unpublished, a peer range described as pending, a warm-line pin pairing an older DSH line with the last bundle release that still supports it. Correcting a document's current-state claim belongs in the release commit; rewriting shipped history does not (§7).
 5. **Confirm the working tree carries no uncommitted build input.** `prepack` is `npm run build` and `packages/*/lib/**` is inside the published `files` allowlist, so an uncommitted `src/` edit ships in the tarball. Untracked files outside the allowlist (`scripts/`, `.scratch/`) cannot ship and do not block a release. Never stash or revert another member's work to clear the tree — establish whose it is first.
 6. **Know what CI will and will not do.** The release commit's own run must be green on **both lanes** before tagging (§5). A documentation-only push produces no run at all: `ci.yml` ignores `**.md`, `docs/**`, and `assets/**`, so its evidence is `git diff --check`, link resolution, and a read-back from the remote.
 
@@ -57,8 +57,8 @@ Assert all four release-semantics facts **before** pushing or publishing:
 
 1. The tag is exactly `v<package.json version>` — no drift between manifest and tag.
 2. A prerelease suffix matches the GitHub Release's prerelease flag; a stable release is not flagged prerelease.
-3. A prerelease never takes the `latest` dist-tag; only a stable version may hold it.
-4. Publishing never moves `latest` backwards: the current `latest` must be semver-lower than the version being published.
+3. Publishing names the dist-tag explicitly — `npm publish --tag <dist-tag> --access public`, with `<dist-tag>` `latest` for a stable version and the prerelease's own tag otherwise. npm refuses a prerelease published under the default tag, so an omitted `--tag` cannot express this release at all: the run stops there rather than moving `latest`.
+4. A release that takes `latest` never moves it backwards: the current `latest` must be semver-lower than the version being published.
 
 ```sh
 git add package.json CHANGELOG.md
@@ -73,7 +73,7 @@ Wait for this run to be green on both lanes (§2.6) before tagging:
 git tag vX.Y.Z
 git push --dry-run origin vX.Y.Z            # fence: this must list exactly the tag
 git push origin vX.Y.Z
-npm publish --access public
+npm publish --tag <dist-tag> --access public
 ```
 
 The explicit refspecs and their dry-run fences are load-bearing, not ceremony. A clone can carry pre-rewrite backup branches and local-only tags whose commits are deliberately absent from the remote, and `--all` / `--tags` publish them silently. This repository is public: a stray ref cannot be withdrawn. If a dry run lists a third ref, stop and find out whose it is.
@@ -82,7 +82,7 @@ Pushing master before the tag costs nothing and keeps the tag's evidence honest:
 
 ## 6. Post-publish verification
 
-1. `npm view @wowyuarm/dsh-agent-team version dist-tags.latest` — both equal `X.Y.Z`.
+1. `npm view @wowyuarm/dsh-agent-team dist-tags.<dist-tag>` — equals `X.Y.Z`, the tag §5 published under. A release that took `latest` also moves the packument's own `version`; a prerelease on its own tag leaves `latest` where it was.
 2. The GitHub Release exists, carries an explicit title, and renders both language sections.
 3. The pinned compatibility discussion shows the new release comment.
 4. The stable profile installs the release by **exact version**: `dsh plugin --profile web add @wowyuarm/dsh-agent-team@X.Y.Z`. A plain `update` can report "Already up to date" because the lockfile pins the resolution; the profile must not be left reading a newer ledger with an older bundle, since both profiles share `$DSH_HOME/storages/`.

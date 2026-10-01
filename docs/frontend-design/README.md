@@ -8,7 +8,7 @@ The UI system is maintained in focused files:
 
 | Page | Owns |
 | --- | --- |
-| [principles-and-language.md](principles-and-language.md) | the reuse-first principles and the DSH 0.1.5 design-language alignment |
+| [principles-and-language.md](principles-and-language.md) | the reuse-first principles and the DSH design-language alignment |
 | [layout-and-typography.md](layout-and-typography.md) | the layout skeleton, typography, and colour and identity |
 | [components.md](components.md) | one contract per Team component: messages, runs, refs, capsule, rosters, profile, failures, and the Thread header band |
 | [thread-and-composer.md](thread-and-composer.md) | timeline scrolling, the composer and mentions, Thread/Task entry rows, and status pills |
