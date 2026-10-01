@@ -10,6 +10,6 @@
 - [x] A provisional ranking and falsifiers are recorded; first targeted tests and Harness event checks are recorded in `validation/2026-10-01-first-pass.md`.
 - [x] Failure injection covered path-attachment retry, archive retry, and context-renewal retry; the differing retry semantics are recorded in the operation-lifecycle and findings materials.
 - [x] A decision snapshot is accepted and dependency-ordered implementation tickets exist for the agreed improvements.
-- [ ] Durable conclusions have been moved into maintained documentation before this work item is archived.
+- [x] Durable conclusions have been moved into maintained documentation before this work item is archived.
 
 **Formal-doc exit:** Update the owning documents under `docs/` only for conclusions that remain true after implementation; archive this work item after tickets and validation are complete.
