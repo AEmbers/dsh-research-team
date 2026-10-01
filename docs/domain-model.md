@@ -62,11 +62,11 @@ Free-text work direction for a Claim. Comparisons apply Unicode normalization, t
 
 ## Thread Attention
 
-A private persistent attention period for one Member and Thread. It records follow state, start position, and contiguous read watermark and is not public revision. Creating a Thread, a successful Claim, explicit follow, or Human invitation starts Attention. Taskless Threads may be unfollowed directly; taskful Threads require no active Claim. Unfollow ends the period and abandons its unread work; following later starts at the current tail.
+A private persistent attention period for one Member and Thread: the current period's start and a contiguous read watermark. Its presence is what following means, and it is not public revision. What starts and ends a period is in [attention-and-messaging.md](team-collaboration/attention-and-messaging.md).
 
 ## Thread Inbox
 
-Member-level unread projection derived from Thread Attention and direct mentions. Ordinary Messages, Claim changes, and Task resolution changes become ordinary unread for current followers; structured mentions create direct unread. `team_inbox` summarizes across Threads; `team_thread.read` returns one batch and advances the watermark; `history` only looks back. Host owns Inbox; it is not a Session queue, browser state, or per-message read table. Human Web opens Threads from Channels and the Inbox page.
+Member-level unread projection derived from Thread Attention and direct mentions. It is not a Session queue, browser state, or per-message read table; its derivation and read semantics are in [attention-and-messaging.md](team-collaboration/attention-and-messaging.md), and the tool contract in [tools.md](team-collaboration/tools.md).
 
 ## Follow
 

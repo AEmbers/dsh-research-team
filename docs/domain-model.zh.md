@@ -62,11 +62,11 @@ Claim 的自由文本工作方向。比较时执行 Unicode 规范化、首尾�
 
 ## Thread Attention
 
-一个 Member 对一个 Thread 的私有、持久关注周期。Attention 记录 follow 状态、开始位置和连续 read watermark；它是 Member × Thread 的个人状态，不进入公开 Thread revision，也不因 read/follow 产生其他成员的 Agent Inbox 工作。创建顶层 Thread、成功 Claim、显式 follow 或 Human 确认邀请可开始 Attention；taskless Thread 可直接 unfollow，taskful Thread 仅在该 Member 没有 active Claim 时可 unfollow；两者都会结束当前周期并放弃该周期的未读，之后重新 follow 从当时 Thread 尾部开始。
+一个 Member 对一个 Thread 的私有、持久关注周期：当前关注周期的起点与连续的 read watermark。它的存在本身就是 follow，且不进入公开 Thread revision。周期的开始与结束规则见 [attention-and-messaging.zh.md](team-collaboration/attention-and-messaging.zh.md)。
 
 ## Thread Inbox
 
-Team ledger 从 Thread Attention 与 direct mention 派生的成员级未读投影。普通 Message、Claim 变化和 Task resolution 变化只对当前 follower 形成 ordinary unread；structured mention 形成 direct unread。`team_inbox` 返回跨 Thread 摘要，`team_thread.read` 原子返回连续未读批次并推进 watermark，`team_thread.history` 只回看历史。Inbox 是 Host 权威，不是 Agent Session queue、浏览器状态或 per-message read 表。Human Web 从 Channel 与 Inbox 页面浏览和打开 Thread。
+从 Thread Attention 与 direct mention 派生的成员级未读投影。它不是 Agent Session queue、浏览器状态或 per-message read 表；派生与读取语义见 [attention-and-messaging.zh.md](team-collaboration/attention-and-messaging.zh.md)，工具契约见 [tools.zh.md](team-collaboration/tools.zh.md)。
 
 ## Follow
 

@@ -10,24 +10,13 @@
 - 路由切换创建新的空 SQLite 介质；旧 `agent_team.json` 不被读取也不迁移，由使用者自行搬移或删除。
 - `preview` 与 `preview:ui` 使用手写最小 overlay，不挂载该后端，仍走 JSON 默认路由。
 
-### 存储基准
-
-基准只测存储层写入路径（不含账本校验成本，那部分与后端无关），负载为约 3.4 KB 的典型操作文档：
+基准只测存储层写入路径，不含账本校验成本（那部分与后端无关）；负载为接近观测均值 ~3.4 KB 的确定性操作文档：
 
 ```sh
 DSH_BENCH_STORAGE=1 npx vitest run packages/agent-team/tests/storage-bench.spec.ts
 ```
 
-2026-08-23 实测（WAL、逐次持久化）：
-
-| 后端 | 操作数 | 总耗时 | 单次均值 | p95 |
-| --- | --- | --- | --- | --- |
-| JSON | 1k | 15.1s | 15.0ms | 19.5ms |
-| SQLite | 1k | 5.9s | 5.9ms | 7.7ms |
-| JSON | 10k | 401s | 40.1ms | 64.1ms |
-| SQLite | 10k | 66s | 6.6ms | 10.6ms |
-
-JSON 整文件重写的单次写成本随历史线性增长（1k→10k 涨了约 2.7 倍）；SQLite 稳定在逐语句 fsync 下限附近且不随历史增长。启动侧仍是全量 `loadAll()` 加全量重放，本阶段不变；后续 checkpoint/log 方向见 [`.scratch/archive/2026-08/agent-team-storage-architecture/`](../../.scratch/archive/2026-08/agent-team-storage-architecture/)。
+JSON 整文件重写的单次写成本随历史增长——1k→10k 约 2.7 倍——而 SQLite 稳定在逐语句 fsync 下限附近。启动侧仍是全量 `loadAll()` 加全量重放；后续 checkpoint/log 方向见 [storage architecture archive](../../.scratch/archive/2026-08/agent-team-storage-architecture/)。
 
 ## 多页面通知回归
 `npm run test:browser` 包含同一 BrowserContext 中的四个页面，随后再验证独立 BrowserContext。检查 Channel 实际渲染、跨页消息、关闭页面、退出 Team，以及浏览器发起的成员查询是否在 3 秒回归阈值内完成。该阈值只针对固定小数据集，不是生产延迟保证。完整流程还验证主动断网后无需新提交即可恢复。截图保留在 `artifacts/browser/`，包含桌面和 390×844 多页面视图。
