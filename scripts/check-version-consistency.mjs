@@ -14,7 +14,10 @@
 //     peer range in the root manifest — the line we certify is the
 //     line users can install.
 // The bug-report placeholder also names our own plugin version, which must
-// equal the root manifest version.
+// equal the root manifest version. Both READMEs must name the released plugin
+// version in the install command (c), and both languages of the compatibility
+// doc must restate the declared peer line as the manifest declares it (d) — a
+// sentence that drifted silently until it was gated.
 //
 // Deliberately excluded: CHANGELOG (history), `.scratch/` (work history), the
 // history paragraphs inside the compatibility doc (only its baseline sentence
@@ -154,6 +157,26 @@ for (const { file, pattern } of installSpots) {
   }
 }
 
+// (d) Both languages of the compatibility doc restate the declared peer line in
+// prose, in the "Current baseline" section. Nothing else reads that sentence:
+// the baseline spot above it anchors the certified version, not the range an
+// installer meets. The peers are declared to state one line, so the prose must
+// equal it; a range that legitimately differs is a decision to make here, not a
+// silent drift.
+const proseRanges = [
+  { file: 'docs/dsh-release-compatibility.md', pattern: /The DSH peers state exactly that certified line, `([^`]+)`/u },
+  { file: 'docs/dsh-release-compatibility.zh.md', pattern: /DSH peers 正好声明这条已认证线：`([^`]+)`/u },
+]
+const declaredRanges = [...new Set(peerRanges.map(([, range]) => range))]
+for (const { file, pattern } of proseRanges) {
+  const proseRange = extract(file, pattern)
+  if (proseRange === undefined) {
+    failures.push(`${file}: declared peer range not found (pattern stopped matching — update the pattern with the prose)`)
+  } else if (declaredRanges.length !== 1 || proseRange !== declaredRanges[0]) {
+    failures.push(`${file} states the peers declare \`${proseRange}\` but package.json declares ${declaredRanges.map((range) => `\`${range}\``).join(', ')}`)
+  }
+}
+
 if (failures.length > 0) {
   console.error(`Version consistency check failed (${failures.length}):`)
   for (const failure of failures) console.error(`- ${failure}`)
@@ -162,5 +185,5 @@ if (failures.length > 0) {
 console.log(
   `Version consistency check OK: ${stated.length + 1} version spots agree on ${reference}, `
     + `${peerRanges.length} DSH ranges admit from it, plugin ${manifest.version} `
-    + `(named by ${installSpots.length} install commands).`,
+    + `(named by ${installSpots.length} install commands, restated by ${proseRanges.length} prose spots).`,
 )
