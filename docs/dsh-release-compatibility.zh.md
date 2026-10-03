@@ -396,6 +396,8 @@ composer 的 `stats` 行拆成 `activity` 与 `usage`。本 bundle 只注册 `co
 
 `npm run test:browser` 在候选检出上五条 journey 全过；Windows 上需要设 `CHROME_PATH`，因为默认值是 Linux 路径 `/usr/bin/google-chrome`。
 
+候选也确实把它启起来了：DSH `0.2.1-alpha.1` 上的 scratch profile 从 linked checkout 组合出本 bundle，启动页注册了 `@aembers/dsh-research-team`，Client 模块以 657,431 字节送达，不含改名前那个名字。被下面那条子依赖拒绝挡住的是发布安装这条路，不是挂载本身。
+
 §3.5 在空目录里解析出单一 DSH 世代（在 npm 下）：279 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.1-alpha.1`，没有嵌套的旧世代拷贝，`npm ls --all` 里没有 `invalid` 边。
 
 真实 profile 用 pnpm 安装，这一轮就停在这里。pnpm 11 默认拒绝子依赖里的 git 托管依赖，于是 `dsh plugin --profile <name> add <tarball>` 以 `ERR_PNPM_EXOTIC_SUBDEP` 失败：`"@aembers/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`。

@@ -333,6 +333,8 @@ Evidence on the certified tree: `npm run typecheck` (477 Harness mappings), `npm
 
 `npm run test:browser` passed all five journeys against the candidate checkout; on Windows it needs `CHROME_PATH`, because the default is the Linux path `/usr/bin/google-chrome`.
 
+The candidate also boots it: a scratch profile on DSH `0.2.1-alpha.1` composed the bundle from a linked checkout, registered `@aembers/dsh-research-team` in the boot page, and served its Client module at 657,431 bytes with no trace of the pre-fork name. What the subdependency refusal below blocks is the published-install path, not the mount itself.
+
 Section 3.5 resolves a single DSH generation in an empty directory, under npm: 279 `@deepseek-ai/dsh-*` copies, every one at `0.2.1-alpha.1`, no nested older copy, and no `invalid` edge in `npm ls --all`.
 
 A real profile installs with pnpm, and that is where this round stops. pnpm 11 refuses a git-hosted dependency inside a subdependency by default, so `dsh plugin --profile <name> add <tarball>` fails with `ERR_PNPM_EXOTIC_SUBDEP`: `"@aembers/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`.
