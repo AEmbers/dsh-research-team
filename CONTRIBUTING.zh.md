@@ -1,4 +1,4 @@
-# 为 dsh-agent-team 贡献
+# 为 dsh-research-team 贡献
 
 [English](CONTRIBUTING.md) | 简体中文
 

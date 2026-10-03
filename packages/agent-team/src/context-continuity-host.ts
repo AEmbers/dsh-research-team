@@ -13,7 +13,7 @@
  * The projection state this host hands the coordinator is the engine's own
  * (`ContextProjectionState`), read from the unit `context-projection.ts`
  * registers once per Host — one state shape, one fold, no translation.
- * @module @wowyuarm/dsh-agent-team/context-continuity-host
+ * @module @aembers/dsh-research-team/context-continuity-host
  */
 
 import type { Agent } from '@deepseek-ai/dsh-agent'
@@ -28,7 +28,7 @@ import {
   type ContextSubject,
   type RolloverIdentity,
   type TransitionPlan,
-} from '@wowyuarm/dsh-context-continuity'
+} from '@aembers/dsh-context-continuity'
 import { SessionId as SessionIdBrand } from '@deepseek-ai/dsh-session'
 import { AGENT_TEAM_PLUGIN_ID, isAgentTeamSource } from './context-source.ts'
 import type { AgentTeamAgentMember, AgentTeamMemberId, AgentTeamRolloverSessionRequest } from './types.ts'

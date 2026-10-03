@@ -1,5 +1,5 @@
 - insert:
-    - id: wowyuarm-agent-team-scope
+    - id: aembers-research-team-scope
       name: cordis:group
       group: true
       isolate:
@@ -12,7 +12,7 @@
         # composes. Members always pass their explicit `presetId` on mount;
         # a missing definition fails loudly (`agent-preset/not-found`)
         # instead of silently degrading.
-        - id: wowyuarm-agent-team-preset-registry
+        - id: aembers-research-team-preset-registry
           name: '@deepseek-ai/dsh-agent-preset-registry'
           config:
             default: team-member
@@ -21,7 +21,7 @@
         # packages/agent-team/preset/. Both `!!js` entries keep their deferred
         # expression semantics (AgentPreset preserves child expressions until
         # their own plugins activate).
-        - id: wowyuarm-agent-team-preset-team-member
+        - id: aembers-research-team-preset-team-member
           name: '@deepseek-ai/dsh-agent-preset'
           config:
             id: team-member
@@ -137,7 +137,7 @@
             # preset's plugin list is the whole surface — the absence is real,
             # not shadowed by a host-plane default.
             - id: member-context
-              name: '@wowyuarm/dsh-agent-team/member-context'
+              name: '@aembers/dsh-research-team/member-context'
 
             # Turn-level durable Team clock: the first step of every turn renders the
             # current instant (fixed UTC+8), elapsed since the preceding model-visible
@@ -146,12 +146,12 @@
             # dsh-time-context stays unmounted: its browser-zone policy would ask
             # background-woken Members to confirm dates with an absent user.
             - id: member-time-context
-              name: '@wowyuarm/dsh-agent-team/member-time-context'
+              name: '@aembers/dsh-research-team/member-time-context'
               config:
                 refreshIntervalMs: 1800000
 
             - id: team-tools
-              name: '@wowyuarm/dsh-agent-team/tools'
+              name: '@aembers/dsh-research-team/tools'
 
             # The host owns the Web service and both providers; the Team preset exposes only
             # the model-facing tools. Fetch resolves the host's anonymous HTTP provider, so
@@ -193,14 +193,14 @@
                     thresholdChars: 8192
                     headChars: 4096
                     tailChars: 1024
-        - id: wowyuarm-agent-team-host
-          name: '@wowyuarm/dsh-agent-team/host'
-    - id: wowyuarm-agent-team-client
-      name: '@wowyuarm/dsh-agent-team'
-    - id: wowyuarm-agent-team-invariants
+        - id: aembers-research-team-host
+          name: '@aembers/dsh-research-team/host'
+    - id: aembers-research-team-client
+      name: '@aembers/dsh-research-team'
+    - id: aembers-research-team-invariants
       name: '@deepseek-ai/dsh-invariants'
-    - id: wowyuarm-agent-team-invariant
-      name: '@wowyuarm/dsh-agent-team/invariant'
+    - id: aembers-research-team-invariant
+      name: '@aembers/dsh-research-team/invariant'
     # Team ledger medium backend. Vendored under our own package name (see
     # packages/agent-team/src/vendor/storage-sqlite/): DSH Desktop generation
     # installers strip `@deepseek-ai/*` copies and resolve them from the host
@@ -208,7 +208,7 @@
     # package blocks boot (GitHub issue #28). Mounted here as an ordinary
     # storage provider row beside the shipped JSON backend.
     - id: storage-sqlite
-      name: '@wowyuarm/dsh-agent-team/sqlite-backend'
+      name: '@aembers/dsh-research-team/sqlite-backend'
       config:
         path: !!js dshHomePath('storages', 'agent_team.sqlite')
 

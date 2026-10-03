@@ -149,7 +149,7 @@ async function buildSharedHarness(): Promise<{
   readonly workspaceId: WorkspaceId
   readonly teamFiber: Awaited<ReturnType<Context['plugin']>>
 }> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-agent-team-policy-'))
+  const root = await mkdtemp(join(tmpdir(), 'dsh-research-team-policy-'))
   const project = join(root, 'project')
   const persistence = join(root, 'sessions')
   await Promise.all([mkdir(project), mkdir(persistence)])
@@ -158,7 +158,7 @@ async function buildSharedHarness(): Promise<{
   // distinguishable-tool fixture is a real module beside this spec, where its
   // own imports resolve.
   const teamMemberPlugins = [
-    { id: 'member-context', name: '@wowyuarm/dsh-agent-team/member-context' },
+    { id: 'member-context', name: '@aembers/dsh-research-team/member-context' },
     { id: 'team-tools', name: pathToFileURL(join(import.meta.dirname, 'helpers', 'team-tools-fixture.mjs')).href },
   ]
 

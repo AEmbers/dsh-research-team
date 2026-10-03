@@ -22,7 +22,7 @@ This applies to any fresh environment: a new clone **or a `git worktree`**. A wo
 
    The engine comes from wherever `scripts/continuity-dir.mjs` resolves it: a sibling `../dsh-context-continuity` checkout (development against an engine working tree, which must be built there first with `npm run build`) is linked into `node_modules`, while a clean checkout or CI uses the package the root `dependencies` installed from the registry and links nothing; `DSH_CONTEXT_CONTINUITY_DIR` points the resolution at another checkout.
 
-   Host tests resolve preset rows and the bundle's own unpublished rows (for example `@wowyuarm/dsh-agent-team/member-context`) through real `node_modules` lookups from this repository root, exactly as a profile install of the published bundle would.
+   Host tests resolve preset rows and the bundle's own unpublished rows (for example `@aembers/dsh-research-team/member-context`) through real `node_modules` lookups from this repository root, exactly as a profile install of the published bundle would.
 5. Regenerate the TypeScript path facades against the fresh checkout with `node scripts/sync-paths.mjs`. A fresh clone must not trust the committed facades: no npm script rewrites them, and skipping this step leaves them pointing at the paths baked in at generation time — the read-only `check:facades` gate that `npm test` runs fails on exactly that mismatch. `sync-paths` also emits the `@deepseek-ai/dsh-client-locale/src/*` wildcard the test harness's locale-table import needs.
 6. Smoke-check with `npm run typecheck && npm test`. Green means the environment is right; mass false failures (see below) mean it is not — fix the environment before debugging the diff.
 
@@ -43,11 +43,11 @@ This applies to any fresh environment: a new clone **or a `git worktree`**. A wo
 
 A resolved checkout that does not exist aborts immediately with the sibling Harness checkouts that do exist and pointers to the fix, instead of surfacing as the far-away symptoms above.
 
-**The engine pointer resolves a checkout or the installed package. ** `scripts/continuity-dir.mjs` is the single source of truth for `@wowyuarm/dsh-context-continuity`: `DSH_CONTEXT_CONTINUITY_DIR` wins when set, then the sibling `dsh-context-continuity` checkout (development against an engine working tree — `link-harness-packages.mjs` links it into `node_modules` and `generate-typert.mjs` provisions it into its analysis package), then the package the root `dependencies` entry installed under `node_modules/@wowyuarm/dsh-context-continuity` (a clean checkout or CI — nothing to link there).
+**The engine pointer resolves a checkout or the installed package. ** `scripts/continuity-dir.mjs` is the single source of truth for `@aembers/dsh-context-continuity`: `DSH_CONTEXT_CONTINUITY_DIR` wins when set, then the sibling `dsh-context-continuity` checkout (development against an engine working tree — `link-harness-packages.mjs` links it into `node_modules` and `generate-typert.mjs` provisions it into its analysis package), then the package the root `dependencies` entry installed under `node_modules/@aembers/dsh-context-continuity` (a clean checkout or CI — nothing to link there).
 
 A resolution with no package layout aborts immediately with the candidates it tried and pointers to the fix.
 
-**The engine's install contract. ** The engine is published as `@wowyuarm/dsh-context-continuity`; the root manifest declares it as a regular dependency — the profile install brings it in alongside the bundle: profiles run pnpm with `autoInstallPeers: false`, so a peer nothing else provides resolves for nobody, and the boot-critical closure gate in `shipping.spec.ts` counts dependencies among the reachable roots. CI therefore needs no engine step: `pnpm install` brings the prebuilt package in, and the link script skips a link that would point the package name at itself.
+**The engine's install contract. ** The engine is published as `@aembers/dsh-context-continuity`; the root manifest declares it as a regular dependency — the profile install brings it in alongside the bundle: profiles run pnpm with `autoInstallPeers: false`, so a peer nothing else provides resolves for nobody, and the boot-critical closure gate in `shipping.spec.ts` counts dependencies among the reachable roots. CI therefore needs no engine step: `pnpm install` brings the prebuilt package in, and the link script skips a link that would point the package name at itself.
 
 Advancing the engine means updating that one entry and committing `pnpm-lock.yaml`; a local run that resolves the sibling checkout must have that checkout built (`npm run build` there).
 
@@ -61,14 +61,14 @@ A tag advance that also moves the DSH peers must commit `pnpm-lock.yaml` in the 
 The published layout is the root bundle:
 
 ```sh
-dsh plugin --profile web add @wowyuarm/dsh-agent-team
+dsh plugin --profile web add @aembers/dsh-research-team
 dsh web
 ```
 
 A local directory can be installed with:
 
 ```sh
-dsh plugin --profile web add /absolute/path/to/dsh-agent-team
+dsh plugin --profile web add /absolute/path/to/dsh-research-team
 dsh web
 ```
 
@@ -82,7 +82,7 @@ Always verify the built publication layout. A source symlink can bypass profile 
 
 Stable and development profiles are intentionally separate:
 
-- **Stable (`--profile web`)** uses the npm release (`^0.1.x`), with the lockfile selecting the installed version. After a release, install the published version by exact number — `dsh plugin --profile web add @wowyuarm/dsh-agent-team@X.Y.Z` — because a plain `update` can report "Already up to date" while the lockfile still pins the old resolution. See [`release-runbook.md`](../release-runbook.md) §6.
+- **Stable (`--profile web`)** uses the npm release (`^0.1.x`), with the lockfile selecting the installed version. After a release, install the published version by exact number — `dsh plugin --profile web add @aembers/dsh-research-team@X.Y.Z` — because a plain `update` can report "Already up to date" while the lockfile still pins the old resolution. See [`release-runbook.md`](../release-runbook.md) §6.
 - **Development (`--profile web-dev`)** uses a local `link:` checkout. Rebuild before restarting: the Host loads `packages/*/lib/`, so restarting without `npm run build` keeps old tools and behavior.
 
 The runtime must match the installation form. Published `dsh` runs the stable profile from built artifacts; checkout `pnpm dsh` runs source through tsx and paths and should only start a linked profile. Mixing them can create two module instances whose scope Symbols differ and can produce `selected preset is not team-enabled`.

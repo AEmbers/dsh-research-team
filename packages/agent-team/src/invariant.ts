@@ -1,9 +1,9 @@
-/** Package-owned invariant companion for `@wowyuarm/dsh-agent-team`. */
+/** Package-owned invariant companion for `@aembers/dsh-research-team`. */
 
 import type { Context } from '@deepseek-ai/cordis'
 import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
 
-const PACKAGE_NAME = '@wowyuarm/dsh-agent-team'
+const PACKAGE_NAME = '@aembers/dsh-research-team'
 
 /** Cordis companion plugin name. */
 export const name = 'agent-team-invariant'

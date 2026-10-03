@@ -89,20 +89,26 @@ const PAGE_SETS = [
 // A ceiling is the value measured when it was recorded. It ratchets down as a
 // document is condensed and is raised only deliberately, in a commit that says
 // why — the same discipline as the persona budget in the shipping contract.
+//
+// Raised by 2 on four rows when the fork was renamed: `@wowyuarm/dsh-agent-team`
+// became `@aembers/dsh-research-team` in the published package name (+3 for the
+// repository, -1 for the org). Verified as the switch's only effect — every
+// changed document under docs/ is byte-identical to its previous revision once
+// the two names are mapped across.
 // Every maintained document needs a row, so a new document declares its own
 // ceiling instead of inheriting an unbounded default.
 const BLOCK_CHARACTER_CEILINGS = {
   'architecture/README.md': [342, 174],
   'architecture/client-and-remote.md': [602, 586],
   'architecture/host-authority.md': [597, 541],
-  'architecture/package-ownership.md': [552, 339],
+  'architecture/package-ownership.md': [552, 341],
   'architecture/tools-and-preset.md': [616, 540],
   'architecture/workspace-session-storage.md': [576, 584],
   'development/README.md': [105, 64],
   'development/environments-and-install.md': [595, 571],
-  'development/generated-and-seams.md': [515, 362],
+  'development/generated-and-seams.md': [517, 362],
   'development/start-and-checks.md': [595, 415],
-  'development/storage-and-delivery.md': [585, 583],
+  'development/storage-and-delivery.md': [587, 583],
   'domain-model.md': [593, 580],
   'dsh-release-compatibility.md': [475, 235],
   'frontend-design/README.md': [367, 189],
@@ -113,7 +119,7 @@ const BLOCK_CHARACTER_CEILINGS = {
   'frontend-design/sidebar-browser.md': [556, 366],
   'frontend-design/thread-and-composer.md': [573, 589],
   'harness-navigation.md': [425, 322],
-  'release-runbook.md': [547, 244],
+  'release-runbook.md': [549, 246],
   'team-collaboration/README.md': [259, 161],
   'team-collaboration/attention-and-messaging.md': [598, 585],
   'team-collaboration/boundaries.md': [642, 578],

@@ -48,7 +48,7 @@ async function memberSkillsHarness(): Promise<{
   readonly root: string
   readonly teamFiber: Awaited<ReturnType<Context['plugin']>>
 }> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-agent-team-skills-'))
+  const root = await mkdtemp(join(tmpdir(), 'dsh-research-team-skills-'))
   const project = join(root, 'project')
   const persistence = join(root, 'sessions')
   await Promise.all([mkdir(project), mkdir(persistence)])
@@ -57,8 +57,8 @@ async function memberSkillsHarness(): Promise<{
   // names resolve through the linked node_modules (the bundle self-link plus
   // harness checkout links).
   const teamMemberPlugins = [
-    { id: 'member-context', name: '@wowyuarm/dsh-agent-team/member-context' },
-    { id: 'team-tools', name: '@wowyuarm/dsh-agent-team/tools' },
+    { id: 'member-context', name: '@aembers/dsh-research-team/member-context' },
+    { id: 'team-tools', name: '@aembers/dsh-research-team/tools' },
     { id: 'tool-skill', name: '@deepseek-ai/dsh-tool-skill' },
   ]
 

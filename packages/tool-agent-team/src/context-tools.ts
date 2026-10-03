@@ -15,7 +15,7 @@
  * `checkpointRef` — and the engine's render has no switch for that. The
  * adapter's own `timeline` member is still implemented: the engine's contract
  * requires it, and the shape it returns is the one the engine's render reads.
- * @module @wowyuarm/dsh-agent-team/context-tools
+ * @module @aembers/dsh-research-team/context-tools
  */
 
 import { createHash } from 'node:crypto'
@@ -25,9 +25,9 @@ import {
   type ContinuityToolAdapter,
   type ContinuityToolText,
   type RolloverToolRequest,
-} from '@wowyuarm/dsh-context-continuity'
-import type { AgentTeamContextCheckpointRef } from '@wowyuarm/dsh-agent-team/types'
-import { MAX_TIMELINE_LIMIT } from '@wowyuarm/dsh-agent-team/host'
+} from '@aembers/dsh-context-continuity'
+import type { AgentTeamContextCheckpointRef } from '@aembers/dsh-research-team/types'
+import { MAX_TIMELINE_LIMIT } from '@aembers/dsh-research-team/host'
 import { defineTool, type ToolRunContext } from '@deepseek-ai/dsh-tools'
 import { member, service } from './host-access.ts'
 

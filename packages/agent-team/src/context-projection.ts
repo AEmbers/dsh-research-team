@@ -25,7 +25,7 @@
  * boundary by, and carried-message resolution — the engine keys carry
  * candidates by message id, and the durable log is where the message body
  * lives.
- * @module @wowyuarm/dsh-agent-team/context-projection
+ * @module @aembers/dsh-research-team/context-projection
  */
 
 import { createHash } from 'node:crypto'
@@ -44,7 +44,7 @@ import {
   type DomainBoundary,
   type DomainBoundaryContribution,
   type DomainBoundaryInput,
-} from '@wowyuarm/dsh-context-continuity'
+} from '@aembers/dsh-context-continuity'
 import { handoffOf, isAgentTeamContextSource, isAgentTeamSource } from './context-source.ts'
 import { TEAM_CONTEXT_CODEC } from './context-continuity-host.ts'
 import type { AgentTeamContextCheckpointRef, AgentTeamTaskRef, AgentTeamThreadRef } from './types/entities.ts'

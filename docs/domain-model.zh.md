@@ -1,4 +1,4 @@
-# dsh-agent-team 领域词汇
+# dsh-research-team 领域词汇
 
 [English](domain-model.md) | 中文
 

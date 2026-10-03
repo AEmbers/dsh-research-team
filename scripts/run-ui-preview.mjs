@@ -8,7 +8,7 @@ import { harnessDir } from './harness-dir.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const harness = harnessDir
-const temporary = await mkdtemp(join(tmpdir(), 'dsh-agent-team-ui-preview-'))
+const temporary = await mkdtemp(join(tmpdir(), 'dsh-research-team-ui-preview-'))
 const home = join(temporary, 'home')
 const test = join(harness, 'apps/web/tests/__external-agent-team-ui-preview.e2e.ts')
 const quote = value => value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")

@@ -53,8 +53,8 @@ describe('Team Member private memory context', () => {
 
 describe('Team Member identity context', () => {
   it('renders the handle with its description', () => {
-    expect(renderMemberIdentity({ handle: 'Lead', description: 'dsh-agent-team tech-lead' }))
-      .toBe('Team identity: you are @Lead — dsh-agent-team tech-lead')
+    expect(renderMemberIdentity({ handle: 'Lead', description: 'dsh-research-team tech-lead' }))
+      .toBe('Team identity: you are @Lead — dsh-research-team tech-lead')
   })
 
   it('omits the description segment when the description is empty', () => {

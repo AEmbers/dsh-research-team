@@ -12,14 +12,14 @@
  * cancelled, or does not advance the durable surface must block the model
  * request (reject the step) rather than knowingly submit over the Team limit.
  * A blocked Member keeps its log and reports a recoverable error.
- * @module @wowyuarm/dsh-agent-team/pressure-policy
+ * @module @aembers/dsh-research-team/pressure-policy
  */
 
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import { CONTEXT_WINDOW_EXCEEDED_CODE } from '@deepseek-ai/dsh-llm'
 import type { CompactionEngine, CompactionResult } from '@deepseek-ai/dsh-compaction'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { contextPressureNoticeText as engineContextPressureNoticeText } from '@wowyuarm/dsh-context-continuity'
+import { contextPressureNoticeText as engineContextPressureNoticeText } from '@aembers/dsh-context-continuity'
 import type { AgentTeamMemberId } from './types.ts'
 import { AGENT_TEAM_PLUGIN_ID, isAgentTeamSourceKind } from './context-source.ts'
 import type { SessionEvent } from '@deepseek-ai/dsh-session'

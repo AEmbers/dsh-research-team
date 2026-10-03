@@ -1,9 +1,9 @@
 import { RemoteStream, RemoteStreamCarrierError } from '@deepseek-ai/dsh-api-gateway/client'
-import type { AgentTeamChangesRequest } from '@wowyuarm/dsh-agent-team/types'
+import type { AgentTeamChangesRequest } from '@aembers/dsh-research-team/types'
 import { vi } from 'vitest'
 import { useState } from 'react'
 import type { WorkspaceId } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { AgentTeamAddMemberRequest, AgentTeamCreateChannelRequest, AgentTeamMemberDiagnostic, AgentTeamReplyRequest, AgentTeamSendMessageRequest, AgentTeamTask } from '@wowyuarm/dsh-agent-team/types'
+import type { AgentTeamAddMemberRequest, AgentTeamCreateChannelRequest, AgentTeamMemberDiagnostic, AgentTeamReplyRequest, AgentTeamSendMessageRequest, AgentTeamTask } from '@aembers/dsh-research-team/types'
 import { COMMON_NS, LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
 import { en as commonEn, zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/index.ts'
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
@@ -464,7 +464,7 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; mainPanelId?: s
   let humanProfileValue: { name: string; avatarRef?: string; version: string; repoUrl: string; updateAvailable: boolean; latestVersion?: string } = {
     name: 'human',
     version: '0.1.13',
-    repoUrl: 'https://github.com/wowyuarm/dsh-agent-team',
+    repoUrl: 'https://github.com/AEmbers/dsh-research-team',
     updateAvailable: false,
     ...options?.humanProfile,
   }

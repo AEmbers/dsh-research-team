@@ -9,7 +9,7 @@ import { harnessDir } from './harness-dir.mjs'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const harness = harnessDir
 const chrome = process.env.CHROME_PATH ?? '/usr/bin/google-chrome'
-const temporary = await mkdtemp(join(tmpdir(), 'dsh-agent-team-browser-'))
+const temporary = await mkdtemp(join(tmpdir(), 'dsh-research-team-browser-'))
 const home = join(temporary, 'home')
 const test = join(harness, 'apps/web/tests/__external-agent-team.e2e.ts')
 

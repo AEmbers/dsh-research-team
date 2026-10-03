@@ -1,7 +1,7 @@
 import { RemoteStreamCarrierError } from '@deepseek-ai/dsh-api-gateway/client'
 import type { ClientRemote, RemoteStream } from '@deepseek-ai/dsh-api-gateway/client'
-import type {} from '@wowyuarm/dsh-agent-team/remote'
-import type { AgentTeamChangeScope, AgentTeamChangesResult } from '@wowyuarm/dsh-agent-team/types'
+import type {} from '@aembers/dsh-research-team/remote'
+import type { AgentTeamChangeScope, AgentTeamChangesResult } from '@aembers/dsh-research-team/types'
 
 export type TeamChangeScope = AgentTeamChangeScope | undefined
 

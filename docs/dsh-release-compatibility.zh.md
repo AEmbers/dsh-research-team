@@ -2,7 +2,7 @@
 
 [English](dsh-release-compatibility.md) | 中文
 
-本文定义外部 `dsh-agent-team` bundle 跟进 DeepSeek Harness（DSH）新版本的固定流程。目标是让一个 DSH 版本只有在实际证明可以安装、组装和运行后，才被声明为受支持版本。DSH 发版触发兼容性认证，不自动触发 Team bundle 发版。
+本文定义外部 `dsh-research-team` bundle 跟进 DeepSeek Harness（DSH）新版本的固定流程。目标是让一个 DSH 版本只有在实际证明可以安装、组装和运行后，才被声明为受支持版本。DSH 发版触发兼容性认证，不自动触发 Team bundle 发版。
 
 本文不定义 Team 行为。Team 行为仍以 `packages/` 源码和测试为准；DSH 接口以相邻 Harness checkout 的源码、测试和发布包为准。
 
@@ -75,11 +75,11 @@ npm 的 prerelease 版本范围不是普通的连续区间。比如：
 ```text
 日常开发目录
 ├── deepseek-harness/                 # 保持当前开发状态
-└── dsh-agent-team/
+└── dsh-research-team/
 
 认证临时目录
 ├── deepseek-harness-<tag>/           # 固定在候选 release tag
-└── dsh-agent-team-compat-<tag>/      # Team 源码的隔离副本
+└── dsh-research-team-compat-<tag>/      # Team 源码的隔离副本
 ```
 
 在认证 Harness checkout 中先完成其自身的构建，使 Team 的 TypeScript facade 指向候选 tag 的实际声明文件。不要把旧 checkout 的 `lib/` 或 `node_modules` 当作候选版本的构建结果复用；这会掩盖声明或运行时不兼容。
@@ -332,7 +332,7 @@ Client 占用的五个 slot 座位（`sidebar.workspaces`、`main`、`sidebar.se
 
 §3.5 解析出单一 DSH 世代：278 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.0-rc.1`，bundle 运行时加载的任何东西背后都没有第二套。
 
-落后的那一条声明区间已收口：`@wowyuarm/dsh-context-continuity@0.1.6` 把七个 `@deepseek-ai/dsh-*` peers 声明为 `>=0.2.0-rc.1 <0.2.1`，本 bundle 要求 `^0.1.6`，因此解析本 manifest 的树只装一套 DSH 世代。
+落后的那一条声明区间已收口：`@aembers/dsh-context-continuity@0.1.6` 把七个 `@deepseek-ai/dsh-*` peers 声明为 `>=0.2.0-rc.1 <0.2.1`，本 bundle 要求 `^0.1.6`，因此解析本 manifest 的树只装一套 DSH 世代。
 
 `0.1.5` 仍声明 `>=0.1.7-rc.1 <0.1.8`：npm 为满足这个无法满足的声明 peer，在 bundle 下嵌套安装了 `@deepseek-ai/dsh-session-projection@0.1.7-rc.2`（120 KB）并打印 `ERESOLVE overriding peer dependency`，安装仍以 0 退出。
 

@@ -2,7 +2,7 @@
 
 English | [中文](dsh-release-compatibility.zh.md)
 
-This document defines the fixed process for certifying an external `dsh-agent-team` bundle against new DeepSeek Harness (DSH) releases. A DSH version is supported only after installation, composition, and runtime have been proven. A DSH release triggers certification; it does not automatically trigger a Team release.
+This document defines the fixed process for certifying an external `dsh-research-team` bundle against new DeepSeek Harness (DSH) releases. A DSH version is supported only after installation, composition, and runtime have been proven. A DSH release triggers certification; it does not automatically trigger a Team release.
 
 This is not a Team behavior specification. Team behavior is defined by `packages/` source and tests; the DSH interface is defined by the adjacent Harness checkout's source, tests, and published packages.
 
@@ -50,11 +50,11 @@ Use an independent checkout at the candidate tag, not the everyday `../deepseek-
 ```text
 Daily development
 ├── deepseek-harness/
-└── dsh-agent-team/
+└── dsh-research-team/
 
 Temporary certification
 ├── deepseek-harness-<tag>/
-└── dsh-agent-team-compat-<tag>/
+└── dsh-research-team-compat-<tag>/
 ```
 
 Build the certified Harness checkout first so Team TypeScript facades point at its declarations. Do not reuse old `lib/` or `node_modules`; that can conceal declaration or runtime incompatibility.
@@ -269,7 +269,7 @@ Evidence on the certified tree: `npm run typecheck` (508 Harness mappings), `npm
 
 Section 3.5 resolves a single DSH generation: 278 `@deepseek-ai/dsh-*` copies, every one at `0.2.0-rc.1`, with no second set behind anything the bundle loads at runtime.
 
-The trailing declared range is closed: `@wowyuarm/dsh-context-continuity@0.1.6` declares its seven `@deepseek-ai/dsh-*` peers as `>=0.2.0-rc.1 <0.2.1`, and this bundle requires `^0.1.6`, so a tree that resolves this manifest installs one DSH generation.
+The trailing declared range is closed: `@aembers/dsh-context-continuity@0.1.6` declares its seven `@deepseek-ai/dsh-*` peers as `>=0.2.0-rc.1 <0.2.1`, and this bundle requires `^0.1.6`, so a tree that resolves this manifest installs one DSH generation.
 
 `0.1.5` still declared `>=0.1.7-rc.1 <0.1.8`, so npm satisfied that unsatisfiable declared peer by nesting `@deepseek-ai/dsh-session-projection@0.1.7-rc.2` (120 KB) under the bundle and printing `ERESOLVE overriding peer dependency`; the install still exited 0.
 

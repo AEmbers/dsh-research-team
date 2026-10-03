@@ -14,7 +14,7 @@ if (process.env.DEEPSEEK_API_KEY?.trim() === '') {
 if (process.env.DEEPSEEK_API_KEY === undefined) {
   throw new Error('npm run preview requires DEEPSEEK_API_KEY; export a valid credential before launching the live Team preview')
 }
-const temporary = await mkdtemp(join(tmpdir(), 'dsh-agent-team-preview-'))
+const temporary = await mkdtemp(join(tmpdir(), 'dsh-research-team-preview-'))
 const home = join(temporary, 'home')
 const test = join(harness, 'apps/web/tests/__external-agent-team-preview.e2e.ts')
 const quote = value => value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")

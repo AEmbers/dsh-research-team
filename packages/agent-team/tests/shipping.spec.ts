@@ -40,8 +40,8 @@ const PERSONA_CHARACTER_BUDGET = 15000
 // row; these assertions scope to exactly that row, from its `- id:` marker to
 // the group's host row that follows it.
 function teamMemberPresetText(patch: string): string {
-  const start = patch.indexOf('        - id: wowyuarm-agent-team-preset-team-member')
-  const end = patch.indexOf('        - id: wowyuarm-agent-team-host')
+  const start = patch.indexOf('        - id: aembers-research-team-preset-team-member')
+  const end = patch.indexOf('        - id: aembers-research-team-host')
   return start >= 0 && end > start ? patch.slice(start, end) : ''
 }
 
@@ -85,16 +85,16 @@ describe('Agent Team shipping contract', () => {
     // Extraction guard: a renamed definition-row id would silently empty the
     // slice and make every preset assertion below vacuous.
     expect(preset).toContain("name: '@deepseek-ai/dsh-agent-preset'")
-    expect(patch).toContain('id: wowyuarm-agent-team-scope')
+    expect(patch).toContain('id: aembers-research-team-scope')
     expect(patch).toContain("name: '@deepseek-ai/dsh-agent-preset-registry'")
     expect(patch).toContain('default: team-member')
-    expect(patch).toContain('id: wowyuarm-agent-team-preset-team-member')
+    expect(patch).toContain('id: aembers-research-team-preset-team-member')
     expect(patch).toContain('id: team-member')
     expect(patch).toContain('agentPresets: true')
-    expect(patch).toContain("name: '@wowyuarm/dsh-agent-team/host'")
-    expect(patch).toContain("name: '@wowyuarm/dsh-agent-team'")
+    expect(patch).toContain("name: '@aembers/dsh-research-team/host'")
+    expect(patch).toContain("name: '@aembers/dsh-research-team'")
     expect(patch).toContain("name: '@deepseek-ai/dsh-invariants'")
-    expect(patch).toContain("name: '@wowyuarm/dsh-agent-team/invariant'")
+    expect(patch).toContain("name: '@aembers/dsh-research-team/invariant'")
     // The Team ledger medium: only agent_team routes to SQLite through the
     // public per-domain route table. The backend is vendored under our own
     // package name (see packages/agent-team/src/vendor/storage-sqlite/):
@@ -104,7 +104,7 @@ describe('Agent Team shipping contract', () => {
     // bundle's) because insert blocks append rather than override: a
     // colliding id inside an insert list would duplicate the shipped row and
     // fail the boot sweep.
-    expect(patch).toContain("name: '@wowyuarm/dsh-agent-team/sqlite-backend'")
+    expect(patch).toContain("name: '@aembers/dsh-research-team/sqlite-backend'")
     // The old host-package row must stay gone: re-adding it reintroduces the
     // Desktop boot block this vendoring exists to fix (GitHub issue #28).
     expect(patch).not.toContain('@deepseek-ai/dsh-storage-sqlite')
@@ -129,17 +129,17 @@ describe('Agent Team shipping contract', () => {
     // patch all address it by the constant, so the two must not drift.
     // The row also has to stay the isolating group's nested row — a second
     // top-level row with this id duplicates it and fails the boot sweep.
-    const scopeStart = patch.indexOf('    - id: wowyuarm-agent-team-scope')
-    const scopeEnd = patch.indexOf('    - id: wowyuarm-agent-team-client')
+    const scopeStart = patch.indexOf('    - id: aembers-research-team-scope')
+    const scopeEnd = patch.indexOf('    - id: aembers-research-team-client')
     expect(scopeStart).toBeGreaterThanOrEqual(0)
     expect(scopeEnd).toBeGreaterThan(scopeStart)
     expect(patch.slice(scopeStart, scopeEnd)).toMatch(new RegExp(`^ {8}- id: ${HUMAN_PROFILE_SETTINGS_NAMESPACE}$`, 'm'))
     // The composition mounts it as that group's nested row, with no `config`
     // of its own: the schema defaults are the profile until the Human edits it.
-    const scopeGroup = composed.find(entry => entry.id === 'wowyuarm-agent-team-scope')
+    const scopeGroup = composed.find(entry => entry.id === 'aembers-research-team-scope')
     const nestedRows = (Array.isArray(scopeGroup?.config) ? scopeGroup.config : []) as { id?: string; name?: string; config?: unknown }[]
     const hostRow = nestedRows.find(entry => entry.id === HUMAN_PROFILE_SETTINGS_NAMESPACE)
-    expect(hostRow?.name).toBe('@wowyuarm/dsh-agent-team/host')
+    expect(hostRow?.name).toBe('@aembers/dsh-research-team/host')
     expect(hostRow?.config).toBeUndefined()
     // Both fields must be volatile: rc.1 derives one settings form per ACTIVE
     // plugin instance from that instance's Config schema, and a non-volatile
@@ -149,10 +149,10 @@ describe('Agent Team shipping contract', () => {
     expect(profileFields.name?.meta.volatile).toBe(true)
     expect(profileFields.avatarRef?.meta.volatile).toBe(true)
 
-    expect(preset).toContain("name: '@wowyuarm/dsh-agent-team/tools'")
+    expect(preset).toContain("name: '@aembers/dsh-research-team/tools'")
     expect(preset).toContain("name: '@deepseek-ai/dsh-agent-tool-presentation'")
     expect(preset).toContain('mode: native')
-    expect(preset).toContain("name: '@wowyuarm/dsh-agent-team/member-context'")
+    expect(preset).toContain("name: '@aembers/dsh-research-team/member-context'")
     expect(preset).toContain("name: '@deepseek-ai/dsh-command-compact'")
     // Every lib directory that can enter the pack must be cleaned, so a
     // deleted source module cannot leave stale output behind.
@@ -263,19 +263,33 @@ describe('Agent Team shipping contract', () => {
     expect(manifest.files).toContain('packages/agent-team/core-skills/**/*')
     expect(manifest.files).toContain('packages/agent-team/lib/**/*')
     expect(manifest.files).toContain('packages/client-agent-team/lib/**/*')
-    expect(manifest.name).toBe('@wowyuarm/dsh-agent-team')
+    expect(manifest.name).toBe('@aembers/dsh-research-team')
     // The context-continuity engine rides as a regular dependency, never a
     // peer: profiles set autoInstallPeers: false, so a peer nothing else
     // provides resolves for nobody — the external-layout e2e crashed exactly
     // there before this was fixed (0.1.14 gate, 2026-09-22).
-    expect(manifest.dependencies).toEqual({ '@wowyuarm/dsh-context-continuity': '^0.1.6', yaml: '^2.9.1', zod: '^4.4.3' })
+    //
+    // Two rows deviate from the published layout, both forced by the fork and
+    // both load-bearing:
+    //   * The engine is a `link:` sibling, not `^0.1.6` from the registry — the
+    //     fork is never published, so no registry version of it exists.
+    //   * `zod` is pinned to the exact version the sibling Harness checkout
+    //     installs. `generate-typert.mjs` links *this* repository's zod into its
+    //     analysis package while the Host face is typed against the Harness's
+    //     copy, so a range that drifts to a newer zod fails analysis with
+    //     TS2379 ('_zod.version.minor' 4 vs 6) instead of a diagnosable error.
+    expect(manifest.dependencies).toEqual({
+      '@aembers/dsh-context-continuity': 'link:../dsh-context-continuity',
+      yaml: '^2.9.1',
+      zod: '4.4.3',
+    })
     expect(bundleManifest.dsh.client).toEqual({
       platform: 'web',
       // The Client half classifies a stream end with the Gateway's carrier-error
       // class, so the module table has to answer for that request: the bundle
       // purity gate rejects the value import without this row.
       external: ['@deepseek-ai/dsh-api-gateway/client'],
-      inject: expect.not.arrayContaining(['@wowyuarm/dsh-agent-team/host']),
+      inject: expect.not.arrayContaining(['@aembers/dsh-research-team/host']),
     })
     // An ordering hint for a package DSH no longer publishes is dead weight in
     // the manifest and a hard install failure as a peer.
@@ -373,7 +387,7 @@ describe('Boot-critical host closure surface', () => {
           // Self-references resolve inside our own installed copy, which the
           // Desktop strip does not touch. Pinned to our own package name so a
           // typo'd sibling scope still fails below.
-          if (specifier === '@wowyuarm/dsh-agent-team' || specifier.startsWith('@wowyuarm/dsh-agent-team/')) continue
+          if (specifier === '@aembers/dsh-research-team' || specifier.startsWith('@aembers/dsh-research-team/')) continue
           const name = packageRoot(specifier)
           if (name !== undefined) note(name, file)
         }
@@ -385,7 +399,7 @@ describe('Boot-critical host closure surface', () => {
     for (const [text, via] of [[patch, 'cordis.patch.yml'], [preset, 'team-member preset definition']] as const) {
       for (const match of text.matchAll(/name:\s*['"]([^'"]+)['"]/g)) {
         const row = match[1]
-        if (row === undefined || row.startsWith('@wowyuarm/')) continue
+        if (row === undefined || row.startsWith('@aembers/')) continue
         const name = packageRoot(row)
         if (name !== undefined && name.startsWith('@deepseek-ai/')) note(name, via)
       }

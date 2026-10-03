@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type { AgentTeamHumanProfileResult } from '@wowyuarm/dsh-agent-team/types'
+import type { AgentTeamHumanProfileResult } from '@aembers/dsh-research-team/types'
 import { TeamHumanIdentity } from '../src/client/human-identity.ts'
 
 /** A read failure in the shape the carrier produces (code/details belong to it, not to the test). */
@@ -10,7 +10,7 @@ const readFailure = (message: string): RemoteResult<AgentTeamHumanProfileResult>
 const PROFILE = {
   name: 'Ada',
   version: '0.1.13',
-  repoUrl: 'https://github.com/wowyuarm/dsh-agent-team',
+  repoUrl: 'https://github.com/AEmbers/dsh-research-team',
   updateAvailable: false,
 }
 

@@ -14,4 +14,4 @@ import { join } from 'node:path'
 // whether it is unset is never enough. Specs that need a specific home set
 // `process.env.DSH_HOME` themselves and keep save/restore semantics around it
 // (member-lifecycle).
-process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'dsh-agent-team-test-home-'))
+process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'dsh-research-team-test-home-'))

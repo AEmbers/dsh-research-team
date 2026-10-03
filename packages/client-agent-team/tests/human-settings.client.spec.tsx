@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type { AgentTeamHumanProfileResult } from '@wowyuarm/dsh-agent-team/types'
+import type { AgentTeamHumanProfileResult } from '@aembers/dsh-research-team/types'
 import { TeamHumanIdentity, type TeamHumanIdentityLoader } from '../src/client/human-identity.ts'
 import { TeamEnvironmentCheck, type TeamEnvironmentLoader } from '../src/client/environment-check.ts'
 import { zh } from '../src/client/locales.ts'
@@ -21,7 +21,7 @@ const readFailure = (message: string): RemoteResult<AgentTeamHumanProfileResult>
 const PROFILE = {
   name: 'Ada',
   version: '0.1.13',
-  repoUrl: 'https://github.com/wowyuarm/dsh-agent-team',
+  repoUrl: 'https://github.com/AEmbers/dsh-research-team',
   updateAvailable: false,
 }
 

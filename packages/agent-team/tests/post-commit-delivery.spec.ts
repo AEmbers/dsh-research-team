@@ -127,7 +127,7 @@ describe('post-commit delivery', () => {
 
   it('keeps an invariant divergence loud on the caller frame instead of swallowing it', async () => {
     const { ctx } = await harness()
-    ctx.on('agent-team/committed', () => { throw new InvariantError('@wowyuarm/dsh-agent-team', 'projection diverged (test seam)') })
+    ctx.on('agent-team/committed', () => { throw new InvariantError('@aembers/dsh-research-team', 'projection diverged (test seam)') })
     await expect(ctx.agentTeam.createChannel({ requestId: requestId('invariant-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' }))
       .rejects.toThrow(/invariant violated/)
     // The loud path still reports a real commit: the operation is durable.

@@ -20,43 +20,43 @@
     ],
     "noEmit": true,
     "paths": {
-      "@wowyuarm/dsh-agent-team/host": [
+      "@aembers/dsh-research-team/host": [
         "./packages/agent-team/src/index.ts"
       ],
-      "@wowyuarm/dsh-agent-team/invariant": [
+      "@aembers/dsh-research-team/invariant": [
         "./packages/agent-team/src/invariant.ts"
       ],
-      "@wowyuarm/dsh-agent-team/types": [
+      "@aembers/dsh-research-team/types": [
         "./packages/agent-team/src/types.ts"
       ],
-      "@wowyuarm/dsh-agent-team/typert": [
+      "@aembers/dsh-research-team/typert": [
         "./packages/agent-team/lib/typert.host.d.ts"
       ],
-      "@wowyuarm/dsh-agent-team/remote": [
+      "@aembers/dsh-research-team/remote": [
         "./packages/agent-team/lib/typert.remote-client.js"
       ],
-      "@wowyuarm/dsh-agent-team/sqlite-backend": [
+      "@aembers/dsh-research-team/sqlite-backend": [
         "./packages/agent-team/src/vendor/storage-sqlite/index.ts"
       ],
-      "@wowyuarm/dsh-agent-team/member-context": [
+      "@aembers/dsh-research-team/member-context": [
         "./packages/agent-team/src/member-context.ts"
       ],
-      "@wowyuarm/dsh-agent-team/member-time-context": [
+      "@aembers/dsh-research-team/member-time-context": [
         "./packages/agent-team/src/member-time-context.ts"
       ],
-      "@wowyuarm/dsh-agent-team/time-format": [
+      "@aembers/dsh-research-team/time-format": [
         "./packages/agent-team/src/time-format.ts"
       ],
-      "@wowyuarm/dsh-agent-team/mentions": [
+      "@aembers/dsh-research-team/mentions": [
         "./packages/agent-team/src/mentions.ts"
       ],
-      "@wowyuarm/dsh-agent-team/member-skills": [
+      "@aembers/dsh-research-team/member-skills": [
         "./packages/agent-team/src/member-skills.ts"
       ],
-      "@wowyuarm/dsh-agent-team/tools": [
+      "@aembers/dsh-research-team/tools": [
         "./packages/tool-agent-team/src/index.ts"
       ],
-      "@wowyuarm/dsh-agent-team/client": [
+      "@aembers/dsh-research-team/client": [
         "./packages/client-agent-team/src/client/index.ts"
       ],
       "@deepseek-ai/dsh-storage-sqlite": [

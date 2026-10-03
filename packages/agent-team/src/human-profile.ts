@@ -32,13 +32,13 @@ import { bundleVersionOf, readInstalledManifest } from './installed-manifest.ts'
  * runs under its caller's context, so that lookup names the RPC gateway's row.
  * `shipping.spec.ts` pins the constant to the row the composition declares.
  */
-export const HUMAN_PROFILE_SETTINGS_NAMESPACE = 'wowyuarm-agent-team-host'
+export const HUMAN_PROFILE_SETTINGS_NAMESPACE = 'aembers-research-team-host'
 
 /** Fallback display name before any user override is stored. */
 export const HUMAN_PROFILE_DEFAULT_NAME = 'human'
 
 /** Repository home for the version footnote link. */
-export const HUMAN_PROFILE_REPO_URL = 'https://github.com/wowyuarm/dsh-agent-team'
+export const HUMAN_PROFILE_REPO_URL = 'https://github.com/AEmbers/dsh-research-team'
 
 /**
  * Bundle version shown in the settings footnote, and the current side of the

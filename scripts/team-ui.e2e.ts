@@ -13,7 +13,7 @@ import { getDshRuntimeVersion } from '@deepseek-ai/dsh-app-boot'
 const TEAM_ROOT = '__TEAM_ROOT__'
 const HOME = '__HOME__'
 const CHROME = '__CHROME__'
-const STAGED_BUNDLE = join(HOME, 'profiles', 'node_modules', '@wowyuarm', 'dsh-agent-team')
+const STAGED_BUNDLE = join(HOME, 'profiles', 'node_modules', '@aembers', 'dsh-research-team')
 const BROWSER_ARTIFACTS = join(TEAM_ROOT, 'artifacts/browser')
 const UI01_SHOTS = join(BROWSER_ARTIFACTS, 'ui-01')
 const UI02_SHOTS = join(BROWSER_ARTIFACTS, 'ui-02')
@@ -219,11 +219,11 @@ async function entryUnreadCapsule(page: Page, lineSelector: string): Promise<Ret
 async function installLocalBundle(clearArtifacts = true): Promise<void> {
   await rm(HOME, { recursive: true, force: true })
   if (clearArtifacts) await rm(BROWSER_ARTIFACTS, { recursive: true, force: true })
-  const scope = `${HOME}/profiles/node_modules/@wowyuarm`
+  const scope = `${HOME}/profiles/node_modules/@aembers`
   await mkdir(scope, { recursive: true })
   // The filter must match on both separators: on Windows cp walks backslash
   // paths, so forward-slash-only matching lets node_modules and src through.
-  await cp(TEAM_ROOT, `${scope}/dsh-agent-team`, {
+  await cp(TEAM_ROOT, `${scope}/dsh-research-team`, {
     recursive: true,
     filter: source => {
       const normalized = source.replaceAll('\\', '/')
@@ -239,7 +239,7 @@ async function installLocalBundle(clearArtifacts = true): Promise<void> {
   // them INSIDE the bundle dir: the shared profiles/node_modules root is
   // dsh-managed healed state, and the healer rejects foreign real entries.
   const { dependencies } = JSON.parse(await readFile(join(TEAM_ROOT, 'package.json'), 'utf8')) as { dependencies: Record<string, string> }
-  const bundleModules = join(scope, 'dsh-agent-team', 'node_modules')
+  const bundleModules = join(scope, 'dsh-research-team', 'node_modules')
   for (const name of Object.keys(dependencies)) {
     // No filter: the source root itself lives under node_modules (the
     // bundle filter above would reject it), and a store package never nests
@@ -276,7 +276,7 @@ it('drives the complete opt-in Agent Team journey in real Web', async () => {
   const ordinaryComposer = page.locator('[data-composer-input][contenteditable="true"][data-placeholder="描述你想要构建的内容, / 调用指令, @ 文件或对话"]')
   await expect.poll(() => ordinaryComposer.count()).toBe(1)
 
-  expect(scaffold.ctx.clientModules.graph().entries.some(entry => entry.id === '@wowyuarm/dsh-agent-team')).toBe(true)
+  expect(scaffold.ctx.clientModules.graph().entries.some(entry => entry.id === '@aembers/dsh-research-team')).toBe(true)
   const teamTrigger = page.getByRole('button', { name: '团队' })
   const settingsTrigger = page.getByRole('button', { name: '设置' })
   const [teamBox, settingsBox] = await Promise.all([teamTrigger.boundingBox(), settingsTrigger.boundingBox()])
@@ -2475,7 +2475,7 @@ it('configures the Human profile from Settings in real Web', async () => {
   // settings pages, a bare 「我的资料」 leaves the reader guessing.
   expect(await panel.textContent()).toContain('这是 Agent Team 的资料页')
   expect(await panel.textContent()).toMatch(/版本 \d+\.\d+\.\d+/)
-  expect(await panel.getByRole('link', { name: 'GitHub' }).getAttribute('href')).toBe('https://github.com/wowyuarm/dsh-agent-team')
+  expect(await panel.getByRole('link', { name: 'GitHub' }).getAttribute('href')).toBe('https://github.com/AEmbers/dsh-research-team')
   expect(await panel.getByRole('button', { name: '移除头像' }).count()).toBe(0)
 
   // Keyboard rename, no pointer involved: typing makes the field dirty, Tab

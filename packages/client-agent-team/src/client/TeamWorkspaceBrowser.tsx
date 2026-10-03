@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { IconAgentPresetOutlineRegular, IconListPenOutlineRegular, IconQueueOutlineRegular, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { AgentTeamAddMemberRequest } from '@wowyuarm/dsh-agent-team/types'
+import type { AgentTeamAddMemberRequest } from '@aembers/dsh-research-team/types'
 import type { TeamSidebarProps } from './slots.ts'
 import { TeamWorkspaceSelector } from './TeamWorkspaceSelector.tsx'
 import { TeamAgentsPanel } from './TeamAgentsPanel.tsx'

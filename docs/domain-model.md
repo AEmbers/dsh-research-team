@@ -1,4 +1,4 @@
-# dsh-agent-team Domain Vocabulary
+# dsh-research-team Domain Vocabulary
 
 English | [中文](domain-model.zh.md)
 

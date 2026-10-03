@@ -1,4 +1,4 @@
-import type { AgentTeamChannelRef, AgentTeamMemberId, AgentTeamThreadRef } from '@wowyuarm/dsh-agent-team/types'
+import type { AgentTeamChannelRef, AgentTeamMemberId, AgentTeamThreadRef } from '@aembers/dsh-research-team/types'
 
 /**
  * Keyed draft cache for the Channel/Thread composers. Drafts are local UI

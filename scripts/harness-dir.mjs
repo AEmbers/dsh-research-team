@@ -37,7 +37,7 @@ const harnessRoot = resolve(projectRoot, '..', harnessName)
 if (!existsSync(harnessRoot) || !statSync(harnessRoot).isDirectory()) {
   const siblings = readdirSync(join(projectRoot, '..'), { withFileTypes: true })
     .filter(entry => entry.isDirectory()
-      && entry.name !== 'dsh-agent-team'
+      && entry.name !== 'dsh-research-team'
       && !entry.name.startsWith('.')
       && existsSync(join(projectRoot, '..', entry.name, 'tsconfig.base.json')))
     .map(entry => entry.name)

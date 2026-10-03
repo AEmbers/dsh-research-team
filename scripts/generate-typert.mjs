@@ -76,7 +76,7 @@ try {
   // only its own manifest and built declarations travel: copying the checkout
   // would drag its node_modules along, and a symlink is the Windows-hostile
   // form the zod comment above already rules out.
-  const engineTarget = join(tempPackage, 'node_modules', '@wowyuarm', 'dsh-context-continuity')
+  const engineTarget = join(tempPackage, 'node_modules', '@aembers', 'dsh-context-continuity')
   await mkdir(engineTarget, { recursive: true })
   await cp(join(continuityDir, 'package.json'), join(engineTarget, 'package.json'))
   await cp(join(continuityDir, 'lib'), join(engineTarget, 'lib'), { recursive: true })
@@ -109,11 +109,11 @@ try {
     hostConfig: aggregate,
     clientConfig: join(tempPackage, 'tsconfig.client-missing.json'),
     faces: ['host'],
-    packages: ['@wowyuarm/dsh-agent-team'],
+    packages: ['@aembers/dsh-research-team'],
   }).analyze()
   const face = workspace.faces.find(candidate => candidate.face === 'host')
   if (face === undefined) throw new Error('Typert did not analyze the Agent Team Host face')
-  const artifact = new FaceModelEmitter(face).emit('@wowyuarm/dsh-agent-team')
+  const artifact = new FaceModelEmitter(face).emit('@aembers/dsh-research-team')
   if (artifact.remote === undefined) throw new Error('Typert did not emit the Agent Team Remote contribution')
 
   const generatedRoot = `packages/${tempPackage.slice(tempPackage.lastIndexOf('/') + 1)}`
