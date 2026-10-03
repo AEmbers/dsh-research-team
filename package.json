@@ -61,7 +61,7 @@
     }
   },
   "dependencies": {
-    "@aembers/dsh-context-continuity": "link:../dsh-context-continuity",
+    "@aembers/dsh-context-continuity": "github:AEmbers/dsh-context-continuity#v0.1.8",
     "yaml": "^2.9.1",
     "zod": "4.4.3"
   },

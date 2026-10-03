@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+- This repository is now the `@aembers/dsh-research-team` fork of `wowyuarm/dsh-agent-team`: the package name, the plugin ids, the repository links and the documentation all carry the new name, and the upstream MIT copyright notice is kept alongside a fork notice.
+- The context-continuity engine is consumed from `AEmbers/dsh-context-continuity` pinned to the `v0.1.8` tag rather than from a sibling checkout, so a clone of this repository needs a Harness checkout but no engine checkout.
+- `zod` is pinned to the exact `4.4.3` the sibling Harness installs: `generate-typert.mjs` links this repository's zod into its analysis package while the Host face is typed against the Harness's copy, so a range that drifts to a newer zod fails analysis with TS2379 instead of a diagnosable error.
 - Fixed the Plugins page keeping the center column after Team mode starts: Channels, the Inbox and Threads open there again, and the Plugins entry still opens its page once you leave Team mode.
 - Team Members no longer carry a session-local todo tool: planning belongs to the ledger, so the `team-member` preset drops that row and the peer that named it leaves with it.
 - The sender name follows the content-size setting: at a raised size the author grows with the message instead of staying at its default size, while the message body keeps the grid it already had.

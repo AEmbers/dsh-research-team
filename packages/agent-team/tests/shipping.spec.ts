@@ -271,15 +271,20 @@ describe('Agent Team shipping contract', () => {
     //
     // Two rows deviate from the published layout, both forced by the fork and
     // both load-bearing:
-    //   * The engine is a `link:` sibling, not `^0.1.6` from the registry — the
-    //     fork is never published, so no registry version of it exists.
+    //   * The engine is a git dependency pinned to a tag, not `^0.1.6` from the
+    //     registry — the fork is never published, so no registry version of it
+    //     exists, and the tag is what makes the install reproducible. The engine
+    //     commits its `lib/` because pnpm refuses to run a git-hosted package's
+    //     build scripts unless every consumer allowlists the resolved tarball in
+    //     `allowBuilds` (ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED) — one entry per
+    //     version, per host.
     //   * `zod` is pinned to the exact version the sibling Harness checkout
     //     installs. `generate-typert.mjs` links *this* repository's zod into its
     //     analysis package while the Host face is typed against the Harness's
     //     copy, so a range that drifts to a newer zod fails analysis with
     //     TS2379 ('_zod.version.minor' 4 vs 6) instead of a diagnosable error.
     expect(manifest.dependencies).toEqual({
-      '@aembers/dsh-context-continuity': 'link:../dsh-context-continuity',
+      '@aembers/dsh-context-continuity': 'github:AEmbers/dsh-context-continuity#v0.1.8',
       yaml: '^2.9.1',
       zod: '4.4.3',
     })
