@@ -93,8 +93,7 @@ describe('Agent Team shipping contract', () => {
     expect(patch).toContain('agentPresets: true')
     expect(patch).toContain("name: '@aembers/dsh-research-team/host'")
     expect(patch).toContain("name: '@aembers/dsh-research-team'")
-    expect(patch).toContain("name: '@deepseek-ai/dsh-invariants'")
-    expect(patch).toContain("name: '@aembers/dsh-research-team/invariant'")
+    expect(patch).toContain("name: '@aembers/dsh-research-team/ledger-guard'")
     // The Team ledger medium: only agent_team routes to SQLite through the
     // public per-domain route table. The backend is vendored under our own
     // package name (see packages/agent-team/src/vendor/storage-sqlite/):
@@ -183,15 +182,15 @@ describe('Agent Team shipping contract', () => {
       exports: Record<string, { default?: string }>
       dsh: { client: { platform: string; inject: string[] } }
     }
-    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-tool-web']).toBe('>=0.2.0-rc.2 <0.2.1')
-    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-command-compact']).toBe('>=0.2.0-rc.2 <0.2.1')
-    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-agent-preset']).toBe('>=0.2.0-rc.2 <0.2.1')
-    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-agent-preset-registry']).toBe('>=0.2.0-rc.2 <0.2.1')
+    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-tool-web']).toBe('>=0.2.1-alpha.1 <0.2.2')
+    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-command-compact']).toBe('>=0.2.1-alpha.1 <0.2.2')
+    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-agent-preset']).toBe('>=0.2.1-alpha.1 <0.2.2')
+    expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-agent-preset-registry']).toBe('>=0.2.1-alpha.1 <0.2.2')
     expect(bundleManifest.peerDependencies['@deepseek-ai/dsh-agent-presets']).toBeUndefined()
     // The certified baseline moves as one cut: every DSH peer carries the same
     // range, or an install resolves two DSH generations at once. No host-scope
     // package may sit in `dependencies` (see the host-scope gate below).
-    expect([...dshPeerRanges(bundleManifest)]).toEqual(['>=0.2.0-rc.2 <0.2.1'])
+    expect([...dshPeerRanges(bundleManifest)]).toEqual(['>=0.2.1-alpha.1 <0.2.2'])
     expect(preset).toContain('compaction: true')
     expect(preset).toContain('toolResultPruner: true')
     expect(preset).toContain('team_inbox, team_thread, team_message, team_claim, and team_view')
@@ -284,7 +283,7 @@ describe('Agent Team shipping contract', () => {
     //     copy, so a range that drifts to a newer zod fails analysis with
     //     TS2379 ('_zod.version.minor' 4 vs 6) instead of a diagnosable error.
     expect(manifest.dependencies).toEqual({
-      '@aembers/dsh-context-continuity': 'github:AEmbers/dsh-context-continuity#v0.1.8',
+      '@aembers/dsh-context-continuity': 'github:AEmbers/dsh-context-continuity#v0.1.9',
       yaml: '^2.9.1',
       zod: '4.4.3',
     })

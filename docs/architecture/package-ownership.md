@@ -23,7 +23,7 @@ These three directories are the build and export seams of one published package,
   - `ledger.ts` commits operations;
   - `spec.ts` defines records;
   - `types.ts` re-exports the domain split (`types/entities.ts`, `types/operations.ts`, `types/requests-results.ts`) as the single public import path;
-  - `invariant.ts` checks relationships.
+  - `ledger-guard.ts` checks relationships.
 - `packages/tool-agent-team` resolves the live Team service at execution time. It does not create another service or write projections directly.
 - `packages/client-agent-team` has a Node half (`src/index.ts`) and browser half (`src/client/`). The browser half reads Host projections through typed Remote and renders them through public Client slots.
 

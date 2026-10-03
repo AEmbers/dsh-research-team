@@ -95,12 +95,15 @@ const PAGE_SETS = [
 // repository, -1 for the org). Verified as the switch's only effect — every
 // changed document under docs/ is byte-identical to its previous revision once
 // the two names are mapped across.
+// Raised by 2 on one Chinese row when the certified baseline advanced to
+// `0.2.1-alpha.1`: the version literal in that paragraph grew by two characters
+// (`0.2.0-rc.2` -> `0.2.1-alpha.1`) and the block had no slack.
 // Every maintained document needs a row, so a new document declares its own
 // ceiling instead of inheriting an unbounded default.
 const BLOCK_CHARACTER_CEILINGS = {
   'architecture/README.md': [342, 174],
   'architecture/client-and-remote.md': [602, 586],
-  'architecture/host-authority.md': [597, 541],
+  'architecture/host-authority.md': [597, 543],
   'architecture/package-ownership.md': [552, 341],
   'architecture/tools-and-preset.md': [616, 540],
   'architecture/workspace-session-storage.md': [576, 584],

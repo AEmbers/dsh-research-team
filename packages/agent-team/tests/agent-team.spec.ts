@@ -7,7 +7,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // runs, 2026-09-17..21). The SQLite case below keeps its own 30s argument.
 vi.setConfig({ testTimeout: 30_000 })
 import { Context } from '@deepseek-ai/cordis'
-import InvariantRegistry from '@deepseek-ai/dsh-invariants'
 import Storage from '@deepseek-ai/dsh-storage'
 import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
 import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
@@ -20,7 +19,7 @@ import { snapshotReadData, receiptReadData } from './helpers/legacy-thread-read.
 import AgentTeam, { AGENT_TEAM_HUMAN_HANDLE, AGENT_TEAM_HUMAN_MEMBER_ID, AGENT_TEAM_INITIALIZE_REQUEST_ID } from '../src/index.ts'
 import { AgentTeamLedger, agentTeamHumanActor, isThreadReadSnapshot } from '../src/ledger.ts'
 import { agentTeamDomainSpec } from '../src/spec.ts'
-import * as agentTeamInvariant from '../src/invariant.ts'
+import * as agentTeamLedgerGuard from '../src/ledger-guard.ts'
 import type { AgentTeamAgentMember, AgentTeamMemberActor, AgentTeamOperation, AgentTeamOperationId, AgentTeamRequestId, AgentTeamTask, AgentTeamTaskRef, AgentTeamThreadReadData, AgentTeamThreadReadOperation, AgentTeamThreadReadReceipt, AgentTeamThreadReadResult, AgentTeamThreadRef } from '../src/types.ts'
 
 interface TeamHarness {
@@ -1425,11 +1424,10 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     expect(read.attention).toMatchObject({ memberId: member.memberId, readThroughSequence: read.readThroughSequence })
   })
 
-  it('fails loud on malformed durable records and an invariant catches projection divergence', async () => {
+  it('fails loud on malformed durable records and the ledger guard catches projection divergence', async () => {
     await expect(harness(storedPool([['operation:bad', { sequence: 'one' }]]))).rejects.toThrow(/does not match its schema/)
     const test = await harness()
-    await test.ctx.plugin(InvariantRegistry)
-    await test.ctx.plugin(agentTeamInvariant)
+    await test.ctx.plugin(agentTeamLedgerGuard)
     const domain = test.facility.get('agent_team')!
     const table = domain.table('operations')
     const [id, operation] = [...table.entries()][0]!
@@ -1442,14 +1440,13 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     test.ctx.emit('agent-team/committed', { receipt })
     await new Promise(resolve => setImmediate(resolve))
     expect(logError).toHaveBeenCalledWith(expect.stringContaining('diverged'))
-    expect(() => test.ctx.emit('agent-team/committed', { receipt })).toThrow(/invariant violated/)
+    expect(() => test.ctx.emit('agent-team/committed', { receipt })).toThrow(/ledger divergence/)
     logError.mockRestore()
   })
 
   it('keeps the commit-path replay off the commit call and coalesces a burst', async () => {
     const test = await harness()
-    await test.ctx.plugin(InvariantRegistry)
-    await test.ctx.plugin(agentTeamInvariant)
+    await test.ctx.plugin(agentTeamLedgerGuard)
     const validate = vi.spyOn(test.ctx.agentTeam, 'validateLedger')
     validate.mockClear()
     const [id, operation] = [...test.facility.get('agent_team')!.table('operations').entries()][0]!
@@ -1462,7 +1459,7 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     validate.mockRestore()
   })
 
-  it('adopts the boot record-level replay at the invariant mount', async () => {
+  it('adopts the boot record-level replay at the ledger guard mount', async () => {
     // An existing profile boots by replaying its records; initialize() commits
     // only on a fresh one, so seed the storage to reach the case that matters.
     const seeded = await harness()
@@ -1471,8 +1468,7 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     const records = [...seeded.facility.get('agent_team')!.table('operations').entries()]
     const test = await harness(storedPool(records as Array<[string, unknown]>))
     const entries = vi.spyOn(test.facility.get('agent_team')!.table('operations'), 'entries')
-    await test.ctx.plugin(InvariantRegistry)
-    await test.ctx.plugin(agentTeamInvariant)
+    await test.ctx.plugin(agentTeamLedgerGuard)
     // The constructor already re-derived every durable record against its own
     // scratch projection; the mount must not read and re-derive it again.
     expect(entries).not.toHaveBeenCalled()
@@ -1485,8 +1481,7 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     const test = await harness(storedPool(records as Array<[string, unknown]>))
     await test.ctx.agentTeam.createChannel({ requestId: requestId('channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering work' })
     const entries = vi.spyOn(test.facility.get('agent_team')!.table('operations'), 'entries')
-    await test.ctx.plugin(InvariantRegistry)
-    await test.ctx.plugin(agentTeamInvariant)
+    await test.ctx.plugin(agentTeamLedgerGuard)
     // A commit invalidates the boot conclusion, so the mount reads the table again.
     expect(entries).toHaveBeenCalledTimes(1)
     entries.mockRestore()
@@ -1505,8 +1500,7 @@ describe('AgentTeam durable Thread Attention ledger', () => {
     const seeded = await harness()
     const records = [...seeded.facility.get('agent_team')!.table('operations').entries()]
     const test = await harness(storedPool(records as Array<[string, unknown]>))
-    await test.ctx.plugin(InvariantRegistry)
-    await test.ctx.plugin(agentTeamInvariant)
+    await test.ctx.plugin(agentTeamLedgerGuard)
     const table = test.facility.get('agent_team')!.table('operations')
     const [id, operation] = [...table.entries()][0]!
     await table.put(id, { ...(operation as AgentTeamOperation), sequence: 2 })
@@ -1522,15 +1516,14 @@ describe('AgentTeam durable Thread Attention ledger', () => {
   it('releases the deferred failure once a replay comes back clean', async () => {
     const settle = (): Promise<void> => new Promise(resolve => setImmediate(resolve))
     const test = await harness()
-    await test.ctx.plugin(InvariantRegistry)
-    await test.ctx.plugin(agentTeamInvariant)
+    await test.ctx.plugin(agentTeamLedgerGuard)
     const table = test.facility.get('agent_team')!.table('operations')
     const [id, operation] = [...table.entries()][0]!
     const receipt = { operationId: id as AgentTeamOperationId, requestId: AGENT_TEAM_INITIALIZE_REQUEST_ID, sequence: 2, occurredAt: (operation as AgentTeamOperation).occurredAt }
     await table.put(id, { ...(operation as AgentTeamOperation), sequence: 2 })
     test.ctx.emit('agent-team/committed', { receipt })
     await settle()
-    expect(() => test.ctx.emit('agent-team/committed', { receipt })).toThrow(/invariant violated/)
+    expect(() => test.ctx.emit('agent-team/committed', { receipt })).toThrow(/ledger divergence/)
     await table.put(id, operation)
     // Whatever the commit above did, the next replay reads the repaired ledger.
     try { test.ctx.emit('agent-team/committed', { receipt }) } catch { /* still latched */ }

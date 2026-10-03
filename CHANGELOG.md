@@ -5,12 +5,16 @@ All notable changes to this project are documented in this file. The format foll
 ## [Unreleased]
 
 - This repository is now the `@aembers/dsh-research-team` fork of `wowyuarm/dsh-agent-team`: the package name, the plugin ids, the repository links and the documentation all carry the new name, and the upstream MIT copyright notice is kept alongside a fork notice.
-- The context-continuity engine is consumed from `AEmbers/dsh-context-continuity` pinned to the `v0.1.8` tag rather than from a sibling checkout, so a clone of this repository needs a Harness checkout but no engine checkout.
+- The context-continuity engine is consumed from `AEmbers/dsh-context-continuity` pinned to the `v0.1.9` tag rather than from a sibling checkout, so a clone of this repository needs a Harness checkout but no engine checkout.
 - `zod` is pinned to the exact `4.4.3` the sibling Harness installs: `generate-typert.mjs` links this repository's zod into its analysis package while the Host face is typed against the Harness's copy, so a range that drifts to a newer zod fails analysis with TS2379 instead of a diagnosable error.
 - Fixed the Plugins page keeping the center column after Team mode starts: Channels, the Inbox and Threads open there again, and the Plugins entry still opens its page once you leave Team mode.
 - Team Members no longer carry a session-local todo tool: planning belongs to the ledger, so the `team-member` preset drops that row and the peer that named it leaves with it.
 - The sender name follows the content-size setting: at a raised size the author grows with the message instead of staying at its default size, while the message body keeps the grid it already had.
 - The certified DSH baseline moves to `0.2.0-rc.2`: every `@deepseek-ai/dsh-*` peer advances to `>=0.2.0-rc.2 <0.2.1`, so a host still on `0.2.0-rc.1` falls outside the declared range.
+- The certified DSH baseline moves to `0.2.1-alpha.1`: every `@deepseek-ai/dsh-*` peer advances to `>=0.2.1-alpha.1 <0.2.2`, so a host still on the 0.2.0 line falls outside the declared range. Certified against the `dsh-v0.2.1-alpha.1` release; see [`docs/dsh-release-compatibility.md`](docs/dsh-release-compatibility.md).
+- DSH 0.2.1-alpha.1 removed its runtime invariant service, so the whole-ledger check is now this bundle's own `@aembers/dsh-research-team/ledger-guard` row: it keeps the mount-time fail-closed validation, one replay per burst of commits after the committing call has returned, and a divergence that is logged where it is found and re-raised on every later commit until a replay comes back clean. The declared `@deepseek-ai/dsh-invariants` peer leaves with the package it named.
+- The context-continuity engine moves to the same line: `@aembers/dsh-context-continuity` `0.1.9` declares the seven DSH peers at `>=0.2.1-alpha.1 <0.2.2` and cordis at `~4.0.5-alpha.1`. An engine left on the 0.2.0 line made npm nest a second, older DSH generation under this bundle, which the compatibility document refuses.
+- The declared `@deepseek-ai/cordis` peer moves with the line, from `^4.0.1` to `~4.0.5-alpha.1`. DSH `0.2.1-alpha.1` peers cordis at `~4.0.5-alpha.1`, and a caret written on an older tuple never admits that prerelease, so the wider range resolved a cordis the candidate refuses: an empty-directory install failed with `ERESOLVE … peer @deepseek-ai/cordis@"~4.0.5-alpha.1" from @deepseek-ai/dsh-agent@0.2.1-alpha.1`.
 
 ## [0.2.0] - 2026-09-29
 

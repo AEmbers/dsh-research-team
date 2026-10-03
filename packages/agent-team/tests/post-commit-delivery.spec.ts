@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import InvariantRegistry, { InvariantError } from '@deepseek-ai/dsh-invariants'
 import Storage from '@deepseek-ai/dsh-storage'
 import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
 import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
@@ -10,7 +9,7 @@ import { changeBaseline, nextChange } from './helpers/change-stream.ts'
 import { MemoryMediaPool, MemoryStorageBackend } from './helpers/memory-backend.ts'
 import AgentTeam from '../src/index.ts'
 import { agentTeamHumanActor } from '../src/ledger.ts'
-import * as agentTeamInvariant from '../src/invariant.ts'
+import * as agentTeamLedgerGuard from '../src/ledger-guard.ts'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import type { UserMessage } from '@deepseek-ai/dsh-llm'
 import type { AgentTeamChannelRef, AgentTeamMemberActor, AgentTeamRequestId } from '../src/types.ts'
@@ -40,8 +39,7 @@ async function harness(): Promise<{ readonly ctx: Context }> {
   ctx.provide('agentPresets', { mount: async () => { throw new Error('unused') } })
   ctx.provide('tools', { schemas: () => [] })
   ctx.provide('sessionPersistence', { list: async () => [] })
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(agentTeamInvariant)
+  await ctx.plugin(agentTeamLedgerGuard)
   await ctx.plugin(SessionProjectionRegistry)
   const fiber = await ctx.plugin(AgentTeam)
   cleanups.push(async () => { await fiber.dispose(); await facility.closeAll() })
@@ -125,11 +123,11 @@ describe('post-commit delivery', () => {
     expect(ctx.agentTeam.status().sequence).toBe(2)
   })
 
-  it('keeps an invariant divergence loud on the caller frame instead of swallowing it', async () => {
+  it('keeps a ledger divergence loud on the caller frame instead of swallowing it', async () => {
     const { ctx } = await harness()
-    ctx.on('agent-team/committed', () => { throw new InvariantError('@aembers/dsh-research-team', 'projection diverged (test seam)') })
-    await expect(ctx.agentTeam.createChannel({ requestId: requestId('invariant-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' }))
-      .rejects.toThrow(/invariant violated/)
+    ctx.on('agent-team/committed', () => { throw new agentTeamLedgerGuard.LedgerDivergenceError('projection diverged (test seam)') })
+    await expect(ctx.agentTeam.createChannel({ requestId: requestId('ledger-guard-channel'), workspaceId: alpha, name: 'engineering', description: 'Engineering' }))
+      .rejects.toThrow(/ledger divergence/)
     // The loud path still reports a real commit: the operation is durable.
     expect(ctx.agentTeam.status().sequence).toBe(2)
   })

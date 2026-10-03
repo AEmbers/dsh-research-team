@@ -513,7 +513,7 @@ export class AgentTeamLedger {
   private humanHandle: string = AGENT_TEAM_HUMAN_HANDLE
   /**
    * Head of the durable records the constructor's record-level replay
-   * validated, adoptable once by the invariant mount. See `validateAtMount`.
+   * validated, adoptable once by the ledger guard's mount. See `validateAtMount`.
    */
   private bootValidation: { readonly records: number; readonly lastSequence: number; readonly lastOperationId: AgentTeamOperationId | null } | undefined
   /**
@@ -1942,7 +1942,7 @@ export class AgentTeamLedger {
   }
 
   /**
-   * Validate the durable ledger for the invariant's mount check, reusing the
+   * Validate the durable ledger for the ledger guard's mount check, reusing the
    * constructor's record-level replay once instead of paying a second identical
    * one at startup.
    *

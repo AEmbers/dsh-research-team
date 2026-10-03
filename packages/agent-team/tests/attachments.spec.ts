@@ -6,7 +6,6 @@ import { join, sep } from 'node:path'
 /** Escape a literal string for embedding in a RegExp (path separators differ per platform). */
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 import { Context } from '@deepseek-ai/cordis'
-import InvariantRegistry from '@deepseek-ai/dsh-invariants'
 import Storage from '@deepseek-ai/dsh-storage'
 import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
 import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
@@ -16,7 +15,7 @@ import { MemoryMediaPool, MemoryStorageBackend } from './helpers/memory-backend.
 import { ATTACHMENT_MAX_BYTES, attachmentsRoot, mediaTypeForPath, newAttachmentId, pathAttachmentId, readAttachment, requestScopedAttachmentId, sanitizeFileName, sanitizeMediaType, sweepAttachmentCache, validatePathAttachment, writeAttachment } from '../src/attachments.ts'
 import AgentTeam from '../src/index.ts'
 import { AgentTeamLedger } from '../src/ledger.ts'
-import * as agentTeamInvariant from '../src/invariant.ts'
+import * as agentTeamLedgerGuard from '../src/ledger-guard.ts'
 import type { AgentTeamOperation, AgentTeamOperationId, AgentTeamRequestId } from '../src/types.ts'
 
 const cleanups: Array<() => Promise<void>> = []
@@ -47,8 +46,7 @@ async function harness(): Promise<{ readonly ctx: Context; readonly facility: Do
   ctx.provide('agentPresets', { mount: async () => { throw new Error('unused') } })
   ctx.provide('tools', { schemas: () => [] })
   ctx.provide('sessionPersistence', { list: async () => [] })
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(agentTeamInvariant)
+  await ctx.plugin(agentTeamLedgerGuard)
   await ctx.plugin(SessionProjectionRegistry)
   let fiber = await ctx.plugin(AgentTeam)
   // Restart the Host in place: the ledger and the attachment cache are durable,

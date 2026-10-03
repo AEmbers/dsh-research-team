@@ -197,10 +197,13 @@
           name: '@aembers/dsh-research-team/host'
     - id: aembers-research-team-client
       name: '@aembers/dsh-research-team'
-    - id: aembers-research-team-invariants
-      name: '@deepseek-ai/dsh-invariants'
-    - id: aembers-research-team-invariant
-      name: '@aembers/dsh-research-team/invariant'
+    # Ledger guard. The Harness removed its runtime invariant service in
+    # 0.2.1-alpha.1 (`@deepseek-ai/dsh-invariants` and every package's
+    # `./invariant` companion), so the durable-ledger check is the bundle's own
+    # row now: it fails the mount on an unre-derivable ledger and re-raises a
+    # divergence on the committing caller's frame.
+    - id: aembers-research-team-ledger-guard
+      name: '@aembers/dsh-research-team/ledger-guard'
     # Team ledger medium backend. Vendored under our own package name (see
     # packages/agent-team/src/vendor/storage-sqlite/): DSH Desktop generation
     # installers strip `@deepseek-ai/*` copies and resolve them from the host

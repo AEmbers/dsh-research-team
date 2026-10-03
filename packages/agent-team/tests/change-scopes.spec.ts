@@ -1,7 +1,6 @@
 import { changeBaseline, nextChange } from './helpers/change-stream.ts'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import InvariantRegistry from '@deepseek-ai/dsh-invariants'
 import Storage from '@deepseek-ai/dsh-storage'
 import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
 import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
@@ -11,7 +10,7 @@ import { WorkspaceId } from '@deepseek-ai/dsh-workspace'
 import { MemoryMediaPool, MemoryStorageBackend } from './helpers/memory-backend.ts'
 import AgentTeam, { AGENT_TEAM_HUMAN_MEMBER_ID, agentTeamDomainSpec } from '../src/index.ts'
 import { AgentTeamLedger, agentTeamHumanActor } from '../src/ledger.ts'
-import * as agentTeamInvariant from '../src/invariant.ts'
+import * as agentTeamLedgerGuard from '../src/ledger-guard.ts'
 import type { AgentTeamChangeScope, AgentTeamChannelRef, AgentTeamMemberActor, AgentTeamOperation, AgentTeamOperationId, AgentTeamRequestId, AgentTeamTaskRef, AgentTeamThreadRef } from '../src/types.ts'
 
 const cleanups: Array<() => Promise<void>> = []
@@ -39,8 +38,7 @@ async function harness(): Promise<{ readonly ctx: Context; readonly facility: Do
   ctx.provide('agentPresets', { mount: async () => { throw new Error('unused') } })
   ctx.provide('tools', { schemas: () => [] })
   ctx.provide('sessionPersistence', { list: async () => [] })
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(agentTeamInvariant)
+  await ctx.plugin(agentTeamLedgerGuard)
   await ctx.plugin(SessionProjectionRegistry)
   const fiber = await ctx.plugin(AgentTeam)
   cleanups.push(async () => { await fiber.dispose(); await facility.closeAll() })
@@ -86,8 +84,7 @@ async function restartHarness(pool: MemoryMediaPool): Promise<{ readonly ctx: Co
   ctx.provide('agentPresets', { mount: async () => { throw new Error('unused') } })
   ctx.provide('tools', { schemas: () => [] })
   ctx.provide('sessionPersistence', { list: async () => [] })
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(agentTeamInvariant)
+  await ctx.plugin(agentTeamLedgerGuard)
   await ctx.plugin(SessionProjectionRegistry)
   const fiber = await ctx.plugin(AgentTeam)
   cleanups.push(async () => { await fiber.dispose(); await facility.closeAll() })

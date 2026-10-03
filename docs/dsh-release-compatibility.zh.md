@@ -226,9 +226,9 @@ Harness 随附一套 experimental Agent Teams，以独立 profile bundle 形式�
 
 ## 6. 当前基线
 
-当前 Team bundle 的已认证基线是 DSH `0.2.0-rc.2`；以下几段保留产生前几条基线的历史。
+当前 Team bundle 的已认证基线是 DSH `0.2.1-alpha.1`；以下几段保留产生前几条基线的历史。
 
-DSH peers 正好声明这条已认证线：`>=0.2.0-rc.2 <0.2.1`，因此本仓库尚未验证的线会落在声明区间之外，而不是在未经核实的兼容声明下被装上。Team 面向模型的工具面去掉 session-local todo 工具时，被移除的 `@deepseek-ai/dsh-tool-todo` peer 随它指名的 preset row 一并删除；其余 peers 仍保持唯一一条已认证区间。
+DSH peers 正好声明这条已认证线：`>=0.2.1-alpha.1 <0.2.2`，因此本仓库尚未验证的线会落在声明区间之外，而不是在未经核实的兼容声明下被装上。Team 面向模型的工具面去掉 session-local todo 工具时，被移除的 `@deepseek-ai/dsh-tool-todo` peer 随它指名的 preset row 一并删除；其余 peers 仍保持唯一一条已认证区间。
 
 经路由的 sqlite 后端是 vendored fork，根本不是 dependency（GitHub issue #28）：上游包只以 devDependency 钉在 fork 来源版本 0.1.5-rc.2，用作字节兼容 fixture 参照；每次兼容认证先把 fork 与该版本文件对一遍 diff，再做其他事。
 
@@ -365,3 +365,41 @@ tag `639ed01`（2026-09-29）在 `dsh-v0.2.0-rc.1` 之后 187 个提交。认证
 已认证基线于 2026-09-29 在这个候选上向前推进——它发生在认证之后，而不是认证的一部分：运维方把 45 个 DSH peers 移到 `>=0.2.0-rc.2 <0.2.1`，CI harness tag 与 Hoplite tag 移到 `dsh-v0.2.0-rc.2`，各命名区间的措辞位点一并更新。
 
 这次移动把声明线收窄到 `0.2.0-rc.2` 及以后。已发布的 `0.2.0` tarball 仍保留更宽的 `>=0.2.0-rc.1 <0.2.1` 声明，所以要等下一个版本才会拒绝仍停在 `0.2.0-rc.1` 的宿主。
+
+### DSH 0.2.1-alpha.1
+
+DSH `0.2.1-alpha.1` 认证通过并推进基线。所有 `@deepseek-ai/dsh-*` peer 一起从 `>=0.2.0-rc.2 <0.2.1` 移到 `>=0.2.1-alpha.1 <0.2.2`：comparator 只在自己那一组 tuple 上接受预发布版本，旧区间根本够不到任何 `0.2.1` cut。
+
+tag `5badb15`（2026-10-03）是 npm `alpha` dist-tag 当前指向的版本，而 `next` 仍指着 `0.2.0-rc.2`，所以这一轮不构成发布阻塞。
+
+这一轮由一处上游移除驱动，需要改源码：运行时 invariant 服务被删掉，`@deepseek-ai/dsh-invariants` 与各包的 `./invariant` companion 随之消失。整账本校验因此变成 bundle 自有的 `@aembers/dsh-research-team/ledger-guard` 行，`@deepseek-ai/dsh-invariants` peer 随它指名的包一并删除。
+
+该 guard 保留了 companion 的两项行为：挂载时重放持久账本，重放不通过仍然让启动失败；每批提交之后重新推导一次，安排在这次提交调用返回之后执行。
+
+发现漂移时在检测处记日志，并在随后每次提交上重新抛出，直到某次重放干净——这才让一次失败的追加可见，而不是静默通过。
+
+按 §5 的规则选：上游已经没有可注册的公共 API，所以校验归 bundle 自有，而不是去改 Harness 的出厂默认。
+
+另有两项公告变更不影响本 bundle。本 bundle 只有一个根 manifest，所以"子路径插件不再读自己的 `package.json`"这条规则没有可改的东西；`member-context`、`member-time-context`、`tools` 与 `ledger-guard` 各自导出显示元数据。
+
+composer 的 `stats` 行拆成 `activity` 与 `usage`。本 bundle 只注册 `conversation.composer.bar`，从不拥有那一行。
+
+声明的 `@deepseek-ai/cordis` peer 随线一起移动，从 `^4.0.1` 改为 `~4.0.5-alpha.1`。上游在这条线上把 cordis 声明为 `~4.0.5-alpha.1`，而按更早 tuple 写的 caret 永远不会接受这个预发布版本，于是更宽的范围解析出一份候选拒绝的 cordis。
+
+上下文连续性引擎随之移动：`@aembers/dsh-context-continuity` `0.1.9` 把七个 DSH peer 声明为 `>=0.2.1-alpha.1 <0.2.2`，cordis 声明为 `~4.0.5-alpha.1`。
+
+留在 0.2.0 线上的引擎不是无害的不一致：§3.5 第一次解析出 285 份 `@deepseek-ai/dsh-*` 拷贝，其中 6 份 `0.2.0-rc.2` 嵌在本 bundle 之下；引擎与宿主同线之后，安装树解析出 279 份拷贝，全部是 `0.2.1-alpha.1`。
+
+两个 tag 之间在 `packages` 与 `apps` 下的规模：2103 个文件变化，+37899/−16486。`boot/plugin-manager` 的改动集中在 profile 运行时解析与包重载，与子路径显示元数据无关。
+
+认证树上的证据：`npm run typecheck`（477 个 Harness mapping）、`npm run build`、`npm test`（923 通过、1 跳过、61 个文件）、`npm pack --dry-run`（263 文件）、`git diff --check`。
+
+`npm run test:browser` 在候选检出上五条 journey 全过；Windows 上需要设 `CHROME_PATH`，因为默认值是 Linux 路径 `/usr/bin/google-chrome`。
+
+§3.5 在空目录里解析出单一 DSH 世代（在 npm 下）：279 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.1-alpha.1`，没有嵌套的旧世代拷贝，`npm ls --all` 里没有 `invalid` 边。
+
+真实 profile 用 pnpm 安装，这一轮就停在这里。pnpm 11 默认拒绝子依赖里的 git 托管依赖，于是 `dsh plugin --profile <name> add <tarball>` 以 `ERR_PNPM_EXOTIC_SUBDEP` 失败：`"@aembers/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`。
+
+这个缺陷是本 fork 引入的——引擎从 registry 依赖改成 tag 仓库依赖时就带上了——与候选版本无关。在引擎以 pnpm 接受的形式作为子依赖被消费之前，这一轮不算完成。
+
+这次移动把声明线收窄到 `0.2.1-alpha.1` 及以后。停在 `0.2.0-rc.2` 的宿主会落在声明之外并被拒绝，因此已发布的 `0.2.0` tarball 仍保留自己更宽的区间，直到下一个版本。

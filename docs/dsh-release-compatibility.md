@@ -167,9 +167,9 @@ Record candidate tag, symptom, affected interface, reproduction command, and nex
 
 ## 6. Current baseline
 
-The current certified baseline is DSH `0.2.0-rc.2`; the paragraphs below preserve the history that produced the preceding baselines.
+The current certified baseline is DSH `0.2.1-alpha.1`; the paragraphs below preserve the history that produced the preceding baselines.
 
-The DSH peers state exactly that certified line, `>=0.2.0-rc.2 <0.2.1`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim. The removed `@deepseek-ai/dsh-tool-todo` peer left with the preset row it named when the Team surface dropped the session-local todo tool; the remaining peers keep the one certified range.
+The DSH peers state exactly that certified line, `>=0.2.1-alpha.1 <0.2.2`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim. The removed `@deepseek-ai/dsh-tool-todo` peer left with the preset row it named when the Team surface dropped the session-local todo tool; the remaining peers keep the one certified range.
 
 The routed sqlite backend is a vendored fork, not a dependency at all (GitHub issue #28): the upstream package stays a devDependency pinned at the fork source, 0.1.5-rc.2, as the byte-compatibility fixture reference, and every compat round diffs the fork against that version's file before anything else.
 
@@ -302,3 +302,41 @@ The published `0.2.0` bundle was installed against the candidate and booted from
 The certified baseline advanced to this candidate on 2026-09-29, after the certification rather than as part of it: the operator moved all 45 DSH peers to `>=0.2.0-rc.2 <0.2.1`, with the CI harness tag and the Hoplite tag to `dsh-v0.2.0-rc.2` and every wording spot that names the range.
 
 The move narrows the declared line to `0.2.0-rc.2` and later. The published `0.2.0` tarball keeps its wider `>=0.2.0-rc.1 <0.2.1` declaration, so only a later release refuses a host still on `0.2.0-rc.1`.
+
+### DSH 0.2.1-alpha.1
+
+DSH `0.2.1-alpha.1` is certified and moves the baseline. Every `@deepseek-ai/dsh-*` peer advanced together, from `>=0.2.0-rc.2 <0.2.1` to `>=0.2.1-alpha.1 <0.2.2`: a comparator admits a prerelease only on its own base tuple, so the old range reached no `0.2.1` cut at all.
+
+Tag `5badb15` (2026-10-03) is what npm's `alpha` dist-tag points at while `next` still names `0.2.0-rc.2`, so the round is not release-blocking.
+
+One upstream removal drove the round and required source adaptation: the runtime invariant service is gone, `@deepseek-ai/dsh-invariants` and every package's `./invariant` companion with it. The bundle's whole-ledger check is now its own `@aembers/dsh-research-team/ledger-guard` row, and the `@deepseek-ai/dsh-invariants` peer left with the package it named.
+
+The guard keeps both behaviours the companion provided. It replays the durable ledger at mount, so an unreplayable ledger still fails startup, and it re-derives once per burst of commits, scheduled after the committing call has returned.
+
+A divergence is logged where it is found and re-raised on every later commit until a replay comes back clean, which is what makes a failed append visible instead of silent.
+
+Section 5 governs the choice: with no public upstream API left to register against, the check is bundle-owned rather than a change to a Harness shipped default.
+
+Two further announced changes do not touch this bundle. It ships exactly one root manifest, so the rule that stopped subpath plugins from reading their own `package.json` finds nothing to change; `member-context`, `member-time-context`, `tools` and `ledger-guard` export their own display metadata.
+
+The composer `stats` row split into `activity` and `usage`. The bundle registers `conversation.composer.bar` only and never owned that row.
+
+The declared `@deepseek-ai/cordis` peer moved with the line, from `^4.0.1` to `~4.0.5-alpha.1`. Upstream peers cordis at `~4.0.5-alpha.1` on this line, and a caret written on an older tuple never admits that prerelease, so the wider range resolved a cordis the candidate refuses.
+
+The context-continuity engine moved with it: `@aembers/dsh-context-continuity` `0.1.9` declares the seven DSH peers at `>=0.2.1-alpha.1 <0.2.2` and cordis at `~4.0.5-alpha.1`.
+
+An engine left on the 0.2.0 line is not a cosmetic mismatch. Section 3.5 first resolved 285 `@deepseek-ai/dsh-*` copies, six of them at `0.2.0-rc.2` and nested under this bundle; with the engine on the same line the tree resolves 279 copies, all at `0.2.1-alpha.1`.
+
+Scale between the two tags under `packages` and `apps`: 2103 files changed, +37899/−16486. `boot/plugin-manager`'s changes are about profile-time resolution and package reload, not subpath display metadata.
+
+Evidence on the certified tree: `npm run typecheck` (477 Harness mappings), `npm run build`, `npm test` (923 passed, 1 skipped, over 61 files), `npm pack --dry-run` (263 files), and `git diff --check`.
+
+`npm run test:browser` passed all five journeys against the candidate checkout; on Windows it needs `CHROME_PATH`, because the default is the Linux path `/usr/bin/google-chrome`.
+
+Section 3.5 resolves a single DSH generation in an empty directory, under npm: 279 `@deepseek-ai/dsh-*` copies, every one at `0.2.1-alpha.1`, no nested older copy, and no `invalid` edge in `npm ls --all`.
+
+A real profile installs with pnpm, and that is where this round stops. pnpm 11 refuses a git-hosted dependency inside a subdependency by default, so `dsh plugin --profile <name> add <tarball>` fails with `ERR_PNPM_EXOTIC_SUBDEP`: `"@aembers/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`.
+
+The defect is this fork's, introduced when the engine moved from a registry dependency to a tagged repository, and it is independent of the candidate. The round is incomplete until the engine is consumed in a form pnpm accepts as a subdependency.
+
+The move narrows the declared line to `0.2.1-alpha.1` and later. A host on `0.2.0-rc.2` falls outside the declaration and is refused, so the published `0.2.0` tarball keeps its own wider range until a later release.

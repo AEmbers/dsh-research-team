@@ -40,13 +40,13 @@ If this looks useful, a star on [GitHub](https://github.com/AEmbers/dsh-research
 
 ### 1. Check DSH
 
-This release is certified against DSH `0.2.0-rc.2`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on `@aembers/dsh-research-team` `0.1.15`.
+This release is certified against DSH `0.2.1-alpha.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on `@aembers/dsh-research-team` `0.1.15`.
 
 ```sh
-npx @deepseek-ai/dsh@0.2.0-rc.2 web
+npx @deepseek-ai/dsh@0.2.1-alpha.1 web
 ```
 
-Install it globally if you want the `dsh` command for the steps below: `npm i -g @deepseek-ai/dsh@0.2.0-rc.2`.
+Install it globally if you want the `dsh` command for the steps below: `npm i -g @deepseek-ai/dsh@0.2.1-alpha.1`.
 
 Stop it, then install Agent Team into the `web` profile:
 

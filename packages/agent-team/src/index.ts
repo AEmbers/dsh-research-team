@@ -17,7 +17,6 @@ import type {} from '@deepseek-ai/dsh-agent-default-model'
 import type {} from '@deepseek-ai/dsh-agent-preset-registry'
 import type {} from '@deepseek-ai/dsh-app-boot'
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths'
-import { InvariantError } from '@deepseek-ai/dsh-invariants'
 import { scopeOf } from '@deepseek-ai/dsh-scope'
 import { Session, SessionId, SessionLogOffset, type SessionEvent } from '@deepseek-ai/dsh-session'
 import type {} from '@deepseek-ai/dsh-session-persistence'
@@ -38,6 +37,7 @@ import { createTeamContextManagement, TEAM_CONTEXT_CODEC } from './context-conti
 import { AGENT_TEAM_PLUGIN_ID, isAgentTeamSource } from './context-source.ts'
 import { boundaryByRef, carriedInputOf, checkpointByRef, checkpointRefFor, createTeamContextProjectionConfig, createTeamContextProjectionDefinition, foldTeamContextProjection, retainedTopicsThrough, TeamContextProjectionHost } from './context-projection.ts'
 import { AGENT_TEAM_HUMAN_MEMBER_ID, AgentTeamLedger, agentTeamHumanActor, type AgentTeamDurableMemberResult } from './ledger.ts'
+import { LedgerDivergenceError } from './ledger-guard.ts'
 import { AGENT_TEAM_TOOL_NAMES, deepCopyCapabilities, memberMemoryDirectoryName, MemberRuntime } from './member-runtime.ts'
 import type { MemberSkillSelectionRef } from './member-skills.ts'
 import { classifyRecoverableError, RecoveryCoordinator, RECOVERY_MAX_CONSECUTIVE_ERRORS } from './recovery.ts'
@@ -1913,7 +1913,7 @@ export default class AgentTeam extends TypertRemoteService {
   }
 
   /**
-   * Validate the durable ledger for the invariant's mount check. The
+   * Validate the durable ledger for the ledger guard's mount check. The
    * constructor already re-derived every durable record against its own
    * scratch projection, so this adopts that conclusion once while nothing has
    * committed since; every other call, and every commit-driven validation,
@@ -3077,15 +3077,15 @@ export default class AgentTeam extends TypertRemoteService {
    * next commit touching that Member rederives the same durable facts and
    * retries without appending a second operation.
    *
-   * An invariant divergence is the deliberate exception — the invariant
-   * companion re-raises it on the caller's frame precisely to stay loud, and
-   * swallowing it would silence a failed integrity check.
+   * A ledger divergence is the deliberate exception — the ledger guard
+   * re-raises it on the caller's frame precisely to stay loud, and swallowing
+   * it would silence a failed integrity check.
    */
   private afterCommit(label: string, effect: () => void): void {
     try {
       effect()
     } catch (error) {
-      if (error instanceof InvariantError) throw error
+      if (error instanceof LedgerDivergenceError) throw error
       this.ctx.logger.warn(`agent-team: post-commit ${label} failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }

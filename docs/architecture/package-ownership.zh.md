@@ -21,7 +21,7 @@ packages/agent-team
   - `ledger.ts` 提交 operations；
   - `spec.ts` 定义 operation records；
   - `types.ts` 把领域拆分（`types/entities.ts`、`types/operations.ts`、`types/requests-results.ts`）re-export 成唯一公开导入路径；
-  - `invariant.ts` 校验运行时关系。
+  - `ledger-guard.ts` 校验运行时关系。
 - `packages/tool-agent-team` 在 tools 执行时解析 live Team service。它不创建第二个 service，也不直接写入 projections。
 - `packages/client-agent-team` 分为 Node 部分（`src/index.ts`）和 browser 部分（`src/client/`）。browser 部分通过 typed Remote 读取 Host projections，并通过 public Client slots 渲染。
 
