@@ -86,7 +86,20 @@ jobs:
         # lib/ is committed so consumers need no install-time build. This fails
         # when a source change forgot to rebuild it. Linux only: a Windows
         # checkout may normalise line endings and fail the comparison spuriously.
-        run: git diff --exit-code -- packages/agent-team/lib packages/tool-agent-team/lib packages/client-agent-team/lib
+        #
+        # The Client bundle is excluded because it cannot be compared across
+        # machines: the harness inlines CSS modules with lightningcss's
+        # `[hash]_[local]` pattern, and that hash is seeded on the stylesheet's
+        # absolute path, so `client.js` — and the map that indexes it — differ
+        # for every checkout directory. Everything else is path- and
+        # platform-independent by construction.
+        run: |
+          git diff --exit-code -- \
+            packages/agent-team/lib \
+            packages/tool-agent-team/lib \
+            packages/client-agent-team/lib \
+            ':(exclude)packages/client-agent-team/lib/client.js' \
+            ':(exclude)packages/client-agent-team/lib/client.js.map'
 
       - name: Regenerate TypeScript path facades
         # sync-paths is not part of any npm script; skipping it leaves the

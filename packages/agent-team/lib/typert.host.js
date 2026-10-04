@@ -2426,7 +2426,7 @@ export const TYPERT = {
             "name": "archiveChannel",
             "signature": "@Remote('archiveChannel') async archiveChannel(request: AgentTeamArchiveChannelRequest): Promise<AgentTeamArchiveChannelResult>",
             "summary": "Archive one Channel: hidden from every surface with all facts kept.",
-            "jsDoc": "/**\r\n * Archive one Channel: hidden from every surface with all facts kept. Pure\r\n * ledger projection change — Member sessions stay live (they may work in\r\n * other Channels), every active Claim on the Channel's Threads releases,\r\n * and affected Members' Attention clears.\r\n */"
+            "jsDoc": "/**\n * Archive one Channel: hidden from every surface with all facts kept. Pure\n * ledger projection change — Member sessions stay live (they may work in\n * other Channels), every active Claim on the Channel's Threads releases,\n * and affected Members' Attention clears.\n */"
           },
           {
             "kind": "method",
@@ -2454,21 +2454,21 @@ export const TYPERT = {
             "name": "recoverMember",
             "signature": "@Remote('recoverMember') async recoverMember(request: AgentTeamRecoverMemberRequest): Promise<AgentTeamRecoverMemberResult>",
             "summary": "Operator nudge for a Member that stopped making progress: steer a continuation prompt into its live session, rebuild it after an orphaned preset composition, or re-run activation when no live session exists.",
-            "jsDoc": "/**\r\n * Operator nudge for a Member that stopped making progress: steer a\r\n * continuation prompt into its live session, rebuild it after an orphaned\r\n * preset composition, or re-run activation when no live session exists.\r\n * Runtime-only — no ledger operation, no suspend. Taking over manually also\r\n * cancels any pending automatic recovery episode. A non-enabled Member\r\n * still holding a live handle is an interrupted suspend/archive/remove,\r\n * not a stalled one; recovery finishes that cleanup instead of nudging it.\r\n */"
+            "jsDoc": "/**\n * Operator nudge for a Member that stopped making progress: steer a\n * continuation prompt into its live session, rebuild it after an orphaned\n * preset composition, or re-run activation when no live session exists.\n * Runtime-only — no ledger operation, no suspend. Taking over manually also\n * cancels any pending automatic recovery episode. A non-enabled Member\n * still holding a live handle is an interrupted suspend/archive/remove,\n * not a stalled one; recovery finishes that cleanup instead of nudging it.\n */"
           },
           {
             "kind": "method",
             "name": "clearMemberContext",
             "signature": "@Remote('clearMemberContext') async clearMemberContext(request: AgentTeamClearMemberContextRequest): Promise<AgentTeamClearMemberContextResult>",
             "summary": "Start one enabled Member from a new context: dispose the live handle, archive the previous Session (its log stays on disk for history), and activate a fresh Session under a new sessionId, so preset, tools, private memory, and model selection all reload while the next turn carries no history.",
-            "jsDoc": "/**\r\n * Start one enabled Member from a new context: dispose the live handle,\r\n * archive the previous Session (its log stays on disk for history), and\r\n * activate a fresh Session under a new sessionId, so preset, tools, private\r\n * memory, and model selection all reload while the next turn carries no\r\n * history. The durable operation moves the Member's sessionId; identity,\r\n * memory path, and binding survive. A new id is what keeps the Web Client\r\n * seat live: a disposed generation's resident instance keeps its `removed`\r\n * bit forever, so renewing under the same id would leave a permanently\r\n * grayed session view.\r\n */"
+            "jsDoc": "/**\n * Start one enabled Member from a new context: dispose the live handle,\n * archive the previous Session (its log stays on disk for history), and\n * activate a fresh Session under a new sessionId, so preset, tools, private\n * memory, and model selection all reload while the next turn carries no\n * history. The durable operation moves the Member's sessionId; identity,\n * memory path, and binding survive. A new id is what keeps the Web Client\n * seat live: a disposed generation's resident instance keeps its `removed`\n * bit forever, so renewing under the same id would leave a permanently\n * grayed session view.\n */"
           },
           {
             "kind": "method",
             "name": "updateMember",
             "signature": "@Remote('updateMember') async updateMember(request: AgentTeamUpdateMemberRequest): Promise<AgentTeamMemberResult>",
             "summary": "Human edit of one Member's mutable facts.",
-            "jsDoc": "/**\r\n * Human edit of one Member's mutable facts. A live model selection is\r\n * updated in place: disposing an Agent emits session/disposed, which makes\r\n * the Web Client permanently mark the same Session id unavailable even when\r\n * Team immediately recreates it.\r\n */"
+            "jsDoc": "/**\n * Human edit of one Member's mutable facts. A live model selection is\n * updated in place: disposing an Agent emits session/disposed, which makes\n * the Web Client permanently mark the same Session id unavailable even when\n * Team immediately recreates it.\n */"
           },
           {
             "kind": "method",
@@ -2482,7 +2482,7 @@ export const TYPERT = {
             "name": "archiveMember",
             "signature": "@Remote('archiveMember') async archiveMember(request: AgentTeamArchiveMemberRequest): Promise<AgentTeamArchiveMemberResult>",
             "summary": "Archive one Member: commit the archival, stop its live session (disposal only — private memory and the Session log stay on disk for a future restore), and archive the Session from every grouping surface.",
-            "jsDoc": "/**\r\n * Archive one Member: commit the archival, stop its live session (disposal\r\n * only — private memory and the Session log stay on disk for a future\r\n * restore), and archive the Session from every grouping surface. Like\r\n * removal, all active Claims release and the Member's Attention clears.\r\n */"
+            "jsDoc": "/**\n * Archive one Member: commit the archival, stop its live session (disposal\n * only — private memory and the Session log stay on disk for a future\n * restore), and archive the Session from every grouping surface. Like\n * removal, all active Claims release and the Member's Attention clears.\n */"
           },
           {
             "kind": "method",
@@ -2538,21 +2538,21 @@ export const TYPERT = {
             "name": "putAttachment",
             "signature": "@Remote('putAttachment') async putAttachment(request: AgentTeamPutAttachmentRequest): Promise<AgentTeamPutAttachmentResult>",
             "summary": "Upload one composer attachment into the cache; bytes are immutable once written.",
-            "jsDoc": "/**\r\n * Upload one composer attachment into the cache; bytes are immutable once\r\n * written. The requestId is the idempotency key: a retried upload derives\r\n * the same cache id and replays the original result, while reusing that key\r\n * for a different payload is refused as a request collision.\r\n */"
+            "jsDoc": "/**\n * Upload one composer attachment into the cache; bytes are immutable once\n * written. The requestId is the idempotency key: a retried upload derives\n * the same cache id and replays the original result, while reusing that key\n * for a different payload is refused as a request collision.\n */"
           },
           {
             "kind": "method",
             "name": "getAttachment",
             "signature": "@Remote('getAttachment') async getAttachment(request: AgentTeamGetAttachmentRequest): Promise<AgentTeamGetAttachmentResult>",
             "summary": "Read one cached attachment back for client display.",
-            "jsDoc": "/**\r\n * Read one cached attachment back for client display. A gone entry is the\r\n * one expected failure on this path, so it carries the stable\r\n * `team/attachment-not-found` code the Client branches on; anything else\r\n * (unreadable metadata, filesystem trouble) stays an unknown Host error.\r\n */"
+            "jsDoc": "/**\n * Read one cached attachment back for client display. A gone entry is the\n * one expected failure on this path, so it carries the stable\n * `team/attachment-not-found` code the Client branches on; anything else\n * (unreadable metadata, filesystem trouble) stays an unknown Host error.\n */"
           },
           {
             "kind": "method",
             "name": "environmentForClient",
             "signature": "@Remote('environment') environmentForClient(_request: AgentTeamEnvironmentRequest): AgentTeamEnvironmentResult",
             "summary": "Local environment check for the settings page: which DSH line this Host runs against, and whether that line is inside the range this bundle declares.",
-            "jsDoc": "/**\r\n * Local environment check for the settings page: which DSH line this Host\r\n * runs against, and whether that line is inside the range this bundle\r\n * declares. Human-scoped and read-only — the Client renders the verdict and\r\n * states the range in words, and nothing here is written back.\r\n *\r\n * Synchronous like `humanProfile`: both read the installed manifest once and\r\n * settle immediately, and the verdict comes from the Harness's own\r\n * compatibility evaluator rather than a second version comparison written\r\n * here.\r\n *\r\n * The wire type and `EnvironmentReport` keep separate top-level field lists on\r\n * purpose: the contract states every fact as optional because a Transport may\r\n * withhold any of them, while the report is the stricter thing the checker\r\n * guarantees. This assignment is where the compiler holds the two together,\r\n * and a new required contract field fails it here.\r\n */"
+            "jsDoc": "/**\n * Local environment check for the settings page: which DSH line this Host\n * runs against, and whether that line is inside the range this bundle\n * declares. Human-scoped and read-only — the Client renders the verdict and\n * states the range in words, and nothing here is written back.\n *\n * Synchronous like `humanProfile`: both read the installed manifest once and\n * settle immediately, and the verdict comes from the Harness's own\n * compatibility evaluator rather than a second version comparison written\n * here.\n *\n * The wire type and `EnvironmentReport` keep separate top-level field lists on\n * purpose: the contract states every fact as optional because a Transport may\n * withhold any of them, while the report is the stricter thing the checker\n * guarantees. This assignment is where the compiler holds the two together,\n * and a new required contract field fails it here.\n */"
           },
           {
             "kind": "method",
@@ -2564,7 +2564,7 @@ export const TYPERT = {
             "name": "putHumanAvatar",
             "signature": "@Remote('putHumanAvatar') async putHumanAvatar(request: AgentTeamPutHumanAvatarRequest): Promise<AgentTeamPutHumanAvatarResult>",
             "summary": "Upload one human avatar image into the persistent store.",
-            "jsDoc": "/**\r\n * Upload one human avatar image into the persistent store. Human-only by\r\n * construction: only the Web Client calls this Remote, never agent tools.\r\n * The caller stores the returned ref in settings; bytes never enter the\r\n * TTL-bound attachment cache.\r\n */"
+            "jsDoc": "/**\n * Upload one human avatar image into the persistent store. Human-only by\n * construction: only the Web Client calls this Remote, never agent tools.\n * The caller stores the returned ref in settings; bytes never enter the\n * TTL-bound attachment cache.\n */"
           },
           {
             "kind": "method",
@@ -2585,7 +2585,7 @@ export const TYPERT = {
             "name": "setHumanProfile",
             "signature": "@Remote('setHumanProfile') async setHumanProfile(request: AgentTeamSetHumanProfileRequest): Promise<AgentTeamSetHumanProfileResult>",
             "summary": "Overwrite the Human profile fields the caller supplies.",
-            "jsDoc": "/**\r\n * Overwrite the Human profile fields the caller supplies. The Host owns this\r\n * write because the profile is the Host row's own Config: the schema supplies\r\n * the shape, this method supplies the two judgements the schema cannot make\r\n * (a non-empty name, a name no live Member already answers to), and the\r\n * settings service persists the result into the active profile's patch\r\n * document and applies it to the running plugin live.\r\n *\r\n * No expected revision accompanies the write: the profile is two scalar\r\n * fields written from the Human's own pages, where the last write wins. This\r\n * is not a hard boundary around a user-editable document — the settings\r\n * service's own document opener (and a text editor) can change the stored\r\n * name without passing here, exactly as the retired section validator could\r\n * not stop it.\r\n */"
+            "jsDoc": "/**\n * Overwrite the Human profile fields the caller supplies. The Host owns this\n * write because the profile is the Host row's own Config: the schema supplies\n * the shape, this method supplies the two judgements the schema cannot make\n * (a non-empty name, a name no live Member already answers to), and the\n * settings service persists the result into the active profile's patch\n * document and applies it to the running plugin live.\n *\n * No expected revision accompanies the write: the profile is two scalar\n * fields written from the Human's own pages, where the last write wins. This\n * is not a hard boundary around a user-editable document — the settings\n * service's own document opener (and a text editor) can change the stored\n * name without passing here, exactly as the retired section validator could\n * not stop it.\n */"
           },
           {
             "kind": "method",
@@ -2689,7 +2689,7 @@ export const TYPERT = {
             "name": "dmForAgent",
             "signature": "async dmForAgent(agent: Agent, request: AgentTeamDmRequest): Promise<AgentTeamDmResult>",
             "summary": "Agent-only direct message: append the audit-only dm-sent operation, then inject the body into the recipient's live session.",
-            "jsDoc": "/**\r\n * Agent-only direct message: append the audit-only dm-sent operation, then\r\n * inject the body into the recipient's live session. The ledger commit is\r\n * the durable fact; the injection is a transient runtime effect, so a\r\n * missing handle or a failed wake returns a structured delivery error while\r\n * the recorded DM stays durable for the recipient's recovery path.\r\n */"
+            "jsDoc": "/**\n * Agent-only direct message: append the audit-only dm-sent operation, then\n * inject the body into the recipient's live session. The ledger commit is\n * the durable fact; the injection is a transient runtime effect, so a\n * missing handle or a failed wake returns a structured delivery error while\n * the recorded DM stays durable for the recipient's recovery path.\n */"
           },
           {
             "kind": "method",
@@ -2722,49 +2722,49 @@ export const TYPERT = {
             "name": "validateLedgerAtMount",
             "signature": "validateLedgerAtMount(): void",
             "summary": "Validate the durable ledger for the ledger guard's mount check.",
-            "jsDoc": "/**\r\n * Validate the durable ledger for the ledger guard's mount check. The\r\n * constructor already re-derived every durable record against its own\r\n * scratch projection, so this adopts that conclusion once while nothing has\r\n * committed since; every other call, and every commit-driven validation,\r\n * replays the whole table again.\r\n */"
+            "jsDoc": "/**\n * Validate the durable ledger for the ledger guard's mount check. The\n * constructor already re-derived every durable record against its own\n * scratch projection, so this adopts that conclusion once while nothing has\n * committed since; every other call, and every commit-driven validation,\n * replays the whole table again.\n */"
           },
           {
             "kind": "method",
             "name": "recordCheckpointForAgent",
             "signature": "recordCheckpointForAgent(agent: Agent, request: AgentTeamCheckpointToolRequest): AgentTeamCheckpointToolOutcome",
             "summary": "Agent-only checkpoint request validation: the tool calls this inside its own running turn.",
-            "jsDoc": "/**\r\n * Agent-only checkpoint request validation: the tool calls this inside its\r\n * own running turn. Like `context_rollover`, the tool performs no side effect —\r\n * the durable checkpoint is the successful `tool/call`+`tool/result` pair\r\n * the Session projection folds; the ref returned here is deterministic\r\n * from this Member Session's identity plus the tool call id, so the model\r\n * can cite it before the result exists and a repeated provider call id in\r\n * another generation never collides with this one.\r\n */"
+            "jsDoc": "/**\n * Agent-only checkpoint request validation: the tool calls this inside its\n * own running turn. Like `context_rollover`, the tool performs no side effect —\n * the durable checkpoint is the successful `tool/call`+`tool/result` pair\n * the Session projection folds; the ref returned here is deterministic\n * from this Member Session's identity plus the tool call id, so the model\n * can cite it before the result exists and a repeated provider call id in\n * another generation never collides with this one.\n */"
           },
           {
             "kind": "method",
             "name": "contextTimelineForAgent",
             "signature": "async contextTimelineForAgent(agent: Agent, request: AgentTeamTimelineToolRequest): Promise<AgentTeamTimelineToolResult>",
             "summary": "Agent-only bounded structural timeline: resolved checkpoints plus Team delivery, handoff, and compaction boundaries across the current generation and its archived ancestor lineage.",
-            "jsDoc": "/**\r\n * Agent-only bounded structural timeline: resolved checkpoints plus Team\r\n * delivery, handoff, and compaction boundaries across the current\r\n * generation and its archived ancestor lineage. Structural only — no\r\n * transcript content. The walk, the per-source folds, the pricing, and the\r\n * anchor rules are the engine's `readContextTimeline`; Team contributes the\r\n * fold configuration, the measurement, and the one judgement the engine\r\n * leaves to its host — which Threads a boundary's retained prefix holds — so\r\n * a ref this list offers is a ref `context_rollover` accepts.\r\n */"
+            "jsDoc": "/**\n * Agent-only bounded structural timeline: resolved checkpoints plus Team\n * delivery, handoff, and compaction boundaries across the current\n * generation and its archived ancestor lineage. Structural only — no\n * transcript content. The walk, the per-source folds, the pricing, and the\n * anchor rules are the engine's `readContextTimeline`; Team contributes the\n * fold configuration, the measurement, and the one judgement the engine\n * leaves to its host — which Threads a boundary's retained prefix holds — so\n * a ref this list offers is a ref `context_rollover` accepts.\n */"
           },
           {
             "kind": "method",
             "name": "measureContextSourceForAgent",
             "signature": "measureContextSourceForAgent(agent: Agent, source: ContextTimelineSource): number | undefined",
             "summary": "One source's replayed measurement, in that source's own tokens, for a caller that already holds the source: the live generation measures directly, an archived one is rebuilt from the log it came with.",
-            "jsDoc": "/**\r\n * One source's replayed measurement, in that source's own tokens, for a\r\n * caller that already holds the source: the live generation measures\r\n * directly, an archived one is rebuilt from the log it came with. Undefined\r\n * means unmeasurable — a caller must never price an unknown source as free.\r\n */"
+            "jsDoc": "/**\n * One source's replayed measurement, in that source's own tokens, for a\n * caller that already holds the source: the live generation measures\n * directly, an archived one is rebuilt from the log it came with. Undefined\n * means unmeasurable — a caller must never price an unknown source as free.\n */"
           },
           {
             "kind": "method",
             "name": "contextFoldConfig",
             "signature": "contextFoldConfig(): ContextProjectionConfig",
             "summary": "The one fold configuration the registered projection unit and every cold fold use, so a generation read back for the timeline reads exactly as the projection folded it — same codec, same boundary attribution.",
-            "jsDoc": "/**\r\n * The one fold configuration the registered projection unit and every cold\r\n * fold use, so a generation read back for the timeline reads exactly as the\r\n * projection folded it — same codec, same boundary attribution.\r\n */"
+            "jsDoc": "/**\n * The one fold configuration the registered projection unit and every cold\n * fold use, so a generation read back for the timeline reads exactly as the\n * projection folded it — same codec, same boundary attribution.\n */"
           },
           {
             "kind": "method",
             "name": "requestNewContext",
             "signature": "async requestNewContext(agent: Agent, request: AgentTeamNewContextToolRequest): Promise<AgentTeamNewContextToolOutcome>",
             "summary": "Agent-only rollover request validation: the tool calls this to check its Member binding, exclusivity, and checkpoint ownership.",
-            "jsDoc": "/**\r\n * Agent-only rollover request validation: the tool calls this to check its\r\n * Member binding, exclusivity, and checkpoint ownership. It performs no\r\n * lifecycle effect — the actual transition reacts to the successful tool\r\n * result through the context-management coordinator.\r\n */"
+            "jsDoc": "/**\n * Agent-only rollover request validation: the tool calls this to check its\n * Member binding, exclusivity, and checkpoint ownership. It performs no\n * lifecycle effect — the actual transition reacts to the successful tool\n * result through the context-management coordinator.\n */"
           },
           {
             "kind": "method",
             "name": "rolloverSessionForAgent",
             "signature": "async rolloverSessionForAgent(agent: Agent, request: AgentTeamRolloverSessionRequest): Promise<AgentTeamDurableMemberResult>",
             "summary": "Agent-only session rollover commit: the Member actor must be the target Member on its currently bound live Session.",
-            "jsDoc": "/**\r\n * Agent-only session rollover commit: the Member actor must be the target\r\n * Member on its currently bound live Session. The Host performs the actual\r\n * generation swap around this write; the ledger records only the durable\r\n * binding transition and rollover audit envelope.\r\n */"
+            "jsDoc": "/**\n * Agent-only session rollover commit: the Member actor must be the target\n * Member on its currently bound live Session. The Host performs the actual\n * generation swap around this write; the ledger records only the durable\n * binding transition and rollover audit envelope.\n */"
           }
         ],
         "types": [

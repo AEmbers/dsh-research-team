@@ -121,15 +121,24 @@ try {
   // the same way. `basename` rather than `lastIndexOf('/')`: the latter finds
   // nothing in a Windows path and leaves the random `mkdtemp` suffix in the
   // emitted `sourceLocation`, which makes the committed lib/ differ on every run.
+  //
+  // Line endings are normalised for the same reason, in both spellings. The
+  // artifact carries quoted JSDoc as JSON-escaped text, so a Windows checkout's
+  // CRLF reaches the file as the four characters `\r\n` rather than as a real
+  // line break; the raw pair is rewritten too, so the normalisation does not
+  // depend on which of the two forms a future emitter picks.
   const generatedRoot = `packages/${basename(tempPackage)}`
-  const stable = value => value.replaceAll(generatedRoot, 'packages/agent-team')
+  const stable = value => value
+    .replaceAll(generatedRoot, 'packages/agent-team')
+    .replaceAll('\\r\\n', '\\n')
+    .replaceAll('\r\n', '\n')
   const output = join(packageRoot, 'lib')
   await mkdir(output, { recursive: true })
   await writeFile(join(output, 'typert.host.js'), stable(artifact.js))
-  await writeFile(join(output, 'typert.host.d.ts'), artifact.dts)
+  await writeFile(join(output, 'typert.host.d.ts'), stable(artifact.dts))
   await writeFile(join(output, 'typert.remote-client.js'), stable(artifact.remote.js))
-  await writeFile(join(output, 'typert.remote-client.d.ts'), artifact.remote.dts)
-  await writeFile(join(output, 'typert.remote-client.d.ts.map'), artifact.remote.dtsMap)
+  await writeFile(join(output, 'typert.remote-client.d.ts'), stable(artifact.remote.dts))
+  await writeFile(join(output, 'typert.remote-client.d.ts.map'), stable(artifact.remote.dtsMap))
 } finally {
   await rm(tempPackage, { recursive: true, force: true })
 }
