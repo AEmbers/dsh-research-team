@@ -224,7 +224,7 @@ describe('Team agent surfaces', () => {
     // what makes a preset the bundle adds reachable without a Client release.
     const picker = await b.view.findByLabelText('成员 preset')
     expect((picker as HTMLSelectElement).value).toBe('team-member')
-    expect([...picker.querySelectorAll('option')].map(option => option.textContent)).toEqual(['Team member', 'Orchestrator'])
+    expect([...picker.querySelectorAll('option')].map(option => option.textContent)).toEqual(['普通成员', '编排者'])
     fireEvent.change(picker, { target: { value: 'orchestrator' } })
     fireEvent.click(b.view.getByRole('button', { name: '创建 Agent' }))
     expect(await b.view.findByText('lead')).toBeTruthy()

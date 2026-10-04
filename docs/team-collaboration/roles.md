@@ -31,6 +31,10 @@ A third thing on this page is not a role at all. The record of attempts and the 
 | `writer` | Expanding an accepted result into a self-contained document | Ephemeral |
 | `finalaudit` | The written document, checked against the accepted result | Ephemeral |
 
+Members are named in the Human's own language. The six durable roles a research Team starts with are `编排者` (orchestrator — the preset that may spawn), `证明者一` and `证明者二` (prover), `实现者` (implementer), `验证者` (verifier), and `判据守门人` (protocol-owner).
+
+A Chinese handle is reachable with `@`, but a mention must be followed by a space or punctuation: the mention scanner's word boundary is `\p{L}` and Han characters are `\p{L}`, so `@验证者请看` matches nothing while `@验证者 请看` notifies.
+
 ## What a durable role may not do
 
 The prohibitions are what make the split worth having, so they belong to the role's definition rather than to its instructions.

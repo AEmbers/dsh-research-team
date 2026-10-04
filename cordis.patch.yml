@@ -28,7 +28,7 @@
             # The create form offers the roster it reads from the Host, so both
             # declarations carry the display name a Human chooses between and an
             # order that puts the base preset first.
-            name: Team member
+            name: 普通成员
             order: 1
             plugins:
             - id: persona
@@ -202,7 +202,7 @@
           name: '@deepseek-ai/dsh-agent-preset'
           config:
             id: orchestrator
-            name: Orchestrator
+            name: 编排者
             description: 'Runs the Team: owns the roster, the round and the record, and is the only preset that may spawn subagents.'
             order: 2
             plugins:
