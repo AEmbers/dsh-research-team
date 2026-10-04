@@ -1,6 +1,6 @@
 import { existsSync, realpathSync } from 'node:fs'
 import { cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { continuityDir } from './continuity-dir.mjs'
 import { harnessDir } from './harness-dir.mjs'
@@ -116,7 +116,12 @@ try {
   const artifact = new FaceModelEmitter(face).emit('@sophialin/dsh-research-team')
   if (artifact.remote === undefined) throw new Error('Typert did not emit the Agent Team Remote contribution')
 
-  const generatedRoot = `packages/${tempPackage.slice(tempPackage.lastIndexOf('/') + 1)}`
+  // The analyzer reports the temp package's own files as paths relative to the
+  // harness root, with forward slashes, so the prefix to strip has to be built
+  // the same way. `basename` rather than `lastIndexOf('/')`: the latter finds
+  // nothing in a Windows path and leaves the random `mkdtemp` suffix in the
+  // emitted `sourceLocation`, which makes the committed lib/ differ on every run.
+  const generatedRoot = `packages/${basename(tempPackage)}`
   const stable = value => value.replaceAll(generatedRoot, 'packages/agent-team')
   const output = join(packageRoot, 'lib')
   await mkdir(output, { recursive: true })

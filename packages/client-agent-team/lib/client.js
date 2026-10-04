@@ -5884,7 +5884,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_addMember_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 920,
 						"column": 9
 					}
@@ -5911,7 +5911,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_archiveChannel_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 910,
 						"column": 9
 					}
@@ -5938,7 +5938,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_archiveMember_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1427,
 						"column": 9
 					}
@@ -5965,7 +5965,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_changeAttention_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1690,
 						"column": 9
 					}
@@ -5994,7 +5994,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_changes_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 843,
 						"column": 11
 					}
@@ -6021,7 +6021,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_changeTask_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1438,
 						"column": 9
 					}
@@ -6048,7 +6048,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_clearMemberContext_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1055,
 						"column": 9
 					}
@@ -6075,7 +6075,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_createChannel_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 883,
 						"column": 9
 					}
@@ -6103,7 +6103,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_environment_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1597,
 						"column": 3
 					}
@@ -6130,7 +6130,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_getAttachment_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1565,
 						"column": 9
 					}
@@ -6157,7 +6157,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_getHumanAvatar_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1630,
 						"column": 9
 					}
@@ -6185,7 +6185,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_humanProfile_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1602,
 						"column": 3
 					}
@@ -6212,7 +6212,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_inbox_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1699,
 						"column": 3
 					}
@@ -6239,7 +6239,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_joinChannel_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1458,
 						"column": 9
 					}
@@ -6266,7 +6266,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_joinWorkspace_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1478,
 						"column": 9
 					}
@@ -6293,7 +6293,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_leaveWorkspace_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1487,
 						"column": 9
 					}
@@ -6321,7 +6321,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_members_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 833,
 						"column": 3
 					}
@@ -6348,7 +6348,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_promoteThread_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1448,
 						"column": 9
 					}
@@ -6375,7 +6375,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_putAttachment_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1548,
 						"column": 9
 					}
@@ -6402,7 +6402,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_putHumanAvatar_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1622,
 						"column": 9
 					}
@@ -6429,7 +6429,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_readThread_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1706,
 						"column": 9
 					}
@@ -6456,7 +6456,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_recoverMember_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 985,
 						"column": 9
 					}
@@ -6483,7 +6483,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_removeChannelMember_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1469,
 						"column": 9
 					}
@@ -6510,7 +6510,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_removeHumanAvatar_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1638,
 						"column": 9
 					}
@@ -6537,7 +6537,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_reply_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1684,
 						"column": 9
 					}
@@ -6564,7 +6564,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_resolveTaskRefs_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 807,
 						"column": 3
 					}
@@ -6591,7 +6591,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_resolveThreadRefs_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 820,
 						"column": 3
 					}
@@ -6618,7 +6618,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_sendMessage_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1496,
 						"column": 9
 					}
@@ -6645,7 +6645,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_setHumanProfile_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1660,
 						"column": 9
 					}
@@ -6672,7 +6672,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_threadHistory_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1724,
 						"column": 3
 					}
@@ -6699,7 +6699,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_threadObservations_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1717,
 						"column": 3
 					}
@@ -6726,7 +6726,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_updateChannel_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 895,
 						"column": 9
 					}
@@ -6753,7 +6753,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_updateMember_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1368,
 						"column": 9
 					}
@@ -6780,7 +6780,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 						create: _sophialin_dsh_research_team_agentTeam_view_result$schema
 					},
 					sourceLocation: {
-						"file": "packages/external-agent-team-oSfxNf/src/index.ts",
+						"file": "packages/agent-team/src/index.ts",
 						"line": 1731,
 						"column": 3
 					}
