@@ -357,9 +357,15 @@ The move narrows the declared line to `0.2.1-alpha.1` and later. A host on `0.2.
 
 Release `0.2.2` declares the earlier line again: every `@deepseek-ai/dsh-*` peer returns to `>=0.2.0-rc.2 <0.2.1` and the declared `@deepseek-ai/cordis` peer to `^4.0.1`. No source file differs from `0.2.1`, so the certification recorded under `### DSH 0.2.0-rc.2` above is this release's evidence as well.
 
-The reason is that the Desktop channel had not moved at the time of the release. `dsh-v0.2.1-alpha.1` exists as a GitHub release and as npm's `alpha` dist-tag, but a packaged application reads its own feed, and on 2026-10-04 `https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml` still answered `version: 0.2.0-rc.2` with `releaseDate: '2026-09-29T10:35:27.666Z'`. The `0.2.1` declaration therefore named a line no Desktop user could reach, and `evaluatePluginCompatibility` turned that into a refusal.
+The reason is that the Desktop channel had not moved at the time of the release.
 
-`0.2.1` stays the release for DSH `0.2.1-alpha.1`, and one source serves both tags. The engine stays at `@sophialin/dsh-context-continuity` `^0.1.10` for both: its code is identical across `0.1.8`, `0.1.9` and `0.1.10` — only the package name and its peer declaration changed — so it runs on either line, and that declaration sits on a plain dependency, which is the one place `evaluatePluginCompatibility` never reads.
+`dsh-v0.2.1-alpha.1` exists as a GitHub release and as npm's `alpha` dist-tag, but a packaged application reads its own feed, and on 2026-10-04 `https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml` still answered `version: 0.2.0-rc.2` with `releaseDate: '2026-09-29T10:35:27.666Z'`.
+
+The `0.2.1` declaration therefore named a line no Desktop user could reach, and `evaluatePluginCompatibility` turned that into a refusal.
+
+`0.2.1` stays the release for DSH `0.2.1-alpha.1`, and one source serves both tags.
+
+The engine stays at `@sophialin/dsh-context-continuity` `^0.1.10` for both: its code is identical across `0.1.8`, `0.1.9` and `0.1.10` — only the package name and its peer declaration changed — so it runs on either line, and that declaration sits on a plain dependency, which is the one place `evaluatePluginCompatibility` never reads.
 
 `0.2.1-alpha.1` satisfies `>=0.2.0-rc.2 <0.2.1` under the prerelease-inclusive comparison the plugin manager applies, so this release is installable on either line. That pairing is uncertified; use `0.2.1` on the `0.2.1-alpha.1` line.
 

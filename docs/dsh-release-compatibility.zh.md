@@ -420,10 +420,16 @@ composer 的 `stats` 行拆成 `activity` 与 `usage`。本 bundle 只注册 `co
 
 `0.2.2` 重新声明较早的那条线：所有 `@deepseek-ai/dsh-*` peer 回到 `>=0.2.0-rc.2 <0.2.1`，声明的 `@deepseek-ai/cordis` peer 回到 `^4.0.1`。没有任何源文件与 `0.2.1` 不同，因此上文 `### DSH 0.2.0-rc.2` 记录的认证同样是本版的证据。
 
-原因是发布时桌面通道没有前进。`dsh-v0.2.1-alpha.1` 既有 GitHub release 也有 npm 的 `alpha` dist-tag，但打包后的应用只读它自己的 feed；2026-10-04 当天 `https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml` 仍然回 `version: 0.2.0-rc.2`、`releaseDate: '2026-09-29T10:35:27.666Z'`。于是 `0.2.1` 声明的是一条桌面用户够不到的线，`evaluatePluginCompatibility` 把它变成了拒绝。
+原因是发布时桌面通道没有前进。
 
-`0.2.1` 仍是 DSH `0.2.1-alpha.1` 那一版的发布，一份源码同时服务两个 tag。引擎在两个版本上都保持 `@sophialin/dsh-context-continuity` `^0.1.10`：它在 `0.1.8`、`0.1.9`、`0.1.10` 之间代码完全相同——只有包名与那条 peer 声明变过——所以在哪条线上都能跑；而那条声明挂在普通 dependency 上，正是 `evaluatePluginCompatibility` 唯一不会读的地方。
+`dsh-v0.2.1-alpha.1` 既有 GitHub release 也有 npm 的 `alpha` dist-tag，但打包后的应用只读它自己的 feed；2026-10-04 当天 `https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml` 仍然回 `version: 0.2.0-rc.2`、`releaseDate: '2026-09-29T10:35:27.666Z'`。
+
+于是 `0.2.1` 声明的是一条桌面用户够不到的线，`evaluatePluginCompatibility` 把它变成了拒绝。
+
+`0.2.1` 仍是 DSH `0.2.1-alpha.1` 那一版的发布，一份源码同时服务两个 tag。
+
+引擎在两个版本上都保持 `@sophialin/dsh-context-continuity` `^0.1.10`：它在 `0.1.8`、`0.1.9`、`0.1.10` 之间代码完全相同——只有包名与那条 peer 声明变过——所以在哪条线上都能跑；而那条声明挂在普通 dependency 上，正是 `evaluatePluginCompatibility` 唯一不会读的地方。
 
 在插件管理器采用的、包含预发布的比较下，`0.2.1-alpha.1` 满足 `>=0.2.0-rc.2 <0.2.1`，因此本版在两条线上都能装。该组配未经认证；`0.2.1-alpha.1` 线上请用 `0.2.1`。
 
-本分支的证据（对着 `dsh-v0.2.0-rc.2` 检出）：`npm run typecheck`（509 条 Harness 映射）、`npm test`（923 通过、1 跳过，共 61 个文件）、`npm run check:artifact`（263 个打包文件，44 条运行时相对 import 全部解析）、`npm pack --dry-run`（263 个文件）、`git diff --check`、`npm run test:browser`（5 条旅程）。
+本分支证据（对着 `dsh-v0.2.0-rc.2` 检出）：`npm run typecheck`（509 条 Harness 映射）、`npm test`（923 通过、1 跳过，共 61 个文件）、`npm run check:artifact`（263 个文件、44 条运行时相对 import 全部解析）、`npm pack --dry-run`（263 个文件）、`git diff --check`、`npm run test:browser`（5/5）。
