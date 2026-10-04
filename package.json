@@ -21,7 +21,6 @@
   ],
   "scripts": {
     "generate:typert": "node --import tsx scripts/generate-typert.mjs",
-    "prepack": "npm run build",
     "clean:build-outputs": "node scripts/clean-build-outputs.mjs",
     "check:docs": "node scripts/check-docs.mjs",
     "check:core-skills": "node scripts/check-core-skills.mjs",

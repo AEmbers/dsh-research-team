@@ -1,5 +1,4 @@
 node_modules/
-lib/
 *.tsbuildinfo
 *.log
 .DS_Store
@@ -8,3 +7,8 @@ artifacts/
 # Local generation-time state: sync-paths.mjs rewrites it per run (a cert
 # generation records the tag-suffixed checkout name). Never commit it.
 .generated-harness
+
+# lib/ is committed on purpose. Consumers install this bundle straight from the
+# repository, and pnpm refuses to run a git-hosted package's build scripts
+# unless every consumer allowlists the resolved tarball, so the built output has
+# to travel with the source. CI fails when lib/ is stale.
