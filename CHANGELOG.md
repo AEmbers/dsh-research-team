@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning. Team bundle versions evolve independently of DeepSeek Harness versions; DeepSeek Harness compatibility is expressed through `peerDependencies` and [`docs/dsh-release-compatibility.md`](docs/dsh-release-compatibility.md).
 
+## [Unreleased]
+
+- The update tip in the settings footnote reads this repository's release tags instead of the npm registry. This fork is installed from a tag, so the npm `latest` document named a version that does not exist for it; the check now asks `api.github.com` for the repository's tags at most every 12 hours and names the newest one, and the tip's link still opens the Releases page. Two DSH lines can be current at once, so the newest tag is not always the one a given Host should install — the tip routes to the release notes, where the line is stated, and the plugin manager's own peer check refuses an install from the wrong line. Every failure still settles as "no update known".
+
 ## [0.2.1] - 2026-10-04
 
 - This fork is distributed from its own repository instead of a registry: an install names the tag, and the built output travels with the source so nothing has to be compiled on the consumer's machine. The version is a patch because `0.2.0` is already tagged in this repository's history.
