@@ -1,8 +1,8 @@
-// Single source of truth for which `@aembers/dsh-context-continuity` this
+// Single source of truth for which `@sophialin/dsh-context-continuity` this
 // repository resolves against.
 //
 // The engine is a separate repository with its own release cadence, published
-// as `@aembers/dsh-context-continuity` and declared by this root package both
+// as `@sophialin/dsh-context-continuity` and declared by this root package both
 // as a runtime peer (what a profile install resolves for the bundle) and as a
 // devDependency (what a clean checkout installs so the gate can run). Two
 // shapes are therefore legitimate, and the difference matters to the link step:
@@ -19,14 +19,14 @@
 //
 // A resolution that carries no package layout fails fast here, at its cause,
 // instead of surfacing later as a far-away `Cannot find module
-// '@aembers/dsh-context-continuity'` inside an unrelated test.
+// '@sophialin/dsh-context-continuity'` inside an unrelated test.
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const DEFAULT_CONTINUITY_NAME = 'dsh-context-continuity'
 
-const ENGINE_PACKAGE = '@aembers/dsh-context-continuity'
+const ENGINE_PACKAGE = '@sophialin/dsh-context-continuity'
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 

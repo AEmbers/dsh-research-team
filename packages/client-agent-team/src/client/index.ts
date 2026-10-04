@@ -28,8 +28,8 @@ import type {
   AgentTeamUpdateChannelRequest,
   AgentTeamUpdateMemberRequest,
   AgentTeamViewRequest,
-} from '@aembers/dsh-research-team/types'
-import agentTeamRemote from '@aembers/dsh-research-team/remote'
+} from '@sophialin/dsh-research-team/types'
+import agentTeamRemote from '@sophialin/dsh-research-team/remote'
 import type {} from '@deepseek-ai/dsh-client-connection/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'

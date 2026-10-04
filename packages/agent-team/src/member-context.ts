@@ -8,15 +8,15 @@ import { matchesProducerKind } from './context-source.ts'
 import type { AgentTeamAgentMember } from './types.ts'
 import { memberMemoryDirectoryPath } from './member-runtime.ts'
 
-export const name = 'aembers-research-team-member-context'
+export const name = 'sophialin-research-team-member-context'
 
 /** This producer's own attribution. `kind` must be producer-owned (Session format V4);
  * the second member is the read-time conversion's rename of this producer's
  * released V3 history (`plugin:` + id, `plugin` key dropped) — read-side only. */
 declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
-    'aembers-research-team-member-context': { kind: 'aembers-research-team-member-context' } & ContextFormed
-    'plugin:aembers-research-team-member-context': { kind: 'plugin:aembers-research-team-member-context' } & ContextFormed
+    'sophialin-research-team-member-context': { kind: 'sophialin-research-team-member-context' } & ContextFormed
+    'plugin:sophialin-research-team-member-context': { kind: 'plugin:sophialin-research-team-member-context' } & ContextFormed
   }
 }
 

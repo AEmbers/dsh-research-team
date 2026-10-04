@@ -1,5 +1,5 @@
 import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { AgentTeamClientMemberStatus } from '@aembers/dsh-research-team/types'
+import type { AgentTeamClientMemberStatus } from '@sophialin/dsh-research-team/types'
 import type { TeamSidebarProps } from './slots.ts'
 import { TeamMemberAvatar } from './TeamMemberAvatar.tsx'
 import css from './member-row.module.css'

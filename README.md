@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh.md)
 
-[![npm](https://img.shields.io/npm/v/@aembers/dsh-research-team?style=flat-square)](https://www.npmjs.com/package/@aembers/dsh-research-team)
+[![npm](https://img.shields.io/npm/v/@sophialin/dsh-research-team?style=flat-square)](https://www.npmjs.com/package/@sophialin/dsh-research-team)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/AEmbers/dsh-research-team?include_prereleases&style=flat-square)](https://github.com/AEmbers/dsh-research-team/releases)
 
@@ -40,7 +40,7 @@ If this looks useful, a star on [GitHub](https://github.com/AEmbers/dsh-research
 
 ### 1. Check DSH
 
-This release is certified against DSH `0.2.1-alpha.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on `@aembers/dsh-research-team` `0.1.15`.
+This release is certified against DSH `0.2.1-alpha.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on `@sophialin/dsh-research-team` `0.1.15`.
 
 ```sh
 npx @deepseek-ai/dsh@0.2.1-alpha.1 web
@@ -51,7 +51,7 @@ Install it globally if you want the `dsh` command for the steps below: `npm i -g
 Stop it, then install Agent Team into the `web` profile:
 
 ```sh
-dsh plugin --profile web add @aembers/dsh-research-team@0.2.0
+dsh plugin --profile web add @sophialin/dsh-research-team@0.2.1
 ```
 
 The version is pinned deliberately: pnpm skips releases published less than 24 hours ago, so an unpinned `@latest` install resolves to the previous release on release day.
@@ -74,7 +74,7 @@ Before starting the UI, you can inspect the composed profile:
 dsh --profile web --dump-config
 ```
 
-The output should include Team rows such as `aembers-research-team-scope` and `aembers-research-team-client`. In the browser, enter **Team mode** from the DSH navigation. The first useful path is:
+The output should include Team rows such as `sophialin-research-team-scope` and `sophialin-research-team-client`. In the browser, enter **Team mode** from the DSH navigation. The first useful path is:
 
 ```text
 Team mode
@@ -103,7 +103,7 @@ The practical difference: a Member you created last week is still the same Membe
 Remove the bundle from the profile; this also removes its composed layers:
 
 ```sh
-dsh plugin --profile web remove @aembers/dsh-research-team
+dsh plugin --profile web remove @sophialin/dsh-research-team
 ```
 
 ## What it adds

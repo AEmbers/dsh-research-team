@@ -27,7 +27,7 @@
 // Exit:   0 = the artifact is complete and clean, 1 = it would ship broken.
 import { existsSync, readFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
-import { dirname, join, normalize } from 'node:path'
+import { join, posix } from 'node:path'
 
 const repoRoot = process.argv.slice(2).find(arg => !arg.startsWith('--')) ?? process.cwd()
 const failures = []
@@ -111,7 +111,11 @@ for (const file of jsFiles) {
   }
   for (const match of source.matchAll(/(?:require\(|from\s+)['"](\.[^'"]+)['"]/g)) {
     checked += 1
-    const target = normalize(join(dirname(file), match[1]))
+    // Tarball paths are always POSIX, so resolution has to be too: the
+    // separator-dependent `join`/`normalize` pair yields `packages\agent-team\
+    // lib\context-source.js` on Windows, which can never match a member of
+    // `shipped` and turns this check red for every legitimate import.
+    const target = posix.normalize(posix.join(posix.dirname(file), match[1]))
     const candidates = [target, `${target}.js`, `${target}.json`, `${target}.cjs`, `${target}.mjs`, join(target, 'index.js')]
     if (!candidates.some(candidate => shipped.has(candidate))) missing.push(`${file} -> ${match[1]}`)
   }

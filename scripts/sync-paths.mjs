@@ -19,24 +19,24 @@ const cleaned = raw
 const base = JSON.parse(cleaned)
 
 const own = {
-  '@aembers/dsh-research-team/host': ['./packages/agent-team/src/index.ts'],
-  '@aembers/dsh-research-team/invariant': ['./packages/agent-team/src/invariant.ts'],
-  '@aembers/dsh-research-team/types': ['./packages/agent-team/src/types.ts'],
-  '@aembers/dsh-research-team/typert': ['./packages/agent-team/lib/typert.host.d.ts'],
-  '@aembers/dsh-research-team/remote': ['./packages/agent-team/lib/typert.remote-client.js'],
-  '@aembers/dsh-research-team/sqlite-backend': ['./packages/agent-team/src/vendor/storage-sqlite/index.ts'],
-  '@aembers/dsh-research-team/member-context': ['./packages/agent-team/src/member-context.ts'],
-  '@aembers/dsh-research-team/member-time-context': ['./packages/agent-team/src/member-time-context.ts'],
-  '@aembers/dsh-research-team/time-format': ['./packages/agent-team/src/time-format.ts'],
-  '@aembers/dsh-research-team/mentions': ['./packages/agent-team/src/mentions.ts'],
-  '@aembers/dsh-research-team/member-skills': ['./packages/agent-team/src/member-skills.ts'],
-  '@aembers/dsh-research-team/tools': ['./packages/tool-agent-team/src/index.ts'],
-  '@aembers/dsh-research-team/client': ['./packages/client-agent-team/src/client/index.ts'],
+  '@sophialin/dsh-research-team/host': ['./packages/agent-team/src/index.ts'],
+  '@sophialin/dsh-research-team/ledger-guard': ['./packages/agent-team/src/ledger-guard.ts'],
+  '@sophialin/dsh-research-team/types': ['./packages/agent-team/src/types.ts'],
+  '@sophialin/dsh-research-team/typert': ['./packages/agent-team/lib/typert.host.d.ts'],
+  '@sophialin/dsh-research-team/remote': ['./packages/agent-team/lib/typert.remote-client.js'],
+  '@sophialin/dsh-research-team/sqlite-backend': ['./packages/agent-team/src/vendor/storage-sqlite/index.ts'],
+  '@sophialin/dsh-research-team/member-context': ['./packages/agent-team/src/member-context.ts'],
+  '@sophialin/dsh-research-team/member-time-context': ['./packages/agent-team/src/member-time-context.ts'],
+  '@sophialin/dsh-research-team/time-format': ['./packages/agent-team/src/time-format.ts'],
+  '@sophialin/dsh-research-team/mentions': ['./packages/agent-team/src/mentions.ts'],
+  '@sophialin/dsh-research-team/member-skills': ['./packages/agent-team/src/member-skills.ts'],
+  '@sophialin/dsh-research-team/tools': ['./packages/tool-agent-team/src/index.ts'],
+  '@sophialin/dsh-research-team/client': ['./packages/client-agent-team/src/client/index.ts'],
 }
 
 const ownTypes = {
   ...own,
-  '@aembers/dsh-research-team/remote': ['./packages/agent-team/lib/typert.remote-client.d.ts'],
+  '@sophialin/dsh-research-team/remote': ['./packages/agent-team/lib/typert.remote-client.d.ts'],
 }
 
 const harnessSrc = {
@@ -67,19 +67,19 @@ const harnessTypes = Object.fromEntries(
 )
 
 const buildOwn = {
-  '@aembers/dsh-research-team/host': ['./packages/agent-team/lib/types/index.d.ts'],
-  '@aembers/dsh-research-team/invariant': ['./packages/agent-team/lib/types/invariant.d.ts'],
-  '@aembers/dsh-research-team/types': ['./packages/agent-team/lib/types/types.d.ts'],
-  '@aembers/dsh-research-team/typert': ['./packages/agent-team/lib/typert.host.d.ts'],
-  '@aembers/dsh-research-team/remote': ['./packages/agent-team/lib/typert.remote-client.d.ts'],
-  '@aembers/dsh-research-team/sqlite-backend': ['./packages/agent-team/lib/types/vendor/storage-sqlite/index.d.ts'],
-  '@aembers/dsh-research-team/member-context': ['./packages/agent-team/lib/types/member-context.d.ts'],
-  '@aembers/dsh-research-team/member-time-context': ['./packages/agent-team/lib/types/member-time-context.d.ts'],
-  '@aembers/dsh-research-team/time-format': ['./packages/agent-team/lib/types/time-format.d.ts'],
-  '@aembers/dsh-research-team/mentions': ['./packages/agent-team/lib/types/mentions.d.ts'],
-  '@aembers/dsh-research-team/member-skills': ['./packages/agent-team/lib/types/member-skills.d.ts'],
-  '@aembers/dsh-research-team/tools': ['./packages/tool-agent-team/lib/types/index.d.ts'],
-  '@aembers/dsh-research-team/client': ['./packages/client-agent-team/lib/types/client/index.d.ts'],
+  '@sophialin/dsh-research-team/host': ['./packages/agent-team/lib/types/index.d.ts'],
+  '@sophialin/dsh-research-team/ledger-guard': ['./packages/agent-team/lib/types/ledger-guard.d.ts'],
+  '@sophialin/dsh-research-team/types': ['./packages/agent-team/lib/types/types.d.ts'],
+  '@sophialin/dsh-research-team/typert': ['./packages/agent-team/lib/typert.host.d.ts'],
+  '@sophialin/dsh-research-team/remote': ['./packages/agent-team/lib/typert.remote-client.d.ts'],
+  '@sophialin/dsh-research-team/sqlite-backend': ['./packages/agent-team/lib/types/vendor/storage-sqlite/index.d.ts'],
+  '@sophialin/dsh-research-team/member-context': ['./packages/agent-team/lib/types/member-context.d.ts'],
+  '@sophialin/dsh-research-team/member-time-context': ['./packages/agent-team/lib/types/member-time-context.d.ts'],
+  '@sophialin/dsh-research-team/time-format': ['./packages/agent-team/lib/types/time-format.d.ts'],
+  '@sophialin/dsh-research-team/mentions': ['./packages/agent-team/lib/types/mentions.d.ts'],
+  '@sophialin/dsh-research-team/member-skills': ['./packages/agent-team/lib/types/member-skills.d.ts'],
+  '@sophialin/dsh-research-team/tools': ['./packages/tool-agent-team/lib/types/index.d.ts'],
+  '@sophialin/dsh-research-team/client': ['./packages/client-agent-team/lib/types/client/index.d.ts'],
 }
 
 const shared = {

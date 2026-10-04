@@ -1,7 +1,7 @@
 import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
 import type {
   AgentTeamAttachmentId, AgentTeamPutAttachmentRequest, AgentTeamPutAttachmentResult, AgentTeamRequestId,
-} from '@aembers/dsh-research-team/types'
+} from '@sophialin/dsh-research-team/types'
 import { bytesToBase64 } from './attachment-preview.ts'
 
 /** Fresh idempotency identity for one Client-initiated durable request. */

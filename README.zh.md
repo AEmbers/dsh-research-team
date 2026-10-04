@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-[![npm](https://img.shields.io/npm/v/@aembers/dsh-research-team?style=flat-square)](https://www.npmjs.com/package/@aembers/dsh-research-team)
+[![npm](https://img.shields.io/npm/v/@sophialin/dsh-research-team?style=flat-square)](https://www.npmjs.com/package/@sophialin/dsh-research-team)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/AEmbers/dsh-research-team?include_prereleases&style=flat-square)](https://github.com/AEmbers/dsh-research-team/releases)
 
@@ -40,7 +40,7 @@ Task Thread 把 Claim、Agent 交接、Human 验收和后续回复保留在同�
 
 ### 1. 检查 DSH
 
-当前版本已针对 DSH `0.2.1-alpha.1` 完成认证。请显式指定 DSH 版本，而不要跟随 `latest`：不指定版本时可能解析到本 bundle 声明区间之外的宿主线。若你的 DSH 是 `0.1.7-rc.2`，请停留在 `@aembers/dsh-research-team` `0.1.15`。
+当前版本已针对 DSH `0.2.1-alpha.1` 完成认证。请显式指定 DSH 版本，而不要跟随 `latest`：不指定版本时可能解析到本 bundle 声明区间之外的宿主线。若你的 DSH 是 `0.1.7-rc.2`，请停留在 `@sophialin/dsh-research-team` `0.1.15`。
 
 ```sh
 npx @deepseek-ai/dsh@0.2.1-alpha.1 web
@@ -51,7 +51,7 @@ npx @deepseek-ai/dsh@0.2.1-alpha.1 web
 先停止它，再把 Agent Team 安装到 `web` profile：
 
 ```sh
-dsh plugin --profile web add @aembers/dsh-research-team@0.2.0
+dsh plugin --profile web add @sophialin/dsh-research-team@0.2.1
 ```
 
 这里刻意写明确切版本：pnpm 会跳过发布不满 24 小时的版本，不带版本号的 `@latest` 在发布当天会装到上一版。
@@ -74,7 +74,7 @@ Agent Team 是显式 opt-in 的。安装只会把 bundle 加入 `web` profile，
 dsh --profile web --dump-config
 ```
 
-输出中应包含 Team rows，例如 `aembers-research-team-scope` 和 `aembers-research-team-client`。打开浏览器后，从 DSH 导航进入 **Team mode**。第一次可以按下面的路径操作：
+输出中应包含 Team rows，例如 `sophialin-research-team-scope` 和 `sophialin-research-team-client`。打开浏览器后，从 DSH 导航进入 **Team mode**。第一次可以按下面的路径操作：
 
 ```text
 Team mode
@@ -103,7 +103,7 @@ Team mode
 从 profile 移除 bundle，同时会移除它组合进来的层：
 
 ```sh
-dsh plugin --profile web remove @aembers/dsh-research-team
+dsh plugin --profile web remove @sophialin/dsh-research-team
 ```
 
 ## 提供的能力

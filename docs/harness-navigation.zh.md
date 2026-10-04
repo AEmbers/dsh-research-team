@@ -57,7 +57,7 @@ Team 读取 `ctx.workspaces.list`，不复制 Workspace 创建或浏览状态。
 已核实的安装方式：
 
 ```sh
-dsh plugin --profile team-demo add @aembers/dsh-research-team
+dsh plugin --profile team-demo add @sophialin/dsh-research-team
 dsh --profile team-demo
 ```
 
@@ -68,7 +68,7 @@ dsh plugin --profile team-demo add /absolute/path/to/dsh-research-team
 dsh --profile team-demo
 ```
 
-`cordis.patch.yml` 通过 `dsh.bundle.patch` 暴露 patch，在 `aembers-research-team-scope` 中挂载 Host、Client 与 ledger-guard row，并在 `isolate.agentPresets` 内声明 Team preset 注册表与 `team-member` 定义行。普通 DSH roster 不变。
+`cordis.patch.yml` 通过 `dsh.bundle.patch` 暴露 patch，在 `sophialin-research-team-scope` 中挂载 Host、Client 与 ledger-guard row，并在 `isolate.agentPresets` 内声明 Team preset 注册表与 `team-member` 定义行。普通 DSH roster 不变。
 
 验证顺序是 `npm run typecheck`、`npm test`、`npm run build`、`npm pack --dry-run`，browser/bundle 改动再加 browser 测试。手动预览用 `npm run preview`；同时检查普通 Session 中不出现 Team tools、guidance 与 UI。不要把临时 overlay、browser test 或生成文件提交到 Harness。
 

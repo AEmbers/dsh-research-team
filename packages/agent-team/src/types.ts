@@ -5,7 +5,7 @@
  * - ./types/requests-results.ts — operation receipts, requests, results, views.
  *
  * This file stays the single public import path; every consumer keeps importing
- * from ./types.ts (or @aembers/dsh-research-team/types) unchanged.
+ * from ./types.ts (or @sophialin/dsh-research-team/types) unchanged.
  */
 import type { AgentTeamAttachmentId } from './types/entities.ts'
 

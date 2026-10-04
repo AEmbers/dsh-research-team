@@ -3,7 +3,7 @@
  *
  * The Host owns the append-only collaboration ledger and all Member lifecycle
  * effects. Session history and browser state are projections, never Team facts.
- * @module @aembers/dsh-research-team
+ * @module @sophialin/dsh-research-team
  */
 
 import { randomUUID } from 'node:crypto'
@@ -32,7 +32,7 @@ import { HUMAN_PROFILE_DEFAULT_NAME, HUMAN_PROFILE_REPO_URL, HUMAN_PROFILE_SETTI
 import { humanAvatarsRoot, readHumanAvatar, removeHumanAvatar, writeHumanAvatar } from './human-avatar.ts'
 import { createHumanUpdateChecker } from './human-update-check.ts'
 import { PressurePolicyCoordinator } from './pressure-policy.ts'
-import { CONTEXT_CONTINUITY_PROJECTION_KEY, readContextTimeline, type ContextProjectionConfig, type ContextTimelineItem, type ContextTimelineSource, type TransitionPlan } from '@aembers/dsh-context-continuity'
+import { CONTEXT_CONTINUITY_PROJECTION_KEY, readContextTimeline, type ContextProjectionConfig, type ContextTimelineItem, type ContextTimelineSource, type TransitionPlan } from '@sophialin/dsh-context-continuity'
 import { createTeamContextManagement, TEAM_CONTEXT_CODEC } from './context-continuity-host.ts'
 import { AGENT_TEAM_PLUGIN_ID, isAgentTeamSource } from './context-source.ts'
 import { boundaryByRef, carriedInputOf, checkpointByRef, checkpointRefFor, createTeamContextProjectionConfig, createTeamContextProjectionDefinition, foldTeamContextProjection, retainedTopicsThrough, TeamContextProjectionHost } from './context-projection.ts'
@@ -153,7 +153,7 @@ export { humanAvatarsRoot } from './human-avatar.ts'
 export { AGENT_TEAM_TOOL_NAMES } from './member-runtime.ts'
 
 /** Process-stable marker carried by the final Team message tool definition. */
-export const AGENT_TEAM_PRESET_MARKER = Symbol.for('@aembers/dsh-research-team.preset')
+export const AGENT_TEAM_PRESET_MARKER = Symbol.for('@sophialin/dsh-research-team.preset')
 
 
 const INBOX_NOTICE_SUMMARY = 'Team Inbox has unread work.'

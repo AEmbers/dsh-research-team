@@ -6,7 +6,7 @@
  * consumes them, and the artifact path a refusal carries is asserted below.
  */
 import { describe, expect, it } from 'vitest'
-import type { AgentTeamClientMemberStatus, AgentTeamMemberDiagnostic } from '@aembers/dsh-research-team/types'
+import type { AgentTeamClientMemberStatus, AgentTeamMemberDiagnostic } from '@sophialin/dsh-research-team/types'
 import { zh } from '../src/client/locales.ts'
 import type { TeamSidebarProps } from '../src/client/slots.ts'
 import { diagnosticText, presenceLabel, restartOffered } from '../src/client/TeamPresenceDot.tsx'

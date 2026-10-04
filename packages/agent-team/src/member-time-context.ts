@@ -24,7 +24,7 @@
  * manual-fold pattern the Host's context projection uses — so restart,
  * request reconstruction, and compaction all derive identical baselines
  * without a second durable store.
- * @module @aembers/dsh-research-team/member-time-context
+ * @module @sophialin/dsh-research-team/member-time-context
  */
 
 import type { Context } from '@deepseek-ai/cordis'
@@ -35,7 +35,7 @@ import { matchesProducerKind } from './context-source.ts'
 import { formatTeamDuration, formatTeamTimestamp } from './time-format.ts'
 import { advanceOwnedSessionEventCursor, type OwnedSessionEventCursor, type SessionEventFold } from './session-event-cursor.ts'
 
-export const name = 'aembers-research-team-member-time-context'
+export const name = 'sophialin-research-team-member-time-context'
 
 /** This producer's own attribution. `kind` must be producer-owned (Session format
  * V4); the second member is the read-time conversion's rename of this
@@ -43,8 +43,8 @@ export const name = 'aembers-research-team-member-time-context'
  * read-side only. */
 declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
-    'aembers-research-team-member-time-context': { kind: 'aembers-research-team-member-time-context' } & ContextFormed
-    'plugin:aembers-research-team-member-time-context': { kind: 'plugin:aembers-research-team-member-time-context' } & ContextFormed
+    'sophialin-research-team-member-time-context': { kind: 'sophialin-research-team-member-time-context' } & ContextFormed
+    'plugin:sophialin-research-team-member-time-context': { kind: 'plugin:sophialin-research-team-member-time-context' } & ContextFormed
   }
 }
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AgentTeamMemberId } from '@aembers/dsh-research-team/types'
+import type { AgentTeamMemberId } from '@sophialin/dsh-research-team/types'
 import { TEAM_DRAFTS_STORAGE_KEY, TeamDraftStore } from '../src/client/drafts.ts'
 
 function storage(): Storage {

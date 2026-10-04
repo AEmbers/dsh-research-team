@@ -14,7 +14,7 @@
 
 /** Public npm metadata document for the bundle's `latest` dist-tag. */
 export const HUMAN_UPDATE_CHECK_REGISTRY_URL =
-  'https://registry.npmjs.org/@aembers%2fdsh-research-team/latest'
+  'https://registry.npmjs.org/@sophialin%2fdsh-research-team/latest'
 
 /** How long one settled check stays authoritative before a re-check. */
 export const HUMAN_UPDATE_CHECK_TTL_MS = 12 * 60 * 60 * 1000

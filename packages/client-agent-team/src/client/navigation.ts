@@ -1,6 +1,6 @@
 import type { SessionId } from '@deepseek-ai/dsh-session'
 import type { WorkspaceId } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { AgentTeamChannelRef, AgentTeamTaskRef, AgentTeamThreadRef } from '@aembers/dsh-research-team/types'
+import type { AgentTeamChannelRef, AgentTeamTaskRef, AgentTeamThreadRef } from '@sophialin/dsh-research-team/types'
 
 export type TeamMode = 'conversation' | 'team'
 

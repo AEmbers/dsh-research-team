@@ -11,7 +11,7 @@
  * (ledger, handles, notifications, recovery); this module owns per-Member
  * runtime invariants.
  *
- * @module @aembers/dsh-research-team/member-runtime
+ * @module @sophialin/dsh-research-team/member-runtime
  */
 
 import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'

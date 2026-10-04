@@ -9,7 +9,7 @@
 // It also provides the context-continuity engine, the other external plugin
 // this bundle consumes, when the resolution is a sibling checkout
 // (scripts/continuity-dir.mjs): the bundle imports
-// `@aembers/dsh-context-continuity` by name and must resolve exactly one copy
+// `@sophialin/dsh-context-continuity` by name and must resolve exactly one copy
 // of it. A clean checkout resolves the published package the package manager
 // already installed instead, and then there is nothing to link.
 import { existsSync, mkdirSync, readdirSync, readFileSync, symlinkSync } from 'node:fs'
@@ -88,9 +88,9 @@ if (!existsSync(continuityEntry)) {
         + ` Reinstall it (pnpm install), then rerun this script.`,
   )
 }
-if (continuityFromSibling) linkPackage('@aembers/dsh-context-continuity', continuityDir)
+if (continuityFromSibling) linkPackage('@sophialin/dsh-context-continuity', continuityDir)
 // The bundle's own self-reference must resolve for preset rows that name it.
-const selfRef = join(repoRoot, 'node_modules', '@aembers')
+const selfRef = join(repoRoot, 'node_modules', '@sophialin')
 mkdirSync(selfRef, { recursive: true })
 if (!existsSync(join(selfRef, 'dsh-research-team'))) {
   if (process.platform === 'win32') {

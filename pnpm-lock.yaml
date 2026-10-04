@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@aembers/dsh-context-continuity':
-        specifier: github:AEmbers/dsh-context-continuity#v0.1.9
-        version: https://codeload.github.com/AEmbers/dsh-context-continuity/tar.gz/d0fde866b249c87223dbfba9c6c3ce4c3066df1b
+      '@sophialin/dsh-context-continuity':
+        specifier: ^0.1.10
+        version: 0.1.10
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
@@ -68,22 +68,6 @@ importers:
         version: 4.1.10(@types/node@24.13.3)(jsdom@30.0.1)(vite@7.3.6(@types/node@24.13.3)(tsx@4.23.12)(yaml@2.9.1))
 
 packages:
-
-  '@aembers/dsh-context-continuity@https://codeload.github.com/AEmbers/dsh-context-continuity/tar.gz/d0fde866b249c87223dbfba9c6c3ce4c3066df1b':
-    resolution: {gitHosted: true, integrity: sha512-9zsCXYB/bWszuoj+5pLzRSbkgXq93VvN8l7tuUfXlHwoxJSR29JSfVG3UWD2YNhVNbwPF5B8a5TBZWufvApk6Q==, tarball: https://codeload.github.com/AEmbers/dsh-context-continuity/tar.gz/d0fde866b249c87223dbfba9c6c3ce4c3066df1b}
-    version: 0.1.9
-    peerDependencies:
-      '@deepseek-ai/cordis': ~4.0.5-alpha.1
-      '@deepseek-ai/dsh-agent': '>=0.2.1-alpha.1 <0.2.2'
-      '@deepseek-ai/dsh-llm': '>=0.2.1-alpha.1 <0.2.2'
-      '@deepseek-ai/dsh-session': '>=0.2.1-alpha.1 <0.2.2'
-      '@deepseek-ai/dsh-session-persistence': '>=0.2.1-alpha.1 <0.2.2'
-      '@deepseek-ai/dsh-session-projection': '>=0.2.1-alpha.1 <0.2.2'
-      '@deepseek-ai/dsh-session-query': '>=0.2.1-alpha.1 <0.2.2'
-      '@deepseek-ai/dsh-tools': '>=0.2.1-alpha.1 <0.2.2'
-    peerDependenciesMeta:
-      '@deepseek-ai/dsh-session-query':
-        optional: true
 
   '@asamuzakjp/css-color@6.0.7':
     resolution: {integrity: sha512-vC/bk1Lz7Tn/EfU9/apOTBk80/8dyGyWMowPoV1tJ52muDGsDqt2HPT2klrFUiY60MQmQv9q8yIht15JnBgDGw==}
@@ -469,6 +453,21 @@ packages:
     resolution: {integrity: sha512-zD6NdeWEByGE9QF9vCrlJ5YQB4oq9q91kPZS37Jwj5hOkvR1lTBSpsKhKDw4IJtbQ35LsTS1HD9DZYGKIshU1Q==}
     cpu: [x64]
     os: [win32]
+
+  '@sophialin/dsh-context-continuity@0.1.10':
+    resolution: {integrity: sha512-zCZOj+A0eFN+GIOeQiaYjEibKnczDCDNtv+dkyjxZv6JBNDcnAPPxiukiQ79APn+YkKjfHEKU2pWmlHK63BmRA==}
+    peerDependencies:
+      '@deepseek-ai/cordis': ~4.0.5-alpha.1
+      '@deepseek-ai/dsh-agent': '>=0.2.1-alpha.1 <0.2.2'
+      '@deepseek-ai/dsh-llm': '>=0.2.1-alpha.1 <0.2.2'
+      '@deepseek-ai/dsh-session': '>=0.2.1-alpha.1 <0.2.2'
+      '@deepseek-ai/dsh-session-persistence': '>=0.2.1-alpha.1 <0.2.2'
+      '@deepseek-ai/dsh-session-projection': '>=0.2.1-alpha.1 <0.2.2'
+      '@deepseek-ai/dsh-session-query': '>=0.2.1-alpha.1 <0.2.2'
+      '@deepseek-ai/dsh-tools': '>=0.2.1-alpha.1 <0.2.2'
+    peerDependenciesMeta:
+      '@deepseek-ai/dsh-session-query':
+        optional: true
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -991,10 +990,6 @@ packages:
 
 snapshots:
 
-  '@aembers/dsh-context-continuity@https://codeload.github.com/AEmbers/dsh-context-continuity/tar.gz/d0fde866b249c87223dbfba9c6c3ce4c3066df1b':
-    dependencies:
-      zod: 4.6.5
-
   '@asamuzakjp/css-color@6.0.7':
     dependencies:
       '@csstools/css-calc': 3.3.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
@@ -1218,6 +1213,10 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.62.4':
     optional: true
+
+  '@sophialin/dsh-context-continuity@0.1.10':
+    dependencies:
+      zod: 4.6.5
 
   '@standard-schema/spec@1.1.0': {}
 

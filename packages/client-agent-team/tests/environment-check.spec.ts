@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type { AgentTeamEnvironmentResult } from '@aembers/dsh-research-team/types'
+import type { AgentTeamEnvironmentResult } from '@sophialin/dsh-research-team/types'
 import { TeamEnvironmentCheck, type TeamEnvironmentLoader } from '../src/client/environment-check.ts'
 
 /**

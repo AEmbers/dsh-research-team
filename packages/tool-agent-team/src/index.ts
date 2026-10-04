@@ -1,6 +1,6 @@
 import type { Context } from '@deepseek-ai/cordis'
-import AgentTeam, { AgentTeamDmDeliveryError, markAgentTeamPreset } from '@aembers/dsh-research-team/host'
-import { formatTeamTimestamp } from '@aembers/dsh-research-team/time-format'
+import AgentTeam, { AgentTeamDmDeliveryError, markAgentTeamPreset } from '@sophialin/dsh-research-team/host'
+import { formatTeamTimestamp } from '@sophialin/dsh-research-team/time-format'
 import { registerContextTools } from './context-tools.ts'
 import { service, workspaceOf, workspaceParam } from './host-access.ts'
 import type {
@@ -9,11 +9,11 @@ import type {
   AgentTeamRequestId,
   AgentTeamTaskRef,
   AgentTeamThreadRef,
-} from '@aembers/dsh-research-team/types'
+} from '@sophialin/dsh-research-team/types'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import type { AgentTeamContextAdvice } from '@aembers/dsh-research-team/types'
+import type { AgentTeamContextAdvice } from '@sophialin/dsh-research-team/types'
 
-export const name = 'aembers-research-team-tools'
+export const name = 'sophialin-research-team-tools'
 export const inject = ['tools']
 
 /** One shared bound for every bounded anchor subject a render shows. */

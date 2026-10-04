@@ -11,9 +11,10 @@ allowBuilds:
 # bundles resolve peers from the registry at the end-user install site.
 autoInstallPeers: false
 
-# The engine (`@aembers/dsh-context-continuity`) is resolved as a local
+# The engine (`@sophialin/dsh-context-continuity`) is resolved as a local
 # `link:../dsh-context-continuity` sibling rather than from the registry, so it
 # needs no minimum-release-age exemption here. Restore a versioned entry if this
 # fork ever publishes the engine and goes back to a registry range.
 minimumReleaseAgeExclude:
   - '@deepseek-ai/dsh-storage-sqlite@0.1.5-rc.1'
+  - '@sophialin/dsh-context-continuity@0.1.10'

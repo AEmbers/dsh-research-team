@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import type { AgentTeamHumanProfileResult } from '@aembers/dsh-research-team/types'
+import type { AgentTeamHumanProfileResult } from '@sophialin/dsh-research-team/types'
 import { TeamHumanIdentity, type TeamHumanIdentityLoader } from '../src/client/human-identity.ts'
 import { TeamEnvironmentCheck, type TeamEnvironmentLoader } from '../src/client/environment-check.ts'
 import { zh } from '../src/client/locales.ts'

@@ -1,5 +1,5 @@
 /**
- * Bundle-owned ledger guard for `@aembers/dsh-research-team`.
+ * Bundle-owned ledger guard for `@sophialin/dsh-research-team`.
  *
  * DSH 0.2.1-alpha.1 removed its runtime invariant service (`@deepseek-ai/dsh-invariants`
  * and every package's `./invariant` companion), so this check is the bundle's own.
@@ -7,12 +7,12 @@
  * cannot be re-derived fails the mount, and a divergence found after a commit stays
  * loud on the caller's frame.
  *
- * @module @aembers/dsh-research-team/ledger-guard
+ * @module @sophialin/dsh-research-team/ledger-guard
  */
 
 import type { Context } from '@deepseek-ai/cordis'
 
-const PACKAGE_NAME = '@aembers/dsh-research-team'
+const PACKAGE_NAME = '@sophialin/dsh-research-team'
 
 /**
  * Thrown when the durable ledger and the Team projection diverge. The commit

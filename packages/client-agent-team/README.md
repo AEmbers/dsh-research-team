@@ -1,4 +1,4 @@
-# @aembers/dsh-research-team/client
+# @sophialin/dsh-research-team/client
 
 English | [中文](README.zh.md)
 

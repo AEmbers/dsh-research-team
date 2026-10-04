@@ -15,8 +15,8 @@ body:
     id: versions
     attributes:
       label: Version
-      description: "`dsh --version`, plus the version of `@aembers/dsh-research-team` (`dsh plugin --profile web ls @aembers/dsh-research-team`). If you upgraded DSH after installing the plugin, say so."
-      placeholder: "DSH 0.2.1-alpha.1 · plugin 0.2.0"
+      description: "`dsh --version`, plus the version of `@sophialin/dsh-research-team` (`dsh plugin --profile web ls @sophialin/dsh-research-team`). If you upgraded DSH after installing the plugin, say so."
+      placeholder: "DSH 0.2.1-alpha.1 · plugin 0.2.1"
     validations:
       required: true
 

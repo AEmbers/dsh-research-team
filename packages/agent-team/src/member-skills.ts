@@ -9,7 +9,7 @@
  * primitive future Runtime Revision manifests orchestrate — do not remove
  * during cleanup.
  *
- * @module @aembers/dsh-research-team/member-skills
+ * @module @sophialin/dsh-research-team/member-skills
  */
 
 import type { Context } from '@deepseek-ai/cordis'

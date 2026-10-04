@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { AgentTeamClientMemberStatus } from '@aembers/dsh-research-team/types'
+import type { AgentTeamClientMemberStatus } from '@sophialin/dsh-research-team/types'
 import type { TeamSidebarProps } from './slots.ts'
 import { memberHue } from './team-formatters.ts'
 import { presenceDotState, presenceLabel } from './TeamPresenceDot.tsx'

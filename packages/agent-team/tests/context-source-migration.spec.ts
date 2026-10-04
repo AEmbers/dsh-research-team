@@ -66,8 +66,8 @@ describe('Agent Team message sources satisfy format V4 admission', () => {
     // carry their own id as the kind (`member-context`, `member-time-context`).
     expect(() => assertV4RowAdmission(userRow({ kind: AGENT_TEAM_PLUGIN_ID, form: 'notice', summary: 'Team Inbox has unread work.' }))).not.toThrow()
     expect(() => assertV4RowAdmission(userRow({ kind: AGENT_TEAM_PLUGIN_ID, form: 'relay' }))).not.toThrow()
-    expect(() => assertV4RowAdmission(userRow({ kind: 'aembers-research-team-member-context', form: 'instructions' }))).not.toThrow()
-    expect(() => assertV4RowAdmission(userRow({ kind: 'aembers-research-team-member-time-context', form: 'snapshot', sections: [{ name: 'Team clock', text: 'now' }] }))).not.toThrow()
+    expect(() => assertV4RowAdmission(userRow({ kind: 'sophialin-research-team-member-context', form: 'instructions' }))).not.toThrow()
+    expect(() => assertV4RowAdmission(userRow({ kind: 'sophialin-research-team-member-time-context', form: 'snapshot', sections: [{ name: 'Team clock', text: 'now' }] }))).not.toThrow()
     expect(() => assertV4RowAdmission(userRow({ kind: AGENT_TEAM_PLUGIN_ID, form: 'snapshot', sections: [{ name: HANDOFF_SECTION_NAME, text: 'prose' }] }))).not.toThrow()
   })
 
@@ -124,8 +124,8 @@ describe('Released V3 history reads back through the official conversion', () =>
   })
 
   it('keeps a two-field wrapper down to exactly its renamed kind', () => {
-    expect(convertV3({ kind: 'plugin', plugin: 'aembers-research-team-member-context' })).toEqual({
-      kind: 'plugin:aembers-research-team-member-context',
+    expect(convertV3({ kind: 'plugin', plugin: 'sophialin-research-team-member-context' })).toEqual({
+      kind: 'plugin:sophialin-research-team-member-context',
     })
   })
 

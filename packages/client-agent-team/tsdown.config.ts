@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url'
 const { harnessDir } = await import('../../scripts/harness-dir.mjs')
 const { clientBundle } = await import(pathToFileURL(resolve(harnessDir, 'packages/client/tsdown.client.ts')).href)
 
-const bundle = clientBundle('@aembers/dsh-research-team', [
+const bundle = clientBundle('@sophialin/dsh-research-team', [
   'lib/types/index.js',
 ])
 
@@ -28,7 +28,7 @@ const teamRemoteTarget = resolve(import.meta.dirname, '../agent-team/lib/typert.
 const teamRemote = {
   name: 'dsh-research-team-remote-entrypoint',
   resolveId(source: string) {
-    return source === '@aembers/dsh-research-team/remote' ? teamRemoteTarget : null
+    return source === '@sophialin/dsh-research-team/remote' ? teamRemoteTarget : null
   },
 }
 

@@ -332,7 +332,7 @@ Client 占用的五个 slot 座位（`sidebar.workspaces`、`main`、`sidebar.se
 
 §3.5 解析出单一 DSH 世代：278 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.0-rc.1`，bundle 运行时加载的任何东西背后都没有第二套。
 
-落后的那一条声明区间已收口：`@aembers/dsh-context-continuity@0.1.6` 把七个 `@deepseek-ai/dsh-*` peers 声明为 `>=0.2.0-rc.1 <0.2.1`，本 bundle 要求 `^0.1.6`，因此解析本 manifest 的树只装一套 DSH 世代。
+落后的那一条声明区间已收口：`@sophialin/dsh-context-continuity@0.1.6` 把七个 `@deepseek-ai/dsh-*` peers 声明为 `>=0.2.0-rc.1 <0.2.1`，本 bundle 要求 `^0.1.6`，因此解析本 manifest 的树只装一套 DSH 世代。
 
 `0.1.5` 仍声明 `>=0.1.7-rc.1 <0.1.8`：npm 为满足这个无法满足的声明 peer，在 bundle 下嵌套安装了 `@deepseek-ai/dsh-session-projection@0.1.7-rc.2`（120 KB）并打印 `ERESOLVE overriding peer dependency`，安装仍以 0 退出。
 
@@ -372,7 +372,7 @@ DSH `0.2.1-alpha.1` 认证通过并推进基线。所有 `@deepseek-ai/dsh-*` pe
 
 tag `5badb15`（2026-10-03）是 npm `alpha` dist-tag 当前指向的版本，而 `next` 仍指着 `0.2.0-rc.2`，所以这一轮不构成发布阻塞。
 
-这一轮由一处上游移除驱动，需要改源码：运行时 invariant 服务被删掉，`@deepseek-ai/dsh-invariants` 与各包的 `./invariant` companion 随之消失。整账本校验因此变成 bundle 自有的 `@aembers/dsh-research-team/ledger-guard` 行，`@deepseek-ai/dsh-invariants` peer 随它指名的包一并删除。
+这一轮由一处上游移除驱动，需要改源码：运行时 invariant 服务被删掉，`@deepseek-ai/dsh-invariants` 与各包的 `./invariant` companion 随之消失。整账本校验因此变成 bundle 自有的 `@sophialin/dsh-research-team/ledger-guard` 行，`@deepseek-ai/dsh-invariants` peer 随它指名的包一并删除。
 
 该 guard 保留了 companion 的两项行为：挂载时重放持久账本，重放不通过仍然让启动失败；每批提交之后重新推导一次，安排在这次提交调用返回之后执行。
 
@@ -386,22 +386,32 @@ composer 的 `stats` 行拆成 `activity` 与 `usage`。本 bundle 只注册 `co
 
 声明的 `@deepseek-ai/cordis` peer 随线一起移动，从 `^4.0.1` 改为 `~4.0.5-alpha.1`。上游在这条线上把 cordis 声明为 `~4.0.5-alpha.1`，而按更早 tuple 写的 caret 永远不会接受这个预发布版本，于是更宽的范围解析出一份候选拒绝的 cordis。
 
-上下文连续性引擎随之移动：`@aembers/dsh-context-continuity` `0.1.9` 把七个 DSH peer 声明为 `>=0.2.1-alpha.1 <0.2.2`，cordis 声明为 `~4.0.5-alpha.1`。
+上下文连续性引擎随之移动：`0.1.9` 把七个 DSH peer 声明为 `>=0.2.1-alpha.1 <0.2.2`，cordis 声明为 `~4.0.5-alpha.1`。引擎随后以 `@sophialin/dsh-context-continuity` `0.1.10` 发布到 registry，本 bundle 依赖的正是这个版本。
 
 留在 0.2.0 线上的引擎不是无害的不一致：§3.5 第一次解析出 285 份 `@deepseek-ai/dsh-*` 拷贝，其中 6 份 `0.2.0-rc.2` 嵌在本 bundle 之下；引擎与宿主同线之后，安装树解析出 279 份拷贝，全部是 `0.2.1-alpha.1`。
 
 两个 tag 之间在 `packages` 与 `apps` 下的规模：2103 个文件变化，+37899/−16486。`boot/plugin-manager` 的改动集中在 profile 运行时解析与包重载，与子路径显示元数据无关。
 
-认证树上的证据：`npm run typecheck`（477 个 Harness mapping）、`npm run build`、`npm test`（923 通过、1 跳过、61 个文件）、`npm pack --dry-run`（263 文件）、`git diff --check`。
+认证树上的证据：`npm run typecheck`（477 个 Harness mapping）、`npm run build`、`npm test`（923 通过、1 跳过、61 个文件）、`npm run check:artifact`（263 个文件，44 条运行时相对 import 全部解析到位）、`npm pack --dry-run`（263 文件）、`git diff --check`。
 
 `npm run test:browser` 在候选检出上五条 journey 全过；Windows 上需要设 `CHROME_PATH`，因为默认值是 Linux 路径 `/usr/bin/google-chrome`。
 
-候选也确实把它启起来了：DSH `0.2.1-alpha.1` 上的 scratch profile 从 linked checkout 组合出本 bundle，启动页注册了 `@aembers/dsh-research-team`，Client 模块以 657,431 字节送达，不含改名前那个名字。被下面那条子依赖拒绝挡住的是发布安装这条路，不是挂载本身。
+候选也确实把它启起来了：DSH `0.2.1-alpha.1` 上的 scratch profile 从 linked checkout 组合出本 bundle，启动页注册了 `@sophialin/dsh-research-team`，Client 模块以 657,431 字节送达，不含改名前那个名字。当时唯一还堵着的是发布安装这条路，挂载本身不是；打通它所需的东西见下文。
 
 §3.5 在空目录里解析出单一 DSH 世代（在 npm 下）：279 份 `@deepseek-ai/dsh-*` 拷贝全部是 `0.2.1-alpha.1`，没有嵌套的旧世代拷贝，`npm ls --all` 里没有 `invalid` 边。
 
-真实 profile 用 pnpm 安装，这一轮就停在这里。pnpm 11 默认拒绝子依赖里的 git 托管依赖，于是 `dsh plugin --profile <name> add <tarball>` 以 `ERR_PNPM_EXOTIC_SUBDEP` 失败：`"@aembers/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`。
+真实 profile 用 pnpm 安装。pnpm 11 默认拒绝子依赖里的 git 托管依赖，于是 `dsh plugin --profile <name> add <tarball>` 以 `ERR_PNPM_EXOTIC_SUBDEP` 失败：`"@sophialin/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`。
 
-这个缺陷是本 fork 引入的——引擎从 registry 依赖改成 tag 仓库依赖时就带上了——与候选版本无关。在引擎以 pnpm 接受的形式作为子依赖被消费之前，这一轮不算完成。
+这个缺陷是本 fork 引入的——引擎从 registry 依赖改成 tag 仓库依赖时就带上了——与候选版本无关。
+
+修法是发布引擎，而不是给它开豁免。`blockExoticSubdeps` 是 pnpm 11 的默认值、不是 DSH 的行为，关掉它只会把这份工作推给本 bundle 的每一个消费者。
+
+打包也不是出路。默认的 `nodeLinker: isolated` 下 `pnpm pack` 以 `ERR_PNPM_BUNDLED_DEPENDENCIES_WITHOUT_HOISTED` 拒绝 `bundleDependencies`，而同一份输入会让 `npm pack` 直接内部报错。
+
+把引擎发到同一组织下，它就成了一条普通的 registry 依赖——也就是 pnpm 作为子依赖接受的那种形式。
+
+于是这一轮被堵住的那条路在 pnpm 的默认配置下就通了：空目录里 `pnpm add <tarball>` 成功，引擎从 registry 解析为 `0.1.10`，每一份 `@deepseek-ai/dsh-*` 拷贝都是 `0.2.1-alpha.1`，没有一份嵌在本 bundle 之下。
+
+物理拷贝数与上文 npm 的数字不同，因为 pnpm 的 isolated linker 会把同一个世代物化成更多份。
 
 这次移动把声明线收窄到 `0.2.1-alpha.1` 及以后。停在 `0.2.0-rc.2` 的宿主会落在声明之外并被拒绝，因此已发布的 `0.2.0` tarball 仍保留自己更宽的区间，直到下一个版本。

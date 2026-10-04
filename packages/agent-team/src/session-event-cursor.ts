@@ -34,7 +34,7 @@
  * silently, while costing a payload digest on every advance. Closing it
  * properly means fingerprinting every folded event, which is the full refold
  * this module exists to avoid; if the contract ever changes, that is the fix.
- * @module @aembers/dsh-research-team/session-event-cursor
+ * @module @sophialin/dsh-research-team/session-event-cursor
  */
 
 /** The minimum event shape the cursor reads: identity and position, never payload. */

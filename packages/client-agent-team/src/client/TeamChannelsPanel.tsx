@@ -8,7 +8,7 @@ import type {
   AgentTeamMemberId,
   AgentTeamUpdateChannelRequest,
   AgentTeamView,
-} from '@aembers/dsh-research-team/types'
+} from '@sophialin/dsh-research-team/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-api-workspace-controller/client'
 import { Button, IconArchiveOutlineRegular, IconEditOutlineRegular, IconPlusOutlineRegular, Input, Modal, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { TeamSidebarProps } from './slots.ts'

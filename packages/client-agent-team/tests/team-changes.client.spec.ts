@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import { RemoteStream, RemoteStreamCarrierError, type ClientRemote } from '@deepseek-ai/dsh-api-gateway/client'
-import type { AgentTeamChangesRequest } from '@aembers/dsh-research-team/types'
+import type { AgentTeamChangesRequest } from '@sophialin/dsh-research-team/types'
 import { TeamChangeStream } from '../src/client/team-changes.ts'
 
 /** Clean end of one Host generation: the Host-side generator returns without an error. */

@@ -222,9 +222,9 @@ async function realHarness(
   // shipped cordis.patch.yml declares; bare internal loader names resolve
   // through the self-linked node_modules.
   const teamMemberPlugins: PresetDefinition['plugins'] = [
-    { id: 'member-context', name: '@aembers/dsh-research-team/member-context' },
-    { id: 'member-time-context', name: '@aembers/dsh-research-team/member-time-context' },
-    { id: 'team-tools', name: '@aembers/dsh-research-team/tools' },
+    { id: 'member-context', name: '@sophialin/dsh-research-team/member-context' },
+    { id: 'member-time-context', name: '@sophialin/dsh-research-team/member-time-context' },
+    { id: 'team-tools', name: '@sophialin/dsh-research-team/tools' },
     { id: 'compaction', name: 'cordis:group', group: true, isolate: { compaction: true }, config: [
       { id: 'compaction-stub', name: pathToFileURL(compactionStub).href },
     ] },
@@ -1268,11 +1268,11 @@ describe('Agent Team Member lifecycle', () => {
     const last = JSON.stringify(adapter.requests[2]!.messages)
     // The closing step still carries the turn's single snapshot in history.
     const lastSnapshots = adapter.requests[2]!.messages.filter(message =>
-      (message as { source?: { kind?: string } }).source?.kind === 'aembers-research-team-member-time-context')
+      (message as { source?: { kind?: string } }).source?.kind === 'sophialin-research-team-member-time-context')
     expect(lastSnapshots).toHaveLength(1)
     expect(last).toContain('Team clock sampled while preparing turn ')
     const snapshots = agent.session.ownEvents().filter(event => event.type === 'user/message'
-      && (event.data as { source?: { kind?: string; form?: string } }).source?.kind === 'aembers-research-team-member-time-context')
+      && (event.data as { source?: { kind?: string; form?: string } }).source?.kind === 'sophialin-research-team-member-time-context')
     expect(snapshots).toHaveLength(1)
     const data = snapshots[0]!.data as { content: Array<{ type: string; text: string }>; source: { kind: string; form: string; sections?: unknown[] } }
     expect(data.source.form).toBe('snapshot')
@@ -1723,7 +1723,7 @@ describe('Agent Team Member lifecycle', () => {
   it('validates the final Team tool marker during unpublished setup', async () => {
     expect(AGENT_TEAM_TOOL_NAMES).toEqual(['team_inbox', 'team_thread', 'team_message', 'team_claim', 'team_view', 'context_rollover', 'context_checkpoint', 'context_timeline'])
     const definition = markAgentTeamPreset({ name: 'team_message' })
-    expect(Reflect.get(definition, Symbol.for('@aembers/dsh-research-team.preset'))).toBe(true)
+    expect(Reflect.get(definition, Symbol.for('@sophialin/dsh-research-team.preset'))).toBe(true)
   })
 
   it('surfaces an actionable diagnostic for the tsx source-mode dsh-scope mismatch', () => {

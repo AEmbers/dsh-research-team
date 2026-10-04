@@ -1,4 +1,4 @@
-# @aembers/dsh-research-team
+# @sophialin/dsh-research-team
 
 [English](README.md) | 中文
 

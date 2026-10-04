@@ -269,7 +269,7 @@ Evidence on the certified tree: `npm run typecheck` (508 Harness mappings), `npm
 
 Section 3.5 resolves a single DSH generation: 278 `@deepseek-ai/dsh-*` copies, every one at `0.2.0-rc.1`, with no second set behind anything the bundle loads at runtime.
 
-The trailing declared range is closed: `@aembers/dsh-context-continuity@0.1.6` declares its seven `@deepseek-ai/dsh-*` peers as `>=0.2.0-rc.1 <0.2.1`, and this bundle requires `^0.1.6`, so a tree that resolves this manifest installs one DSH generation.
+The trailing declared range is closed: `@sophialin/dsh-context-continuity@0.1.6` declares its seven `@deepseek-ai/dsh-*` peers as `>=0.2.0-rc.1 <0.2.1`, and this bundle requires `^0.1.6`, so a tree that resolves this manifest installs one DSH generation.
 
 `0.1.5` still declared `>=0.1.7-rc.1 <0.1.8`, so npm satisfied that unsatisfiable declared peer by nesting `@deepseek-ai/dsh-session-projection@0.1.7-rc.2` (120 KB) under the bundle and printing `ERESOLVE overriding peer dependency`; the install still exited 0.
 
@@ -309,7 +309,7 @@ DSH `0.2.1-alpha.1` is certified and moves the baseline. Every `@deepseek-ai/dsh
 
 Tag `5badb15` (2026-10-03) is what npm's `alpha` dist-tag points at while `next` still names `0.2.0-rc.2`, so the round is not release-blocking.
 
-One upstream removal drove the round and required source adaptation: the runtime invariant service is gone, `@deepseek-ai/dsh-invariants` and every package's `./invariant` companion with it. The bundle's whole-ledger check is now its own `@aembers/dsh-research-team/ledger-guard` row, and the `@deepseek-ai/dsh-invariants` peer left with the package it named.
+One upstream removal drove the round and required source adaptation: the runtime invariant service is gone, `@deepseek-ai/dsh-invariants` and every package's `./invariant` companion with it. The bundle's whole-ledger check is now its own `@sophialin/dsh-research-team/ledger-guard` row, and the `@deepseek-ai/dsh-invariants` peer left with the package it named.
 
 The guard keeps both behaviours the companion provided. It replays the durable ledger at mount, so an unreplayable ledger still fails startup, and it re-derives once per burst of commits, scheduled after the committing call has returned.
 
@@ -323,22 +323,32 @@ The composer `stats` row split into `activity` and `usage`. The bundle registers
 
 The declared `@deepseek-ai/cordis` peer moved with the line, from `^4.0.1` to `~4.0.5-alpha.1`. Upstream peers cordis at `~4.0.5-alpha.1` on this line, and a caret written on an older tuple never admits that prerelease, so the wider range resolved a cordis the candidate refuses.
 
-The context-continuity engine moved with it: `@aembers/dsh-context-continuity` `0.1.9` declares the seven DSH peers at `>=0.2.1-alpha.1 <0.2.2` and cordis at `~4.0.5-alpha.1`.
+The context-continuity engine moved with it: `0.1.9` declares the seven DSH peers at `>=0.2.1-alpha.1 <0.2.2` and cordis at `~4.0.5-alpha.1`. The engine is then published as `@sophialin/dsh-context-continuity` `0.1.10`, which is the version this bundle depends on.
 
 An engine left on the 0.2.0 line is not a cosmetic mismatch. Section 3.5 first resolved 285 `@deepseek-ai/dsh-*` copies, six of them at `0.2.0-rc.2` and nested under this bundle; with the engine on the same line the tree resolves 279 copies, all at `0.2.1-alpha.1`.
 
 Scale between the two tags under `packages` and `apps`: 2103 files changed, +37899/−16486. `boot/plugin-manager`'s changes are about profile-time resolution and package reload, not subpath display metadata.
 
-Evidence on the certified tree: `npm run typecheck` (477 Harness mappings), `npm run build`, `npm test` (923 passed, 1 skipped, over 61 files), `npm pack --dry-run` (263 files), and `git diff --check`.
+Evidence on the certified tree: `npm run typecheck` (477 Harness mappings), `npm run build`, `npm test` (923 passed, 1 skipped, over 61 files), `npm run check:artifact` (263 files, all 44 runtime relative imports resolve), `npm pack --dry-run` (263 files), and `git diff --check`.
 
 `npm run test:browser` passed all five journeys against the candidate checkout; on Windows it needs `CHROME_PATH`, because the default is the Linux path `/usr/bin/google-chrome`.
 
-The candidate also boots it: a scratch profile on DSH `0.2.1-alpha.1` composed the bundle from a linked checkout, registered `@aembers/dsh-research-team` in the boot page, and served its Client module at 657,431 bytes with no trace of the pre-fork name. What the subdependency refusal below blocks is the published-install path, not the mount itself.
+The candidate also boots it: a scratch profile on DSH `0.2.1-alpha.1` composed the bundle from a linked checkout, registered `@sophialin/dsh-research-team` in the boot page, and served its Client module at 657,431 bytes with no trace of the pre-fork name. At that point the published-install path was the one thing still blocked, and the mount itself was not; what it took to unblock the former is below.
 
 Section 3.5 resolves a single DSH generation in an empty directory, under npm: 279 `@deepseek-ai/dsh-*` copies, every one at `0.2.1-alpha.1`, no nested older copy, and no `invalid` edge in `npm ls --all`.
 
-A real profile installs with pnpm, and that is where this round stops. pnpm 11 refuses a git-hosted dependency inside a subdependency by default, so `dsh plugin --profile <name> add <tarball>` fails with `ERR_PNPM_EXOTIC_SUBDEP`: `"@aembers/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`.
+A real profile installs with pnpm, and that is the path the round had to open. pnpm 11 refuses a git-hosted dependency inside a subdependency by default, so `dsh plugin --profile <name> add <tarball>` failed with `ERR_PNPM_EXOTIC_SUBDEP`: `"@sophialin/dsh-context-continuity" (resolved via git-repository) is not allowed in subdependencies`.
 
-The defect is this fork's, introduced when the engine moved from a registry dependency to a tagged repository, and it is independent of the candidate. The round is incomplete until the engine is consumed in a form pnpm accepts as a subdependency.
+The defect was this fork's, introduced when the engine moved from a registry dependency to a tagged repository, and it is independent of the candidate.
+
+The fix is the registry publish, not an exemption. `blockExoticSubdeps` is a pnpm 11 default rather than a DSH behaviour, so disabling it would have moved that work onto every consumer of the bundle.
+
+Bundling is not an alternative either. `pnpm pack` rejects `bundleDependencies` under the default `nodeLinker: isolated` with `ERR_PNPM_BUNDLED_DEPENDENCIES_WITHOUT_HOISTED`, and `npm pack` fails internally on the same input.
+
+An engine published under the same org is an ordinary registry dependency, which is the form pnpm accepts as a subdependency.
+
+With that in place the blocked path resolves under pnpm's own defaults: `pnpm add <tarball>` into an empty directory succeeds, the engine resolves to `0.1.10` from the registry, every `@deepseek-ai/dsh-*` copy is at `0.2.1-alpha.1`, and no copy nests under this bundle.
+
+The physical copy count differs from the npm figure above because pnpm's isolated linker materialises more of the same single generation.
 
 The move narrows the declared line to `0.2.1-alpha.1` and later. A host on `0.2.0-rc.2` falls outside the declaration and is refused, so the published `0.2.0` tarball keeps its own wider range until a later release.
