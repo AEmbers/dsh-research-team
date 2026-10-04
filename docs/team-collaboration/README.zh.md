@@ -13,3 +13,4 @@
 | [attention-and-messaging.zh.md](attention-and-messaging.zh.md) | Thread Attention 与 Inbox、mention 投递、消息给 Human 读起来什么样，以及 ref 引用。 |
 | [boundaries.zh.md](boundaries.zh.md) | mutation fence、Human Remote 边界之内的东西，以及 Team Member 上下文边界。 |
 | [memory-and-context.zh.md](memory-and-context.zh.md) | Member memory 维护、上下文压力归谁、Agent notification 边界，以及 assembled acceptance。 |
+| [roles.zh.md](roles.zh.md) | 一支研究团队的编成名册，含每个角色的禁令、交接与录取规则。 |

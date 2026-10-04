@@ -132,6 +132,7 @@ const BLOCK_CHARACTER_CEILINGS = {
   'team-collaboration/attention-and-messaging.md': [598, 585],
   'team-collaboration/boundaries.md': [642, 578],
   'team-collaboration/memory-and-context.md': [581, 573],
+  'team-collaboration/roles.md': [341, 130],
   'team-collaboration/model-and-time.md': [530, 598],
   'team-collaboration/tools.md': [573, 564],
 }
