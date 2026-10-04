@@ -76,6 +76,8 @@ entryKey) {
         leaveWorkspace: (request) => ctx.remote.agentTeam.leaveWorkspace(request),
         // The Host-scoped catalog needs no live Member, so suspended ones stay editable too.
         loadModels: () => ctx.remote.session.modelCatalog(),
+        /** The Team's own preset roster: the form offers exactly what this bundle composes. */
+        loadPresets: () => ctx.remote.agentTeam.presetRoster(),
         openMemberSession: openMemberSessionImpl,
     };
     ctx.slots.inject(name, () => {

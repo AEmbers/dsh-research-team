@@ -4,6 +4,7 @@ import type {
   RemoteStreamHandle,
   TypertRemoteContribution,
 } from '@deepseek-ai/dsh-typert-protocol'
+import type { AgentPresetRoster } from '@deepseek-ai/dsh-agent-preset-registry/types'
 import type { AgentTeamAddMemberRequest, AgentTeamAddMemberResult, AgentTeamArchiveChannelRequest, AgentTeamArchiveChannelResult, AgentTeamArchiveMemberRequest, AgentTeamArchiveMemberResult, AgentTeamChangesRequest, AgentTeamChangesResult, AgentTeamClearMemberContextRequest, AgentTeamClearMemberContextResult, AgentTeamClientMemberStatus, AgentTeamCreateChannelRequest, AgentTeamCreateChannelResult, AgentTeamEnvironmentRequest, AgentTeamEnvironmentResult, AgentTeamGetAttachmentRequest, AgentTeamGetAttachmentResult, AgentTeamGetHumanAvatarRequest, AgentTeamGetHumanAvatarResult, AgentTeamHumanProfileRequest, AgentTeamHumanProfileResult, AgentTeamInbox, AgentTeamInboxRequest, AgentTeamJoinChannelRequest, AgentTeamJoinChannelResult, AgentTeamJoinWorkspaceRequest, AgentTeamJoinWorkspaceResult, AgentTeamLeaveWorkspaceRequest, AgentTeamLeaveWorkspaceResult, AgentTeamMemberResult, AgentTeamMembersRequest, AgentTeamPromoteThreadRequest, AgentTeamPromoteThreadResult, AgentTeamPutAttachmentRequest, AgentTeamPutAttachmentResult, AgentTeamPutHumanAvatarRequest, AgentTeamPutHumanAvatarResult, AgentTeamRecoverMemberRequest, AgentTeamRecoverMemberResult, AgentTeamRemoveChannelMemberRequest, AgentTeamRemoveChannelMemberResult, AgentTeamRemoveHumanAvatarRequest, AgentTeamRemoveHumanAvatarResult, AgentTeamReplyRequest, AgentTeamReplyResult, AgentTeamResolveTaskRefsRequest, AgentTeamResolveTaskRefsResult, AgentTeamResolveThreadRefsRequest, AgentTeamResolveThreadRefsResult, AgentTeamSendMessageRequest, AgentTeamSendMessageResult, AgentTeamSetHumanProfileRequest, AgentTeamSetHumanProfileResult, AgentTeamTaskRequest, AgentTeamTaskResult, AgentTeamThreadAttentionRequest, AgentTeamThreadAttentionResult, AgentTeamThreadHistory, AgentTeamThreadHistoryRequest, AgentTeamThreadObservations, AgentTeamThreadObservationsRequest, AgentTeamThreadReadRequest, AgentTeamThreadReadResult, AgentTeamUpdateChannelRequest, AgentTeamUpdateChannelResult, AgentTeamUpdateMemberRequest, AgentTeamView, AgentTeamViewRequest } from '@sophialin/dsh-research-team/types'
 
 declare module '@deepseek-ai/dsh-typert-protocol' {
@@ -25,6 +26,7 @@ declare module '@deepseek-ai/dsh-typert-protocol' {
     joinWorkspace: (request: AgentTeamJoinWorkspaceRequest) => Promise<RemoteResult<AgentTeamJoinWorkspaceResult>>
     leaveWorkspace: (request: AgentTeamLeaveWorkspaceRequest) => Promise<RemoteResult<AgentTeamLeaveWorkspaceResult>>
     members: (request: AgentTeamMembersRequest) => Promise<RemoteResult<readonly AgentTeamClientMemberStatus[]>>
+    presetRoster: () => Promise<RemoteResult<AgentPresetRoster>>
     promoteThread: (request: AgentTeamPromoteThreadRequest) => Promise<RemoteResult<AgentTeamPromoteThreadResult>>
     putAttachment: (request: AgentTeamPutAttachmentRequest) => Promise<RemoteResult<AgentTeamPutAttachmentResult>>
     putHumanAvatar: (request: AgentTeamPutHumanAvatarRequest) => Promise<RemoteResult<AgentTeamPutHumanAvatarResult>>
@@ -61,6 +63,7 @@ declare module '@deepseek-ai/dsh-typert-protocol' {
     'agentTeam/joinWorkspace': (request: AgentTeamJoinWorkspaceRequest) => Promise<RemoteResult<AgentTeamJoinWorkspaceResult>>
     'agentTeam/leaveWorkspace': (request: AgentTeamLeaveWorkspaceRequest) => Promise<RemoteResult<AgentTeamLeaveWorkspaceResult>>
     'agentTeam/members': (request: AgentTeamMembersRequest) => Promise<RemoteResult<readonly AgentTeamClientMemberStatus[]>>
+    'agentTeam/presetRoster': () => Promise<RemoteResult<AgentPresetRoster>>
     'agentTeam/promoteThread': (request: AgentTeamPromoteThreadRequest) => Promise<RemoteResult<AgentTeamPromoteThreadResult>>
     'agentTeam/putAttachment': (request: AgentTeamPutAttachmentRequest) => Promise<RemoteResult<AgentTeamPutAttachmentResult>>
     'agentTeam/putHumanAvatar': (request: AgentTeamPutHumanAvatarRequest) => Promise<RemoteResult<AgentTeamPutHumanAvatarResult>>

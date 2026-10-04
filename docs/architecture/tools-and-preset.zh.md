@@ -6,6 +6,8 @@
 
 `orchestrator` preset 就是这份列表再加一个 `delegation` group（subagent 控制行、两个进程内 subagent 工具、PTC workflow 引擎与其工具），以**第二条** `@deepseek-ai/dsh-agent-preset` 声明行形式存在、完整重述底座，其 persona 额外承载名册里的委派规则。只有 `orchestrator` 能起子代理或跑 workflow——名册里的临时角色靠它才存在——挂在 `team-member` 上的成员不能，因此 prover 不会变成第二个 orchestrator。
 
+加成员的表单提供它从 Host 读来的 roster（`agentTeam.presetRoster`），所以给成员定编是在选 composition，而不是一个被 Client 写死的 preset；本 bundle 新增 preset 无需 Client 发版即可够到。某个声明若行激活失败，它仍带着诊断留在列表里，但不能被选中：否则 Host 会在人类已经付过代价之后才拒绝这次挂载。
+
 八个 model-facing tools 定义在 `packages/tool-agent-team/src/`：五个 Team 工具在 `index.ts`，三个 context 工具在 `context-tools.ts`；实现的 collaboration contract 记录在 [`tools.zh.md`](../team-collaboration/tools.zh.md)。它们挂载在隔离开的 Team preset 下（`cordis.patch.yml` 里的 declarative rows）。不要为了让测试可用就把 tool package 作为 global row 添加；普通 Sessions 必须保持 Team-free。
 
 Member 上下文自主管理在这些 preset 之上由 Host 编排。`context_rollover` 与 `context_checkpoint` 工具只做校验并结束/锚定 turn：在 tool 时，引擎的门先拒绝 Member 自己的 timeline 未列为 restorable 的 `checkpointRef`，通过这道门的 ref 仍由 Host 的 seed resolver（与换窗同一套）预校验，因此当下不可能成功的 ref 以 model-visible 的 error result 拒绝，而不是返回假 `scheduled`；可变 guard 集（jobs、route limits）在 commit seam 复查。

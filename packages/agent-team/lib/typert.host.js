@@ -596,6 +596,16 @@ const _sophialin_dsh_research_team_agentTeam_members_result$schema = () => (_sop
   'knownNames': z.array(z.string()).readonly(),
 }))]).readonly().optional(),
 })))
+let _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema$value
+const _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema = () => (_sophialin_dsh_research_team_agentTeam_presetRoster_result$schema$value ??= z.object({
+  'presets': z.array(z.object({
+  'id': z.string().readonly(),
+  'isDefault': z.boolean().readonly(),
+  'name': z.string().readonly().optional(),
+  'description': z.string().readonly().optional(),
+  'broken': z.string().readonly().optional(),
+})).readonly(),
+}))
 let _sophialin_dsh_research_team_agentTeam_promoteThread_parameter_0$schema$value
 const _sophialin_dsh_research_team_agentTeam_promoteThread_parameter_0$schema = () => (_sophialin_dsh_research_team_agentTeam_promoteThread_parameter_0$schema$value ??= z.object({
   'requestId': z.intersection(z.string(), z.unknown()).readonly(),
@@ -1503,7 +1513,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamAddMemberResult',
         create: _sophialin_dsh_research_team_agentTeam_addMember_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":920,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":935,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/archiveChannel',
@@ -1528,7 +1538,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamArchiveChannelResult',
         create: _sophialin_dsh_research_team_agentTeam_archiveChannel_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":910,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":925,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/archiveMember',
@@ -1553,7 +1563,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamArchiveMemberResult',
         create: _sophialin_dsh_research_team_agentTeam_archiveMember_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1427,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1442,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/changeAttention',
@@ -1578,7 +1588,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamThreadAttentionResult',
         create: _sophialin_dsh_research_team_agentTeam_changeAttention_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1690,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1705,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/changes',
@@ -1605,7 +1615,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamChangesResult',
         create: _sophialin_dsh_research_team_agentTeam_changes_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":843,"column":11},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":844,"column":11},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/changeTask',
@@ -1630,7 +1640,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamTaskResult',
         create: _sophialin_dsh_research_team_agentTeam_changeTask_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1438,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1453,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/clearMemberContext',
@@ -1655,7 +1665,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamClearMemberContextResult',
         create: _sophialin_dsh_research_team_agentTeam_clearMemberContext_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1055,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1070,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/createChannel',
@@ -1680,7 +1690,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamCreateChannelResult',
         create: _sophialin_dsh_research_team_agentTeam_createChannel_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":883,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":898,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/environment',
@@ -1706,7 +1716,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamEnvironmentResult',
         create: _sophialin_dsh_research_team_agentTeam_environment_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1597,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1612,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/getAttachment',
@@ -1731,7 +1741,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamGetAttachmentResult',
         create: _sophialin_dsh_research_team_agentTeam_getAttachment_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1565,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1580,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/getHumanAvatar',
@@ -1756,7 +1766,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamGetHumanAvatarResult',
         create: _sophialin_dsh_research_team_agentTeam_getHumanAvatar_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1630,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1645,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/humanProfile',
@@ -1782,7 +1792,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamHumanProfileResult',
         create: _sophialin_dsh_research_team_agentTeam_humanProfile_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1602,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1617,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/inbox',
@@ -1807,7 +1817,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamInbox',
         create: _sophialin_dsh_research_team_agentTeam_inbox_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1699,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1714,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/joinChannel',
@@ -1832,7 +1842,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamJoinChannelResult',
         create: _sophialin_dsh_research_team_agentTeam_joinChannel_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1458,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1473,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/joinWorkspace',
@@ -1857,7 +1867,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamJoinWorkspaceResult',
         create: _sophialin_dsh_research_team_agentTeam_joinWorkspace_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1478,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1493,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/leaveWorkspace',
@@ -1882,7 +1892,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamLeaveWorkspaceResult',
         create: _sophialin_dsh_research_team_agentTeam_leaveWorkspace_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1487,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1502,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/members',
@@ -1908,7 +1918,22 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team#agentTeam/members:result',
         create: _sophialin_dsh_research_team_agentTeam_members_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":833,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":834,"column":3},
+    },
+    {
+      id: '@sophialin/dsh-research-team#agentTeam/presetRoster',
+      service: 'agentTeam',
+      namespace: 'agentTeam',
+      method: 'presetRoster',
+      invocation: { kind: 'direct' },
+      parameters: [
+      ],
+      result: {
+        mode: 'strict',
+        typeSymbol: '@deepseek-ai/dsh-agent-preset-registry/types#AgentPresetRoster',
+        create: _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema,
+      },
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":893,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/promoteThread',
@@ -1933,7 +1958,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamPromoteThreadResult',
         create: _sophialin_dsh_research_team_agentTeam_promoteThread_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1448,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1463,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/putAttachment',
@@ -1958,7 +1983,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamPutAttachmentResult',
         create: _sophialin_dsh_research_team_agentTeam_putAttachment_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1548,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1563,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/putHumanAvatar',
@@ -1983,7 +2008,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamPutHumanAvatarResult',
         create: _sophialin_dsh_research_team_agentTeam_putHumanAvatar_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1622,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1637,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/readThread',
@@ -2008,7 +2033,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamThreadReadResult',
         create: _sophialin_dsh_research_team_agentTeam_readThread_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1706,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1721,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/recoverMember',
@@ -2033,7 +2058,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamRecoverMemberResult',
         create: _sophialin_dsh_research_team_agentTeam_recoverMember_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":985,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1000,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/removeChannelMember',
@@ -2058,7 +2083,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamRemoveChannelMemberResult',
         create: _sophialin_dsh_research_team_agentTeam_removeChannelMember_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1469,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1484,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/removeHumanAvatar',
@@ -2083,7 +2108,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamRemoveHumanAvatarResult',
         create: _sophialin_dsh_research_team_agentTeam_removeHumanAvatar_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1638,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1653,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/reply',
@@ -2108,7 +2133,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamReplyResult',
         create: _sophialin_dsh_research_team_agentTeam_reply_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1684,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1699,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/resolveTaskRefs',
@@ -2133,7 +2158,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamResolveTaskRefsResult',
         create: _sophialin_dsh_research_team_agentTeam_resolveTaskRefs_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":807,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":808,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/resolveThreadRefs',
@@ -2158,7 +2183,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamResolveThreadRefsResult',
         create: _sophialin_dsh_research_team_agentTeam_resolveThreadRefs_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":820,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":821,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/sendMessage',
@@ -2183,7 +2208,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamSendMessageResult',
         create: _sophialin_dsh_research_team_agentTeam_sendMessage_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1496,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1511,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/setHumanProfile',
@@ -2208,7 +2233,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamSetHumanProfileResult',
         create: _sophialin_dsh_research_team_agentTeam_setHumanProfile_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1660,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1675,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/threadHistory',
@@ -2233,7 +2258,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamThreadHistory',
         create: _sophialin_dsh_research_team_agentTeam_threadHistory_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1724,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1739,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/threadObservations',
@@ -2258,7 +2283,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamThreadObservations',
         create: _sophialin_dsh_research_team_agentTeam_threadObservations_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1717,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1732,"column":3},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/updateChannel',
@@ -2283,7 +2308,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamUpdateChannelResult',
         create: _sophialin_dsh_research_team_agentTeam_updateChannel_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":895,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":910,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/updateMember',
@@ -2308,7 +2333,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamMemberResult',
         create: _sophialin_dsh_research_team_agentTeam_updateMember_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1368,"column":9},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1383,"column":9},
     },
     {
       id: '@sophialin/dsh-research-team#agentTeam/view',
@@ -2333,7 +2358,7 @@ export const TYPERT = {
         typeSymbol: '@sophialin/dsh-research-team/types#AgentTeamView',
         create: _sophialin_dsh_research_team_agentTeam_view_result$schema,
       },
-      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1731,"column":3},
+      sourceLocation: {"file":"packages/agent-team/src/index.ts","line":1746,"column":3},
     },
   ],
   model: {
@@ -2408,6 +2433,13 @@ export const TYPERT = {
             "signature": "status(): AgentTeamStatus",
             "summary": "Return durable Team status without issuing a model request or a storage write.",
             "jsDoc": "/** Return durable Team status without issuing a model request or a storage write. */"
+          },
+          {
+            "kind": "method",
+            "name": "presetRoster",
+            "signature": "@Remote('presetRoster') presetRoster(): Promise<AgentPresetRoster>",
+            "summary": "The presets a Human may staff a Member with, read from the Team's own registry instance rather than the ambient one — an ordinary Session never composes these rows, so the ambient roster is the wrong answer even when it is readable.",
+            "jsDoc": "/**\n * The presets a Human may staff a Member with, read from the Team's own\n * registry instance rather than the ambient one — an ordinary Session never\n * composes these rows, so the ambient roster is the wrong answer even when it\n * is readable. Declarations that failed to activate stay on the roster with\n * their diagnostic, which is what a form needs to explain a refused choice\n * instead of silently offering it.\n * @returns The Team's presets in roster order, each marked when it is the default.\n */"
           },
           {
             "kind": "method",
@@ -2779,6 +2811,14 @@ export const TYPERT = {
           {
             "name": "AgentOptions",
             "declaration": "export interface AgentOptions {\n    provider?: string;\n    model?: string;\n    reasoningEffort?: ReasoningEffortId;\n    maxTokens?: number;\n}"
+          },
+          {
+            "name": "AgentPresetRoster",
+            "declaration": "export interface AgentPresetRoster {\n    readonly presets: readonly AgentPresetRow[];\n}"
+          },
+          {
+            "name": "AgentPresetRow",
+            "declaration": "export interface AgentPresetRow {\n    readonly id: string;\n    readonly isDefault: boolean;\n    readonly name?: string;\n    readonly description?: string;\n    readonly broken?: string;\n}"
           },
           {
             "name": "AgentStatus",

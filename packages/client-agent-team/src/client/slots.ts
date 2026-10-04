@@ -56,6 +56,7 @@ import type {
   AgentTeamViewRequest,
 } from '@sophialin/dsh-research-team/types'
 import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import type { AgentPresetRoster } from '@deepseek-ai/dsh-agent-preset-registry/types'
 import type { TeamNavigationActions, TeamNavigationSnapshot } from './navigation.ts'
 import type { TeamChangeListener, TeamChangeScope } from './team-changes.ts'
 import type { TeamDraftStore } from './drafts.ts'
@@ -129,6 +130,12 @@ export type TeamSidebarProps = PropsRuntime<'sidebar.workspaces'>
     removeChannelMember: (request: AgentTeamRemoveChannelMemberRequest) => Promise<RemoteResult<AgentTeamRemoveChannelMemberResult>>
     /** Session-independent Host model catalog (`llm.models`); needs no live Member. */
     loadModels: () => Promise<RemoteResult<TeamModelCatalog>>
+    /**
+     * The presets this bundle lets a Human staff a Member with, in roster order.
+     * Read from the Team's own registry, so an ordinary Session's roster — which
+     * never composes these rows — is not what the form offers.
+     */
+    loadPresets: () => Promise<RemoteResult<AgentPresetRoster>>
     /** Embed the Member's Session conversation in the Team conversation seat. */
     openMemberSession: (sessionId: AgentTeamClientMemberStatus['member']['sessionId']) => void
     selectedChannelRef?: AgentTeamChannelRef

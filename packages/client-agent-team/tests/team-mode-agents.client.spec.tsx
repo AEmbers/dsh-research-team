@@ -214,6 +214,38 @@ describe('Team agent surfaces', () => {
     await b.runtime.dispose()
   })
 
+  it('staffs a Member with the preset the Human picks from the Team roster', async () => {
+    const b = await runtimeWithTeam({ initialChannels: true })
+    fireEvent.click(b.view.getByRole('button', { name: '团队' }))
+    await b.view.findByText('builder')
+    fireEvent.click(b.view.getByRole('button', { name: '添加 Agent' }))
+    fireEvent.change(b.view.getByLabelText('名称'), { target: { value: 'lead' } })
+    // The options are the Host's own roster, not a Client-side list: this is
+    // what makes a preset the bundle adds reachable without a Client release.
+    const picker = await b.view.findByLabelText('成员 preset')
+    expect((picker as HTMLSelectElement).value).toBe('team-member')
+    expect([...picker.querySelectorAll('option')].map(option => option.textContent)).toEqual(['Team member', 'Orchestrator'])
+    fireEvent.change(picker, { target: { value: 'orchestrator' } })
+    fireEvent.click(b.view.getByRole('button', { name: '创建 Agent' }))
+    expect(await b.view.findByText('lead')).toBeTruthy()
+    expect(b.addMember).toHaveBeenLastCalledWith(expect.objectContaining({ handle: 'lead', presetId: 'orchestrator' }))
+    await b.runtime.dispose()
+  })
+
+  it('refuses to create a Member while the preset roster is unread', async () => {
+    const b = await runtimeWithTeam({ initialChannels: true })
+    b.presetRoster.mockResolvedValueOnce({ ok: false as const, error: { message: 'presets unavailable' } })
+    fireEvent.click(b.view.getByRole('button', { name: '团队' }))
+    await b.view.findByText('builder')
+    fireEvent.click(b.view.getByRole('button', { name: '添加 Agent' }))
+    fireEvent.change(b.view.getByLabelText('名称'), { target: { value: 'bare' } })
+    expect(await b.view.findByText('presets unavailable')).toBeTruthy()
+    // Naming a preset the form could not read would compose a roster nobody chose.
+    expect((b.view.getByRole('button', { name: '创建 Agent' }) as HTMLButtonElement).disabled).toBe(true)
+    expect(b.addMember).not.toHaveBeenCalled()
+    await b.runtime.dispose()
+  })
+
   it('creates a Channel atomically with selected available Members and manages committed membership', async () => {
     const b = await runtimeWithTeam()
     fireEvent.click(b.view.getByRole('button', { name: '团队' }))
