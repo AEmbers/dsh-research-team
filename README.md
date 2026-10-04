@@ -40,7 +40,7 @@ If this looks useful, a star on [GitHub](https://github.com/AEmbers/dsh-research
 
 ### 1. Check DSH
 
-This release is certified against DSH `0.2.1-alpha.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on `@sophialin/dsh-research-team` `0.1.15`.
+This release is certified against DSH `0.2.1-alpha.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on this repository's `v0.1.15` tag.
 
 ```sh
 npx @deepseek-ai/dsh@0.2.1-alpha.1 web
@@ -48,13 +48,13 @@ npx @deepseek-ai/dsh@0.2.1-alpha.1 web
 
 Install it globally if you want the `dsh` command for the steps below: `npm i -g @deepseek-ai/dsh@0.2.1-alpha.1`.
 
-Stop it, then install Agent Team into the `web` profile:
+Stop it, then install Agent Team into the `web` profile. This bundle is not published to a registry, so an install names this repository and one of its tags:
 
 ```sh
-dsh plugin --profile web add @sophialin/dsh-research-team@0.2.1
+dsh plugin --profile web add github:AEmbers/dsh-research-team#v0.2.1
 ```
 
-The version is pinned deliberately: pnpm skips releases published less than 24 hours ago, so an unpinned `@latest` install resolves to the previous release on release day.
+The tag is pinned deliberately: it is what freezes the build a profile installs. The built output travels in the repository, so nothing is compiled on your machine.
 
 ### 2. Start the Web UI
 

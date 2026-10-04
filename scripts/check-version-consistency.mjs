@@ -140,20 +140,21 @@ for (const [name, range] of peerRanges) {
   }
 }
 
-// (c) Both READMEs name the released version in the install command. The pin is
-// deliberate — pnpm skips releases younger than a day, so an unpinned `@latest`
-// resolves to the previous release on release day — which means the line moves
-// with every release. This gate is what makes forgetting it fail loudly.
+// (c) Both READMEs name the release tag in the install command. This bundle is
+// not published to a registry, so the command carries a repository and a tag
+// instead of a version range; the tag is what freezes the build, which means the
+// line moves with every release. This gate is what makes forgetting it fail
+// loudly.
 const installSpots = [
-  { file: 'README.md', pattern: /dsh plugin --profile web add @sophialin\/dsh-research-team@(\d+\.\d+\.\d+)/u },
-  { file: 'README.zh.md', pattern: /dsh plugin --profile web add @sophialin\/dsh-research-team@(\d+\.\d+\.\d+)/u },
+  { file: 'README.md', pattern: /dsh plugin --profile web add github:AEmbers\/dsh-research-team#v(\d+\.\d+\.\d+)/u },
+  { file: 'README.zh.md', pattern: /dsh plugin --profile web add github:AEmbers\/dsh-research-team#v(\d+\.\d+\.\d+)/u },
 ]
 for (const { file, pattern } of installSpots) {
   const installVersion = extract(file, pattern)
   if (installVersion === undefined) {
-    failures.push(`${file}: install command names no version (the pinned release must stay visible — update the pattern with the command)`)
+    failures.push(`${file}: install command names no tag (the pinned release must stay visible — update the pattern with the command)`)
   } else if (installVersion !== manifest.version) {
-    failures.push(`${file} installs ${installVersion} but package.json publishes ${manifest.version}`)
+    failures.push(`${file} installs tag v${installVersion} but package.json is ${manifest.version}`)
   }
 }
 

@@ -44,10 +44,10 @@
 若该次 tag 推进同时移动了 DSH peers，必须在同一改动里提交 `pnpm-lock.yaml`：CI 以 `frozen-lockfile` 安装，而本地装一次就会就地重写 lockfile，把这个不一致一直掩盖到 CI 上才暴露。 开发脚本（`build-client`、`run-browser-test`、`run-preview`、`run-ui-preview`）已做 Windows 硬化，在该平台经 git bash 运行，本地 Windows 开发遵循同一环境契约。
 
 ## 外部安装验证
-发布形态是根 bundle：
+已安装的 profile 从本仓库的某个 tag 取 bundle：
 
 ```sh
-dsh plugin --profile web add @sophialin/dsh-research-team
+dsh plugin --profile web add github:AEmbers/dsh-research-team#vX.Y.Z
 dsh web
 ```
 
@@ -68,7 +68,7 @@ dsh web
 
 日常自用与开发验收使用两个并存 profile，互不干扰：
 
-- **稳定模式**（`--profile web`）：依赖 npm 发布版（`^0.1.x` 语义化范围），pnpm lockfile 锁定已装版本；发布后需按**精确版本号**安装 `dsh plugin --profile web add @sophialin/dsh-research-team@X.Y.Z`——直接 `update` 可能在 lockfile 仍钉着旧解析的情况下报「Already up to date」。见 [`release-runbook.md`](../release-runbook.md) §6。
+- **稳定模式**（`--profile web`）：取本仓库某个 tag 的构建版，由 pnpm lockfile 锁定已装的那一版；发布后按 tag 名安装 `dsh plugin --profile web add github:AEmbers/dsh-research-team#vX.Y.Z`——直接 `update` 可能在 lockfile 仍钉着旧解析的情况下报「Already up to date」。见 [`release-runbook.md`](../release-runbook.md) §6。
 - **开发模式**（`--profile web-dev`）：依赖 `link:` 本地检出，rebuild + 重启即用最新代码。注意宿主加载的是构建产物 `packages/*/lib/`：改完源码只重启而不 `npm run build`，成员会话仍会拿到旧工具清单（工具清单在激活时从当前运行代码派生）——先 build 再重启才生效。
 
 启动运行时必须与安装形态匹配。稳定 profile 由发布版 dsh（全局安装的 `@deepseek-ai/dsh`，宿主全程运行 `lib/` 构建产物）启动；checkout 里的 `pnpm dsh`（tsx + tsconfig paths，宿主运行 `src/` 源码）只能启动 `link:` 安装的 profile。npm 安装的 bundle 周围没有 tsconfig paths，其 harness 依赖会解析到各包的 `lib/`，与宿主的 `src/` 实例形成两份模块——`dsh-scope` 的 scope 标签是模块内 Symbol，跨实例不一致，成员激活的 preset 校验会以 `selected preset is not team-enabled` 失败，表现为稳定 profile 全体 Agent 不可用（2026-08 诊断确认）。见到该症状时，先核对启动用的 `dsh` 是发布版还是 checkout 的 `pnpm dsh`。

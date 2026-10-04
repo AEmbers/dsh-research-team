@@ -40,7 +40,7 @@ Task Thread 把 Claim、Agent 交接、Human 验收和后续回复保留在同�
 
 ### 1. 检查 DSH
 
-当前版本已针对 DSH `0.2.1-alpha.1` 完成认证。请显式指定 DSH 版本，而不要跟随 `latest`：不指定版本时可能解析到本 bundle 声明区间之外的宿主线。若你的 DSH 是 `0.1.7-rc.2`，请停留在 `@sophialin/dsh-research-team` `0.1.15`。
+当前版本已针对 DSH `0.2.1-alpha.1` 完成认证。请显式指定 DSH 版本，而不要跟随 `latest`：不指定版本时可能解析到本 bundle 声明区间之外的宿主线。若你的 DSH 是 `0.1.7-rc.2`，请停留在本仓库的 `v0.1.15` tag。
 
 ```sh
 npx @deepseek-ai/dsh@0.2.1-alpha.1 web
@@ -48,13 +48,13 @@ npx @deepseek-ai/dsh@0.2.1-alpha.1 web
 
 需要下面步骤里的 `dsh` 命令就全局安装：`npm i -g @deepseek-ai/dsh@0.2.1-alpha.1`。
 
-先停止它，再把 Agent Team 安装到 `web` profile：
+先停止它，再把 Agent Team 安装到 `web` profile。本 bundle 不发布到任何 registry，所以安装命令指定的是本仓库和它的某个 tag：
 
 ```sh
-dsh plugin --profile web add @sophialin/dsh-research-team@0.2.1
+dsh plugin --profile web add github:AEmbers/dsh-research-team#v0.2.1
 ```
 
-这里刻意写明确切版本：pnpm 会跳过发布不满 24 小时的版本，不带版本号的 `@latest` 在发布当天会装到上一版。
+这里刻意写明确切 tag：它是锁住「profile 装到哪一版」的东西。构建产物随仓库一起走，你机器上不需要编译。
 
 ### 2. 启动 Web UI
 

@@ -58,10 +58,10 @@ Scope guard: no coverage matrix, no release automation, and no `test:browser` �
 A tag advance that also moves the DSH peers must commit `pnpm-lock.yaml` in the same change: CI installs with `frozen-lockfile`, while a local install rewrites the lockfile in place and hides the mismatch until CI runs. The dev scripts (`build-client`, `run-browser-test`, `run-preview`, `run-ui-preview`) are Windows-hardened and run under git bash there, so local Windows development follows the same environment contract.
 
 ## External installation verification
-The published layout is the root bundle:
+An installed profile takes the bundle from this repository at one of its tags:
 
 ```sh
-dsh plugin --profile web add @sophialin/dsh-research-team
+dsh plugin --profile web add github:AEmbers/dsh-research-team#vX.Y.Z
 dsh web
 ```
 
@@ -82,7 +82,7 @@ Always verify the built publication layout. A source symlink can bypass profile 
 
 Stable and development profiles are intentionally separate:
 
-- **Stable (`--profile web`)** uses the npm release (`^0.1.x`), with the lockfile selecting the installed version. After a release, install the published version by exact number — `dsh plugin --profile web add @sophialin/dsh-research-team@X.Y.Z` — because a plain `update` can report "Already up to date" while the lockfile still pins the old resolution. See [`release-runbook.md`](../release-runbook.md) §6.
+- **Stable (`--profile web`)** takes a tagged build of this repository, with the lockfile selecting the installed revision. After a release, install the new tag by name — `dsh plugin --profile web add github:AEmbers/dsh-research-team#vX.Y.Z` — because a plain `update` can report "Already up to date" while the lockfile still pins the old resolution. See [`release-runbook.md`](../release-runbook.md) §6.
 - **Development (`--profile web-dev`)** uses a local `link:` checkout. Rebuild before restarting: the Host loads `packages/*/lib/`, so restarting without `npm run build` keeps old tools and behavior.
 
 The runtime must match the installation form. Published `dsh` runs the stable profile from built artifacts; checkout `pnpm dsh` runs source through tsx and paths and should only start a linked profile. Mixing them can create two module instances whose scope Symbols differ and can produce `selected preset is not team-enabled`.
