@@ -11,7 +11,7 @@ A change that invalidates a documented fact updates the owning document in the s
 | Domain vocabulary, concepts, or collaboration semantics | [`domain-model.md`](domain-model.md) |
 | Package ownership, the published manifest, or import direction | [`architecture/package-ownership.md`](architecture/package-ownership.md) |
 | Host authority: ledger, lifecycle, projections, Session persistence, Attention, context pressure, private memory, or member capabilities | [`architecture/host-authority.md`](architecture/host-authority.md) |
-| The model-facing tool set, its defining modules, or the `team-member` preset | [`architecture/tools-and-preset.md`](architecture/tools-and-preset.md) |
+| The model-facing tool set, its defining modules, or a Team preset | [`architecture/tools-and-preset.md`](architecture/tools-and-preset.md) |
 | Typed Remote, Client plugin and slot composition, or the Client data/presentation boundary | [`architecture/client-and-remote.md`](architecture/client-and-remote.md) |
 | Reuse of Harness Workspace, Session, or storage | [`architecture/workspace-session-storage.md`](architecture/workspace-session-storage.md) |
 | The collaboration model, Thread/Task/Claim semantics, or Member time awareness | [`team-collaboration/model-and-time.md`](team-collaboration/model-and-time.md) |

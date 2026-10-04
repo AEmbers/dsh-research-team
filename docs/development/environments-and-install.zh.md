@@ -58,7 +58,7 @@ dsh plugin --profile web add /absolute/path/to/dsh-research-team
 dsh web
 ```
 
-`cordis.patch.yml` 是 bundle patch 的入口。它将 Host、Client 和 ledger-guard row 加入 opt-in profile，并在隔离的 `agentPresets` scope 中挂载 `team-member` roster。普通 Session 的 shipped/user preset roster 不应被 Team bundle 改写。
+`cordis.patch.yml` 是 bundle patch 的入口。它将 Host、Client 和 ledger-guard row 加入 opt-in profile，并在隔离的 `agentPresets` scope 中挂载 Team presets。普通 Session 的 shipped/user preset roster 不应被 Team bundle 改写。
 
 插件页会把这个 scope 容器渲染成一个组件行并显示「已关闭」；这是预期现象，无需在这里做任何操作。容器是组合载体而不是功能插件，它自身没有可匹配的 live entry，而 Loader 对 group 条目一律按启用处理；真正在运行的是它内部列出的那几行。web 与桌面构建的渲染一致。
 

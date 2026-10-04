@@ -2,9 +2,11 @@
 
 [English](tools-and-preset.md) | 中文
 
-显式的 `team-member` preset 是唯一的 Team Member composition。它加入完整 coding capability rows（shell、filesystem/search、web search 与 fetch、background jobs、skill 加载工具、compaction）；skill 发现本身不是 preset row——每个 Member 的 provider 由 Host 注册在其 agent scope 上（见 Host authority）、Team collaboration guidance/tools、Harness Workspace instruction discovery 和有界的 private-memory reference context。普通 Sessions 留在这个 isolated roster 之外，不会获得 Team prompt sections、tools 或 Member memory。
+组合 Team Member 的 preset 有两个，且仅此两个。显式的 `team-member` preset 是底座：完整 coding capability rows（shell、filesystem/search、web search 与 fetch、background jobs、skill 加载工具、compaction）、Team collaboration guidance/tools、Harness Workspace instruction discovery 和有界的 private-memory reference context。skill 发现本身不是 preset row——每个 Member 的 provider 由 Host 注册在其 agent scope 上（见 Host authority）。普通 Sessions 留在这个 isolated roster 之外，不会获得 Team prompt sections、tools 或 Member memory。
 
-八个 model-facing tools 定义在 `packages/tool-agent-team/src/`：五个 Team 工具在 `index.ts`，三个 context 工具在 `context-tools.ts`；实现的 collaboration contract 记录在 [`tools.zh.md`](../team-collaboration/tools.zh.md)。它们挂载在隔离开的 `team-member` preset 下（`cordis.patch.yml` 里的一条 declarative row）。不要为了让测试可用就把 tool package 作为 global row 添加；普通 Sessions 必须保持 Team-free。
+`orchestrator` preset 就是这份列表再加一个 `delegation` group（subagent 控制行、两个进程内 subagent 工具、PTC workflow 引擎与其工具），以**第二条** `@deepseek-ai/dsh-agent-preset` 声明行形式存在、完整重述底座，其 persona 额外承载名册里的委派规则。只有 `orchestrator` 能起子代理或跑 workflow——名册里的临时角色靠它才存在——挂在 `team-member` 上的成员不能，因此 prover 不会变成第二个 orchestrator。
+
+八个 model-facing tools 定义在 `packages/tool-agent-team/src/`：五个 Team 工具在 `index.ts`，三个 context 工具在 `context-tools.ts`；实现的 collaboration contract 记录在 [`tools.zh.md`](../team-collaboration/tools.zh.md)。它们挂载在隔离开的 Team preset 下（`cordis.patch.yml` 里的 declarative rows）。不要为了让测试可用就把 tool package 作为 global row 添加；普通 Sessions 必须保持 Team-free。
 
 Member 上下文自主管理在这些 preset 之上由 Host 编排。`context_rollover` 与 `context_checkpoint` 工具只做校验并结束/锚定 turn：在 tool 时，引擎的门先拒绝 Member 自己的 timeline 未列为 restorable 的 `checkpointRef`，通过这道门的 ref 仍由 Host 的 seed resolver（与换窗同一套）预校验，因此当下不可能成功的 ref 以 model-visible 的 error result 拒绝，而不是返回假 `scheduled`；可变 guard 集（jobs、route limits）在 commit seam 复查。
 
