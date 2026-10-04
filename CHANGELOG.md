@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning. Team bundle versions evolve independently of DeepSeek Harness versions; DeepSeek Harness compatibility is expressed through `peerDependencies` and [`docs/dsh-release-compatibility.md`](docs/dsh-release-compatibility.md).
 
+## [0.2.2] - 2026-10-04
+
+- Same source as `0.2.1`, released against the earlier DSH line. The certified baseline returns to `0.2.0-rc.2`: every `@deepseek-ai/dsh-*` peer goes back to `>=0.2.0-rc.2 <0.2.1` and the declared `@deepseek-ai/cordis` peer back to `^4.0.1`. A `0.2.1` host falls inside neither direction of the change — see the range note below.
+- This release exists because the Desktop channel had not moved. `dsh-v0.2.1-alpha.1` was published as a GitHub release and an npm `alpha` dist-tag on 2026-10-03, but the packaged application's update feed (`https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml`) still served `version: 0.2.0-rc.2` with a `releaseDate` of 2026-09-29, and the application only reads that feed. `0.2.1` therefore declared a DSH line no Desktop user could install, and the whole-version refusal (`incompatible-version`) made this bundle uninstallable there.
+- One source, two tags: no source file differs from `0.2.1`. The ledger guard, the committed `lib/`, the repository distribution and every behaviour described under `0.2.1` are the same code. `0.2.1` stays the release for DSH `0.2.1-alpha.1`; `0.2.2` is the release for DSH `0.2.0-rc.2`.
+- The context-continuity engine stays at `@sophialin/dsh-context-continuity` `^0.1.10`, whose own `peerDependencies` name the `0.2.1` line. The engine's code is identical across its `0.1.8`, `0.1.9` and `0.1.10` releases — only the package name and that peer declaration changed — so it runs on this line as well; the declaration is stale metadata on a plain dependency, not a mount-time check. `@deepseek-ai/dsh-*` peers are only evaluated on a package the profile installs as a plugin, and the engine is not one.
+- `0.2.1-alpha.1` satisfies `>=0.2.0-rc.2 <0.2.1` under the prerelease-inclusive comparison the plugin manager uses, so this release is also admissible on the `0.2.1-alpha.1` line. That pairing is not certified; use `0.2.1` there.
+
 ## [0.2.1] - 2026-10-04
 
 - This fork is distributed from its own repository instead of a registry: an install names the tag, and the built output travels with the source so nothing has to be compiled on the consumer's machine. The version is a patch because `0.2.0` is already tagged in this repository's history.

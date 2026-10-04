@@ -40,18 +40,18 @@ If this looks useful, a star on [GitHub](https://github.com/AEmbers/dsh-research
 
 ### 1. Check DSH
 
-This release is certified against DSH `0.2.1-alpha.1`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on this repository's `v0.1.15` tag.
+This release is certified against DSH `0.2.0-rc.2`. Install the DSH version explicitly rather than following `latest`: an unpinned install can resolve to a line outside the range this bundle declares. On DSH `0.1.7-rc.2`, stay on this repository's `v0.1.15` tag.
 
 ```sh
-npx @deepseek-ai/dsh@0.2.1-alpha.1 web
+npx @deepseek-ai/dsh@0.2.0-rc.2 web
 ```
 
-Install it globally if you want the `dsh` command for the steps below: `npm i -g @deepseek-ai/dsh@0.2.1-alpha.1`.
+Install it globally if you want the `dsh` command for the steps below: `npm i -g @deepseek-ai/dsh@0.2.0-rc.2`.
 
 Stop it, then install Agent Team into the `web` profile. This bundle is not published to a registry, so an install names this repository and one of its tags:
 
 ```sh
-dsh plugin --profile web add github:AEmbers/dsh-research-team#v0.2.1
+dsh plugin --profile web add github:AEmbers/dsh-research-team#v0.2.2
 ```
 
 The tag is pinned deliberately: it is what freezes the build a profile installs. The built output travels in the repository, so nothing is compiled on your machine.

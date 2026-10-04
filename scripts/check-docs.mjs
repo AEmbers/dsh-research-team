@@ -96,8 +96,8 @@ const PAGE_SETS = [
 // changed document under docs/ is byte-identical to its previous revision once
 // the two names are mapped across.
 // Raised by 2 on one Chinese row when the certified baseline advanced to
-// `0.2.1-alpha.1`: the version literal in that paragraph grew by two characters
-// (`0.2.0-rc.2` -> `0.2.1-alpha.1`) and the block had no slack.
+// `0.2.0-rc.2`: the version literal in that paragraph grew by two characters
+// (`0.2.0-rc.2` -> `0.2.0-rc.2`) and the block had no slack.
 // Every maintained document needs a row, so a new document declares its own
 // ceiling instead of inheriting an unbounded default.
 // Raised by 2 on six rows when the scope moved from `@aembers` to `@sophialin`:

@@ -198,7 +198,7 @@
     - id: sophialin-research-team-client
       name: '@sophialin/dsh-research-team'
     # Ledger guard. The Harness removed its runtime invariant service in
-    # 0.2.1-alpha.1 (`@deepseek-ai/dsh-invariants` and every package's
+    # 0.2.0-rc.2 (`@deepseek-ai/dsh-invariants` and every package's
     # `./invariant` companion), so the durable-ledger check is the bundle's own
     # row now: it fails the mount on an unre-derivable ledger and re-raises a
     # divergence on the committing caller's frame.

@@ -167,9 +167,9 @@ Record candidate tag, symptom, affected interface, reproduction command, and nex
 
 ## 6. Current baseline
 
-The current certified baseline is DSH `0.2.1-alpha.1`; the paragraphs below preserve the history that produced the preceding baselines.
+The current certified baseline is DSH `0.2.0-rc.2`; the paragraphs below preserve the history that produced the preceding baselines, including the `0.2.1-alpha.1` round that release `0.2.1` carried and that this release steps back from.
 
-The DSH peers state exactly that certified line, `>=0.2.1-alpha.1 <0.2.2`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim. The removed `@deepseek-ai/dsh-tool-todo` peer left with the preset row it named when the Team surface dropped the session-local todo tool; the remaining peers keep the one certified range.
+The DSH peers state exactly that certified line, `>=0.2.0-rc.2 <0.2.1`, so a line this repository has not verified falls outside the declared range instead of installing under an unverified compatibility claim. The removed `@deepseek-ai/dsh-tool-todo` peer left with the preset row it named when the Team surface dropped the session-local todo tool; the remaining peers keep the one certified range.
 
 The routed sqlite backend is a vendored fork, not a dependency at all (GitHub issue #28): the upstream package stays a devDependency pinned at the fork source, 0.1.5-rc.2, as the byte-compatibility fixture reference, and every compat round diffs the fork against that version's file before anything else.
 
@@ -352,3 +352,15 @@ With that in place the blocked path resolves under pnpm's own defaults: `pnpm ad
 The physical copy count differs from the npm figure above because pnpm's isolated linker materialises more of the same single generation.
 
 The move narrows the declared line to `0.2.1-alpha.1` and later. A host on `0.2.0-rc.2` falls outside the declaration and is refused, so the published `0.2.0` tarball keeps its own wider range until a later release.
+
+### Return to the 0.2.0-rc.2 line (0.2.2)
+
+Release `0.2.2` declares the earlier line again: every `@deepseek-ai/dsh-*` peer returns to `>=0.2.0-rc.2 <0.2.1` and the declared `@deepseek-ai/cordis` peer to `^4.0.1`. No source file differs from `0.2.1`, so the certification recorded under `### DSH 0.2.0-rc.2` above is this release's evidence as well.
+
+The reason is that the Desktop channel had not moved at the time of the release. `dsh-v0.2.1-alpha.1` exists as a GitHub release and as npm's `alpha` dist-tag, but a packaged application reads its own feed, and on 2026-10-04 `https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml` still answered `version: 0.2.0-rc.2` with `releaseDate: '2026-09-29T10:35:27.666Z'`. The `0.2.1` declaration therefore named a line no Desktop user could reach, and `evaluatePluginCompatibility` turned that into a refusal.
+
+`0.2.1` stays the release for DSH `0.2.1-alpha.1`, and one source serves both tags. The engine stays at `@sophialin/dsh-context-continuity` `^0.1.10` for both: its code is identical across `0.1.8`, `0.1.9` and `0.1.10` — only the package name and its peer declaration changed — so it runs on either line, and that declaration sits on a plain dependency, which is the one place `evaluatePluginCompatibility` never reads.
+
+`0.2.1-alpha.1` satisfies `>=0.2.0-rc.2 <0.2.1` under the prerelease-inclusive comparison the plugin manager applies, so this release is installable on either line. That pairing is uncertified; use `0.2.1` on the `0.2.1-alpha.1` line.
+
+Evidence on this branch, against the `dsh-v0.2.0-rc.2` checkout: `npm run typecheck` (509 Harness mappings), `npm test` (923 passed, 1 skipped, over 61 files), `npm run check:artifact` (263 packed files, all 44 runtime relative imports resolve), `npm pack --dry-run` (263 files), `git diff --check`, and `npm run test:browser` (5 journeys).

@@ -1,7 +1,7 @@
 /**
  * Bundle-owned ledger guard for `@sophialin/dsh-research-team`.
  *
- * DSH 0.2.1-alpha.1 removed its runtime invariant service (`@deepseek-ai/dsh-invariants`
+ * DSH 0.2.0-rc.2 removed its runtime invariant service (`@deepseek-ai/dsh-invariants`
  * and every package's `./invariant` companion), so this check is the bundle's own.
  * It keeps both behaviours the invariant companion provided: a durable ledger that
  * cannot be re-derived fails the mount, and a divergence found after a commit stays

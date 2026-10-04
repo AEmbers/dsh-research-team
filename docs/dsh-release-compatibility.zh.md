@@ -226,9 +226,9 @@ Harness 随附一套 experimental Agent Teams，以独立 profile bundle 形式�
 
 ## 6. 当前基线
 
-当前 Team bundle 的已认证基线是 DSH `0.2.1-alpha.1`；以下几段保留产生前几条基线的历史。
+当前 Team bundle 的已认证基线是 DSH `0.2.0-rc.2`；以下几段保留产生前几条基线的历史，包括 `0.2.1` 那一版承载过、而本版退回来的 `0.2.1-alpha.1` 那一轮。
 
-DSH peers 正好声明这条已认证线：`>=0.2.1-alpha.1 <0.2.2`，因此本仓库尚未验证的线会落在声明区间之外，而不是在未经核实的兼容声明下被装上。Team 面向模型的工具面去掉 session-local todo 工具时，被移除的 `@deepseek-ai/dsh-tool-todo` peer 随它指名的 preset row 一并删除；其余 peers 仍保持唯一一条已认证区间。
+DSH peers 正好声明这条已认证线：`>=0.2.0-rc.2 <0.2.1`，因此本仓库尚未验证的线会落在声明区间之外，而不是在未经核实的兼容声明下被装上。Team 面向模型的工具面去掉 session-local todo 工具时，被移除的 `@deepseek-ai/dsh-tool-todo` peer 随它指名的 preset row 一并删除；其余 peers 仍保持唯一一条已认证区间。
 
 经路由的 sqlite 后端是 vendored fork，根本不是 dependency（GitHub issue #28）：上游包只以 devDependency 钉在 fork 来源版本 0.1.5-rc.2，用作字节兼容 fixture 参照；每次兼容认证先把 fork 与该版本文件对一遍 diff，再做其他事。
 
@@ -415,3 +415,15 @@ composer 的 `stats` 行拆成 `activity` 与 `usage`。本 bundle 只注册 `co
 物理拷贝数与上文 npm 的数字不同，因为 pnpm 的 isolated linker 会把同一个世代物化成更多份。
 
 这次移动把声明线收窄到 `0.2.1-alpha.1` 及以后。停在 `0.2.0-rc.2` 的宿主会落在声明之外并被拒绝，因此已发布的 `0.2.0` tarball 仍保留自己更宽的区间，直到下一个版本。
+
+### 退回 0.2.0-rc.2 线（0.2.2）
+
+`0.2.2` 重新声明较早的那条线：所有 `@deepseek-ai/dsh-*` peer 回到 `>=0.2.0-rc.2 <0.2.1`，声明的 `@deepseek-ai/cordis` peer 回到 `^4.0.1`。没有任何源文件与 `0.2.1` 不同，因此上文 `### DSH 0.2.0-rc.2` 记录的认证同样是本版的证据。
+
+原因是发布时桌面通道没有前进。`dsh-v0.2.1-alpha.1` 既有 GitHub release 也有 npm 的 `alpha` dist-tag，但打包后的应用只读它自己的 feed；2026-10-04 当天 `https://download.deepseek.com/dsh-desk/feeds/win-x64/nightly.yml` 仍然回 `version: 0.2.0-rc.2`、`releaseDate: '2026-09-29T10:35:27.666Z'`。于是 `0.2.1` 声明的是一条桌面用户够不到的线，`evaluatePluginCompatibility` 把它变成了拒绝。
+
+`0.2.1` 仍是 DSH `0.2.1-alpha.1` 那一版的发布，一份源码同时服务两个 tag。引擎在两个版本上都保持 `@sophialin/dsh-context-continuity` `^0.1.10`：它在 `0.1.8`、`0.1.9`、`0.1.10` 之间代码完全相同——只有包名与那条 peer 声明变过——所以在哪条线上都能跑；而那条声明挂在普通 dependency 上，正是 `evaluatePluginCompatibility` 唯一不会读的地方。
+
+在插件管理器采用的、包含预发布的比较下，`0.2.1-alpha.1` 满足 `>=0.2.0-rc.2 <0.2.1`，因此本版在两条线上都能装。该组配未经认证；`0.2.1-alpha.1` 线上请用 `0.2.1`。
+
+本分支的证据（对着 `dsh-v0.2.0-rc.2` 检出）：`npm run typecheck`（509 条 Harness 映射）、`npm test`（923 通过、1 跳过，共 61 个文件）、`npm run check:artifact`（263 个打包文件，44 条运行时相对 import 全部解析）、`npm pack --dry-run`（263 个文件）、`git diff --check`、`npm run test:browser`（5 条旅程）。
