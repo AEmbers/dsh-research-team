@@ -264,8 +264,8 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; mainPanelId?: s
   // The create form reads the Team's own roster: the two declarations this
   // bundle ships, in roster order, the base one default.
   const presetRoster = vi.fn(async () => ({ ok: true as const, value: { presets: [
-    { id: 'team-member', name: 'Team member', order: 1, isDefault: true },
-    { id: 'orchestrator', name: 'Orchestrator', order: 2, isDefault: false },
+    { id: 'team-member', name: '普通成员', order: 1, isDefault: true },
+    { id: 'orchestrator', name: '编排者', order: 2, isDefault: false },
   ] } }))
   const putAttachment = vi.fn(async (request: { requestId: string; name: string; mediaType?: string; bytesBase64: string }) => ({
     ok: true as const,
