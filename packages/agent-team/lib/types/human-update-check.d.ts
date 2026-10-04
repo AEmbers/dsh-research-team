@@ -1,5 +1,5 @@
 /**
- * Best-effort Host-side check for a newer published bundle release.
+ * Best-effort Host-side check for a newer released bundle tag.
  *
  * The settings footnote needs `updateAvailable`/`latestVersion`, but the
  * profile read path must never wait on the network: the checker serves a
@@ -11,11 +11,19 @@
  * No durable state: the cache lives only in memory. A Host restart simply
  * starts unknown again, which is the safe default for an informational tip.
  */
-/** Public npm metadata document for the bundle's `latest` dist-tag. */
-export declare const HUMAN_UPDATE_CHECK_REGISTRY_URL = "https://registry.npmjs.org/@sophialin%2fdsh-research-team/latest";
+/**
+ * Release list of the repository this bundle is installed from.
+ *
+ * The bundle is distributed as tags rather than through a registry, so the
+ * repository's tags are the release list. The URL is derived from
+ * {@link HUMAN_PROFILE_REPO_URL} so the footnote's link and the check can never
+ * name different repositories; a repository that is not on `github.com` leaves
+ * the derived URL unbuildable, and the check then fails safe as "no update".
+ */
+export declare const HUMAN_UPDATE_CHECK_TAGS_URL: string;
 /** How long one settled check stays authoritative before a re-check. */
 export declare const HUMAN_UPDATE_CHECK_TTL_MS: number;
-/** Upper bound for one registry round trip; the read path never waits on it. */
+/** Upper bound for one tag-list round trip; the read path never waits on it. */
 export declare const HUMAN_UPDATE_CHECK_TIMEOUT_MS = 5000;
 /** Setting this env var to `0`/`false`/`off` disables the outbound check. */
 export declare const HUMAN_UPDATE_CHECK_ENV = "DSH_AGENT_TEAM_UPDATE_CHECK";
@@ -41,7 +49,18 @@ export declare function parseVersionCore(value: string): readonly number[] | und
 /** True when `latest` orders strictly after `current` on the numeric core. */
 export declare function isNewerVersion(current: string, latest: string): boolean;
 /**
- * One registry round trip resolving the published `latest` version string.
+ * Newest release tag in a GitHub tags document, as a bare version string.
+ *
+ * Two DSH lines can be current at once, so the newest tag is not always the one
+ * this Host should install: the tip names a version and routes to the Releases
+ * page, where the line is stated, and the plugin manager's own peer check
+ * refuses an install from the wrong line. A pre-release tag loses to a stable
+ * tag on the same core, so `0.2.3-rc.1` never hides the `0.2.3` that supersedes
+ * it. Anything unparsable resolves absent.
+ */
+export declare function latestTagVersion(payload: unknown): string | undefined;
+/**
+ * One tag-list round trip resolving the newest released version string.
  * Never throws: anything unexpected resolves absent.
  */
 export declare function fetchLatestVersion(fetchImpl: UpdateCheckFetcher, url?: string, timeoutMs?: number): Promise<string | undefined>;

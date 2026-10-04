@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning. Team bundle versions evolve independently of DeepSeek Harness versions; DeepSeek Harness compatibility is expressed through `peerDependencies` and [`docs/dsh-release-compatibility.md`](docs/dsh-release-compatibility.md).
 
+## [Unreleased]
+
+- The update tip in the settings footnote reads this repository's release tags instead of the npm registry. This fork is installed from a tag, so the npm `latest` document named a version that does not exist for it; the check now asks `api.github.com` for the repository's tags at most every 12 hours and names the newest one, and the tip's link still opens the Releases page. Two DSH lines can be current at once, so the newest tag is not always the one a given Host should install — the tip routes to the release notes, where the line is stated, and the plugin manager's own peer check refuses an install from the wrong line. Every failure still settles as "no update known".
+
 ## [0.2.2] - 2026-10-04
 
 - Same source as `0.2.1`, released against the earlier DSH line. The certified baseline returns to `0.2.0-rc.2`: every `@deepseek-ai/dsh-*` peer goes back to `>=0.2.0-rc.2 <0.2.1` and the declared `@deepseek-ai/cordis` peer back to `^4.0.1`. A `0.2.1` host falls inside neither direction of the change — see the range note below.
