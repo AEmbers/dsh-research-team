@@ -13,3 +13,4 @@ The contract is maintained in focused files:
 | [attention-and-messaging.md](attention-and-messaging.md) | Thread Attention and Inbox, mention delivery, how a Message reads for a Human, and ref citation |
 | [boundaries.md](boundaries.md) | The mutation fence, what stays behind the Human Remote boundary, and the Team Member context boundary |
 | [memory-and-context.md](memory-and-context.md) | Member memory upkeep, who owns context pressure, the Agent notification boundary, and assembled acceptance |
+| [roles.md](roles.md) | The roster a research Team is staffed from, with each role's prohibitions, handoffs, and the acceptance rules. |

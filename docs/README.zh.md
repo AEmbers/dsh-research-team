@@ -27,7 +27,8 @@
 | [`team-collaboration/tools.zh.md`](team-collaboration/tools.zh.md) | 八个 model-facing 工具及全部工具共用的规则 | 修改某个工具的合同、ref 或它周围的 mutation fence |
 | [`team-collaboration/attention-and-messaging.zh.md`](team-collaboration/attention-and-messaging.zh.md) | Attention、Inbox、mention、面向人类的消息与 ref 引用 | 修改通知、mention 投递或消息呈现 |
 | [`team-collaboration/boundaries.zh.md`](team-collaboration/boundaries.zh.md) | Mutation fence、Human Remote 边界与 Team Member 上下文边界 | 修改谁能改什么，或 Member 能看到别的 Session 的什么 |
-| [`team-collaboration/memory-and-context.zh.md`](team-collaboration/memory-and-context.zh.md) | Member memory、上下文压力归属、Agent notification 与 assembled acceptance | 修改记忆维护、上下文压力处理或验收必须证明什么 |
+| [	eam-collaboration/memory-and-context.zh.md](team-collaboration/memory-and-context.zh.md) | Member memory、上下文压力归属、Agent notification 与 assembled acceptance | 修改记忆维护、上下文压力处理或验收必须证明什么 |
+| [`team-collaboration/roles.zh.md`](team-collaboration/roles.zh.md) | 一支研究团队的编成名册：耐久角色、临时角色、各自的禁令、交接与录取规则 | 编成一支团队，或决定某个角色可以做什么、不许做什么 |
 | [`frontend-design/README.zh.md`](frontend-design/README.zh.md) | Team Client 的长期 UI 设计体系：设计原则、布局骨架、排版、组件合同、可访问性基线与验证流程 | 修改 `packages/client-agent-team/src/client/` 的可见 UI 或交互时 |
 | [`frontend-design/principles-and-language.zh.md`](frontend-design/principles-and-language.zh.md) | 设计原则与 DSH 设计语言对齐 | 决定复用哪些原语，或对齐 DSH 语言 |
 | [`frontend-design/layout-and-typography.zh.md`](frontend-design/layout-and-typography.zh.md) | 布局骨架、排版、颜色与身份 | 修改布局、字阶或颜色 |
