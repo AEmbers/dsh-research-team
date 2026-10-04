@@ -36,13 +36,45 @@ async function shippedHarnessName(): Promise<string> {
 // improvement squeezed into the last few characters.
 const PERSONA_CHARACTER_BUDGET = 15000
 
-// The team-member preset rides the shipped patch as one declarative definition
-// row; these assertions scope to exactly that row, from its `- id:` marker to
-// the group's host row that follows it.
+// The orchestrator pays the Member persona above plus the delegation section,
+// and it is the only Member that does. Same rule as the number above: a reviewed
+// budget, raised deliberately in the change that grows the text, never drifted
+// past by accretion. (Measured 12418 on 2026-10-04: 10582 of shared Member text
+// and 1836 of delegation rules.)
+const ORCHESTRATOR_PERSONA_CHARACTER_BUDGET = 17000
+
+// Each preset rides the shipped patch as one declarative definition row; these
+// assertions scope to exactly one row, from its `- id:` marker to the next row
+// at the same indent. The boundary deliberately names no following row: while it
+// named the host row, inserting a preset between the two silently widened the
+// slice, and every measurement taken from it with it.
+const TEAM_MEMBER_PRESET_ROW = 'sophialin-research-team-preset-team-member'
+const ORCHESTRATOR_PRESET_ROW = 'sophialin-research-team-preset-orchestrator'
+
+function presetText(patch: string, rowId: string): string {
+  const text = patch.replaceAll('\r\n', '\n')
+  const start = text.indexOf(`        - id: ${rowId}`)
+  if (start < 0) return ''
+  const end = text.indexOf('\n        - id: ', start + 1)
+  return end < 0 ? text.slice(start) : text.slice(start, end)
+}
+
 function teamMemberPresetText(patch: string): string {
-  const start = patch.indexOf('        - id: sophialin-research-team-preset-team-member')
-  const end = patch.indexOf('        - id: sophialin-research-team-host')
-  return start >= 0 && end > start ? patch.slice(start, end) : ''
+  return presetText(patch, TEAM_MEMBER_PRESET_ROW)
+}
+
+// Top-level plugin rows of one preset slice, as id -> plugin name. Group members
+// are indented deeper and stay out, which is what makes the two preset lists
+// comparable: a group is one row in both.
+function presetRowNames(preset: string): Map<string, string> {
+  const rows = new Map<string, string>()
+  const lines = preset.split('\n')
+  for (const [index, line] of lines.entries()) {
+    const id = /^ {12}- id: (\S+)\s*$/.exec(line)?.[1]
+    if (id === undefined) continue
+    rows.set(id, /^\s+name:\s*'?([^'\s]+)'?\s*$/.exec(lines[index + 1] ?? '')?.[1] ?? '')
+  }
+  return rows
 }
 
 // The YAML block-scalar bodies under `prefix:`/`suffix:`, de-indented the way YAML
@@ -82,6 +114,7 @@ describe('Agent Team shipping contract', () => {
       readFile(resolve(root, 'package.json'), 'utf8'),
     ])
     const preset = teamMemberPresetText(patch)
+    const orchestratorPreset = presetText(patch, ORCHESTRATOR_PRESET_ROW)
     // Extraction guard: a renamed definition-row id would silently empty the
     // slice and make every preset assertion below vacuous.
     expect(preset).toContain("name: '@deepseek-ai/dsh-agent-preset'")
@@ -307,11 +340,46 @@ describe('Agent Team shipping contract', () => {
     // composition-level mount of this exact definition is exercised by the
     // browser lane against the assembled bundle.
     const resolution = createRequire(pathToFileURL(join(root, 'package.json')).href)
-    const rows = [...preset.matchAll(/name:\s*'([^']+)'/g)].map(match => match[1]!)
-    expect(rows.length).toBeGreaterThanOrEqual(15)
+    const rows = [preset, orchestratorPreset].flatMap(slice => [...slice.matchAll(/name:\s*'([^']+)'/g)].map(match => match[1]!))
+    expect(rows.length).toBeGreaterThanOrEqual(40)
     for (const row of rows) {
       if (row === 'cordis:group') continue
       expect(() => resolution.resolve(row), `preset row '${row}' does not resolve`).not.toThrow()
+    }
+  })
+
+  it('extends one orchestrator preset over the Member preset by delegation alone', async () => {
+    const patch = await readFile(resolve(root, 'cordis.patch.yml'), 'utf8')
+    const member = teamMemberPresetText(patch)
+    const orchestrator = presetText(patch, ORCHESTRATOR_PRESET_ROW)
+    // Extraction guards for both slices: an emptied slice would make every
+    // comparison below vacuously true.
+    expect(member).toContain('id: team-member')
+    expect(orchestrator).toContain('id: orchestrator')
+    const memberRows = presetRowNames(member)
+    const orchestratorRows = presetRowNames(orchestrator)
+    expect(memberRows.size).toBeGreaterThanOrEqual(14)
+    // The two declarations are one composition: same row id, same plugin, plus
+    // the delegation group and nothing else. The duplication is deliberate —
+    // the orchestrator persona carries instructions no other Member pays for —
+    // and this is what keeps the copies honest: editing a row of either preset
+    // alone fails here rather than drifting in silence.
+    expect([...orchestratorRows.keys()].filter(id => !memberRows.has(id))).toEqual(['delegation'])
+    expect(orchestratorRows.get('delegation')).toBe('cordis:group')
+    for (const [id, name] of memberRows) {
+      expect(orchestratorRows.get(id), `the orchestrator preset is missing row '${id}'`).toBe(name)
+    }
+    // Delegation is the only source of a subagent or a workflow run, and a
+    // prover that held it would be a second orchestrator.
+    expect(memberRows.has('delegation')).toBe(false)
+    for (const row of [
+      '@deepseek-ai/dsh-tool-subagent',
+      '@deepseek-ai/dsh-tool-subagent-control',
+      '@deepseek-ai/dsh-workflow-ptc',
+      '@deepseek-ai/dsh-tool-workflow',
+    ]) {
+      expect(orchestrator).toContain(row)
+      expect(member).not.toContain(row)
     }
   })
 })
@@ -453,7 +521,8 @@ describe('Boot-critical host closure surface', () => {
 // but they stop the text from growing silently and from losing a rule whole.
 describe('Agent Team Member persona', () => {
   it('stays inside the reviewed prompt budget', async () => {
-    const preset = await readFile(resolve(root, 'cordis.patch.yml'), 'utf8').then(teamMemberPresetText)
+    const patch = await readFile(resolve(root, 'cordis.patch.yml'), 'utf8')
+    const preset = teamMemberPresetText(patch)
     const persona = personaInstructionText(preset)
     // Extraction guard: a renamed config key would empty the text and make the
     // budget assertion meaningless, so prove the persona was actually found.
@@ -464,6 +533,17 @@ describe('Agent Team Member persona', () => {
       + 'Trim it back to the budget, or raise PERSONA_CHARACTER_BUDGET in this file deliberately — every Member '
       + 'pays this text on every turn.',
     ).toBeLessThanOrEqual(PERSONA_CHARACTER_BUDGET)
+    const orchestrator = personaInstructionText(presetText(patch, ORCHESTRATOR_PRESET_ROW))
+    // The orchestrator is the Member persona plus the delegation section, so the
+    // shared half cannot be edited in one declaration only: a divergence in
+    // either direction fails here before it can reach a Member turn.
+    expect(orchestrator.startsWith(persona), 'the orchestrator no longer starts from the shared Member persona').toBe(true)
+    expect(orchestrator.length).toBeGreaterThan(persona.length)
+    expect(
+      orchestrator.length,
+      `The orchestrator persona is ${orchestrator.length} characters; the reviewed budget is `
+      + `${ORCHESTRATOR_PERSONA_CHARACTER_BUDGET}. Trim it, or raise the budget in this file deliberately.`,
+    ).toBeLessThanOrEqual(ORCHESTRATOR_PERSONA_CHARACTER_BUDGET)
   })
 
   // Token-level anchors, not sentences: rewording is Cole's issue 07 territory and

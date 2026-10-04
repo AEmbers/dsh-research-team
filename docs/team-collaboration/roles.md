@@ -55,6 +55,7 @@ Neither message carries a conclusion. Conclusions are the `verifier`'s and the r
 - A candidate is accepted only when the per-artifact reading **and** the side-by-side reading both pass. One reading is not a verdict.
 - Every reading is adversarial: each step is wrong until justified, and each citation is unchecked until read.
 - Spawn authority belongs to the roles that own an ephemeral role. A `prover` does not spawn a `summarizer`; the `orchestrator` does.
+- That authority is a preset rather than a rule to remember: `orchestrator` mounts the delegation rows and no other Member preset does, so a Member invited on `team-member` has no subagent tool to reach for. Invite at least one Member on `orchestrator`, or no ephemeral role above can exist.
 
 ## Current state
 
@@ -62,6 +63,6 @@ The roster above is the target. What the bundle provides today differs from it i
 
 Member provisioning is a Human operation by construction: the Remote that adds a Member records the Human as its actor, so no Member can create another. Durable roles are therefore created by hand; ephemeral ones are not Members at all.
 
-The `team-member` preset does not mount a subagent or workflow plugin. A Member can run tools, read and write files, and reach the Team tools, but it cannot spawn a subagent yet, so every ephemeral role above is currently unavailable.
+The member form offers no preset choice. The Client always sends `presetId: 'team-member'`, so a Member on `orchestrator` cannot be invited from the interface this bundle ships. The preset exists and composes; reaching it needs the form to offer it.
 
 Three of the durable roles have no mechanism behind them yet. Nothing writes a per-prover briefing, nothing reads verification logs across rounds, and nothing salvages verified fragments from rejected work or records a dead end.
