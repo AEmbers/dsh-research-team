@@ -15,6 +15,7 @@ import { installModelSelection, type Agent, type AgentHandle, type ModelSelectio
 import { createUserMessage, type UserMessage } from '@deepseek-ai/dsh-llm'
 import type {} from '@deepseek-ai/dsh-agent-default-model'
 import type {} from '@deepseek-ai/dsh-agent-preset-registry'
+import type { AgentPresetRoster } from '@deepseek-ai/dsh-agent-preset-registry/types'
 import type {} from '@deepseek-ai/dsh-app-boot'
 import { dshHomePath } from '@deepseek-ai/dsh-home-paths'
 import { scopeOf } from '@deepseek-ai/dsh-scope'
@@ -877,6 +878,20 @@ export default class AgentTeam extends TypertRemoteService {
   /** Return durable Team status without issuing a model request or a storage write. */
   status(): AgentTeamStatus {
     return this.requireLedger().status()
+  }
+
+  /**
+   * The presets a Human may staff a Member with, read from the Team's own
+   * registry instance rather than the ambient one — an ordinary Session never
+   * composes these rows, so the ambient roster is the wrong answer even when it
+   * is readable. Declarations that failed to activate stay on the roster with
+   * their diagnostic, which is what a form needs to explain a refused choice
+   * instead of silently offering it.
+   * @returns The Team's presets in roster order, each marked when it is the default.
+   */
+  @Remote('presetRoster')
+  presetRoster(): Promise<AgentPresetRoster> {
+    return this.ctx.agentPresets.remoteExportList()
   }
 
   @Remote('createChannel')

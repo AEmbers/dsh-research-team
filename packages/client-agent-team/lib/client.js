@@ -4799,6 +4799,14 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				"knownNames": array(string()).readonly()
 			}))]).readonly().optional()
 		}));
+		let _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema$value;
+		const _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema = () => _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema$value ??= object({ "presets": array(object({
+			"id": string().readonly(),
+			"isDefault": boolean().readonly(),
+			"name": string().readonly().optional(),
+			"description": string().readonly().optional(),
+			"broken": string().readonly().optional()
+		})).readonly() });
 		let _sophialin_dsh_research_team_agentTeam_promoteThread_parameter_0$schema$value;
 		const _sophialin_dsh_research_team_agentTeam_promoteThread_parameter_0$schema = () => _sophialin_dsh_research_team_agentTeam_promoteThread_parameter_0$schema$value ??= object({
 			"requestId": intersection(string(), unknown()).readonly(),
@@ -5885,7 +5893,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 920,
+						"line": 935,
 						"column": 9
 					}
 				},
@@ -5912,7 +5920,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 910,
+						"line": 925,
 						"column": 9
 					}
 				},
@@ -5939,7 +5947,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1427,
+						"line": 1442,
 						"column": 9
 					}
 				},
@@ -5966,7 +5974,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1690,
+						"line": 1705,
 						"column": 9
 					}
 				},
@@ -5995,7 +6003,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 843,
+						"line": 844,
 						"column": 11
 					}
 				},
@@ -6022,7 +6030,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1438,
+						"line": 1453,
 						"column": 9
 					}
 				},
@@ -6049,7 +6057,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1055,
+						"line": 1070,
 						"column": 9
 					}
 				},
@@ -6076,7 +6084,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 883,
+						"line": 898,
 						"column": 9
 					}
 				},
@@ -6104,7 +6112,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1597,
+						"line": 1612,
 						"column": 3
 					}
 				},
@@ -6131,7 +6139,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1565,
+						"line": 1580,
 						"column": 9
 					}
 				},
@@ -6158,7 +6166,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1630,
+						"line": 1645,
 						"column": 9
 					}
 				},
@@ -6186,7 +6194,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1602,
+						"line": 1617,
 						"column": 3
 					}
 				},
@@ -6213,7 +6221,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1699,
+						"line": 1714,
 						"column": 3
 					}
 				},
@@ -6240,7 +6248,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1458,
+						"line": 1473,
 						"column": 9
 					}
 				},
@@ -6267,7 +6275,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1478,
+						"line": 1493,
 						"column": 9
 					}
 				},
@@ -6294,7 +6302,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1487,
+						"line": 1502,
 						"column": 9
 					}
 				},
@@ -6322,7 +6330,25 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 833,
+						"line": 834,
+						"column": 3
+					}
+				},
+				{
+					id: "@sophialin/dsh-research-team#agentTeam/presetRoster",
+					service: "agentTeam",
+					namespace: "agentTeam",
+					method: "presetRoster",
+					invocation: { kind: "direct" },
+					parameters: [],
+					result: {
+						mode: "strict",
+						typeSymbol: "@deepseek-ai/dsh-agent-preset-registry/types#AgentPresetRoster",
+						create: _sophialin_dsh_research_team_agentTeam_presetRoster_result$schema
+					},
+					sourceLocation: {
+						"file": "packages/agent-team/src/index.ts",
+						"line": 893,
 						"column": 3
 					}
 				},
@@ -6349,7 +6375,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1448,
+						"line": 1463,
 						"column": 9
 					}
 				},
@@ -6376,7 +6402,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1548,
+						"line": 1563,
 						"column": 9
 					}
 				},
@@ -6403,7 +6429,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1622,
+						"line": 1637,
 						"column": 9
 					}
 				},
@@ -6430,7 +6456,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1706,
+						"line": 1721,
 						"column": 9
 					}
 				},
@@ -6457,7 +6483,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 985,
+						"line": 1e3,
 						"column": 9
 					}
 				},
@@ -6484,7 +6510,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1469,
+						"line": 1484,
 						"column": 9
 					}
 				},
@@ -6511,7 +6537,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1638,
+						"line": 1653,
 						"column": 9
 					}
 				},
@@ -6538,7 +6564,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1684,
+						"line": 1699,
 						"column": 9
 					}
 				},
@@ -6565,7 +6591,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 807,
+						"line": 808,
 						"column": 3
 					}
 				},
@@ -6592,7 +6618,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 820,
+						"line": 821,
 						"column": 3
 					}
 				},
@@ -6619,7 +6645,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1496,
+						"line": 1511,
 						"column": 9
 					}
 				},
@@ -6646,7 +6672,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1660,
+						"line": 1675,
 						"column": 9
 					}
 				},
@@ -6673,7 +6699,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1724,
+						"line": 1739,
 						"column": 3
 					}
 				},
@@ -6700,7 +6726,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1717,
+						"line": 1732,
 						"column": 3
 					}
 				},
@@ -6727,7 +6753,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 895,
+						"line": 910,
 						"column": 9
 					}
 				},
@@ -6754,7 +6780,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1368,
+						"line": 1383,
 						"column": 9
 					}
 				},
@@ -6781,7 +6807,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					},
 					sourceLocation: {
 						"file": "packages/agent-team/src/index.ts",
-						"line": 1731,
+						"line": 1746,
 						"column": 3
 					}
 				}
@@ -13261,7 +13287,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		}
 		//#endregion
 		//#region src/client/TeamAgentsPanel.tsx
-		function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, memberSessionId, openMemberSession, onCreatingChange, t }) {
+		function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, loadPresets, memberSessionId, openMemberSession, onCreatingChange, t }) {
 			const [members, setMembers] = (0, react.useState)([]);
 			const [loading, setLoading] = (0, react.useState)(true);
 			const [error, setError] = (0, react.useState)();
@@ -13272,6 +13298,9 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			const [model, setModel] = (0, react.useState)(void 0);
 			const [creating, setCreating] = (0, react.useState)(false);
 			const [retryRequest, setRetryRequest] = (0, react.useState)();
+			const [presets, setPresets] = (0, react.useState)([]);
+			const [presetId, setPresetId] = (0, react.useState)();
+			const [presetError, setPresetError] = (0, react.useState)();
 			const triggerRef = (0, react.useRef)(null);
 			const orderedAgentRefs = useSidebarOrder(workspaceId, "agents", (0, react.useMemo)(() => members.map((status) => status.member.memberId), [members]));
 			const orderedMembers = (0, react.useMemo)(() => {
@@ -13411,17 +13440,31 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					onCreatingChange(request, false);
 				}
 			};
+			const openForm = () => {
+				setError(void 0);
+				setImporting(false);
+				setFormOpen(true);
+				setPresetError(void 0);
+				loadPresets().then((result) => {
+					if (result.ok) setPresets(result.value.presets);
+					else {
+						setPresets([]);
+						setPresetError(result.error.message);
+					}
+				});
+			};
+			const selectedPresetId = presetId ?? presets.find((choice) => choice.isDefault)?.id ?? presets[0]?.id;
 			const submit = (event) => {
 				event.preventDefault();
 				const normalizedHandle = handle.trim();
 				const normalizedDescription = description.trim();
-				if (normalizedHandle.length === 0 || creating) return;
-				provision(retryRequest !== void 0 && retryRequest.workspaceId === workspaceId && retryRequest.handle === normalizedHandle && retryRequest.description === normalizedDescription && sameModel(retryRequest.model, model) && retryRequest.channelRefs.length === 0 ? retryRequest : {
+				if (normalizedHandle.length === 0 || creating || selectedPresetId === void 0) return;
+				provision(retryRequest !== void 0 && retryRequest.workspaceId === workspaceId && retryRequest.handle === normalizedHandle && retryRequest.description === normalizedDescription && sameModel(retryRequest.model, model) && retryRequest.presetId === selectedPresetId && retryRequest.channelRefs.length === 0 ? retryRequest : {
 					requestId: mintRequestId(),
 					workspaceId,
 					handle: normalizedHandle,
 					description: normalizedDescription,
-					presetId: "team-member",
+					presetId: selectedPresetId,
 					channelRefs: [],
 					...model === void 0 ? {} : { model }
 				});
@@ -13444,7 +13487,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 							type: "submit",
 							form: "team-agent-create-form",
 							variant: "primary",
-							disabled: creating || handle.trim().length === 0,
+							disabled: creating || selectedPresetId === void 0 || handle.trim().length === 0,
 							children: creating ? t("creatingAgent") : t("createAgent")
 						})] }),
 						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Button, {
@@ -13511,6 +13554,28 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 									disabled: creating,
 									t
 								}),
+								presets.length > 1 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+									className: create_module_css_default.field,
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t("agentPreset") }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("select", {
+										className: create_module_css_default.input,
+										value: selectedPresetId ?? "",
+										onChange: (event) => {
+											setPresetId(event.target.value);
+											setRetryRequest(void 0);
+										},
+										disabled: creating,
+										children: presets.map((choice) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("option", {
+											value: choice.id,
+											disabled: choice.broken !== void 0,
+											children: [choice.name ?? choice.id, choice.broken === void 0 ? "" : ` — ${choice.broken}`]
+										}, choice.id))
+									})]
+								}),
+								presetError !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: create_module_css_default.error,
+									role: "alert",
+									children: presetError
+								}),
 								formOpen && error !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
 									className: create_module_css_default.error,
 									role: "alert",
@@ -13533,11 +13598,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 								type: "button",
 								className: sidebar_module_css_default.iconButton,
 								"aria-label": t("addAgent"),
-								onClick: () => {
-									setError(void 0);
-									setImporting(false);
-									setFormOpen(true);
-								},
+								onClick: openForm,
 								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconPlusOutlineRegular, { size: 14 })
 							})
 						}),
@@ -14352,7 +14413,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				})]
 			});
 		}
-		function TeamWorkspaceBrowser({ wide, expandSidebar, navigation, selectWorkspace, selectChannel, selectInbox, t, useWorkspaces, loadMembers, loadInbox, subscribeChanges, subscribeReads, addMember, loadChannels, createChannel, updateChannel, archiveChannel, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, joinChannel, removeChannelMember, loadModels, openMemberSession }) {
+		function TeamWorkspaceBrowser({ wide, expandSidebar, navigation, selectWorkspace, selectChannel, selectInbox, t, useWorkspaces, loadMembers, loadInbox, subscribeChanges, subscribeReads, addMember, loadChannels, createChannel, updateChannel, archiveChannel, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, joinChannel, removeChannelMember, loadModels, loadPresets, openMemberSession }) {
 			const navigationState = (0, react.useSyncExternalStore)(navigation.subscribe, navigation.getSnapshot, navigation.getSnapshot);
 			const workspaces = useWorkspaces((state) => state.items);
 			const selected = navigationState.workspaceId;
@@ -14521,6 +14582,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 								joinWorkspace,
 								leaveWorkspace,
 								loadModels,
+								loadPresets,
 								...navigationState.memberSessionId === void 0 ? {} : { memberSessionId: navigationState.memberSessionId },
 								openMemberSession,
 								onCreatingChange: (request, creating) => {
@@ -14613,6 +14675,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			archiveChannelFailed: "归档频道失败：{message}",
 			optionalSuffix: "（可选）",
 			agentDescriptionPlaceholder: "留空则暂无描述",
+			agentPreset: "成员 preset",
 			membersPickerEmpty: "选择初始成员",
 			membersPickerCount: "已选 {count} 个成员",
 			reasoningEffort: "推理强度",
@@ -14830,6 +14893,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			archiveChannelFailed: "Failed to archive Channel: {message}",
 			optionalSuffix: " (optional)",
 			agentDescriptionPlaceholder: "Leave empty if not needed",
+			agentPreset: "Member preset",
 			membersPickerEmpty: "Choose initial members",
 			membersPickerCount: "{count} selected",
 			reasoningEffort: "Reasoning effort",
@@ -15032,6 +15096,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				joinWorkspace: (request) => ctx.remote.agentTeam.joinWorkspace(request),
 				leaveWorkspace: (request) => ctx.remote.agentTeam.leaveWorkspace(request),
 				loadModels: () => ctx.remote.session.modelCatalog(),
+				/** The Team's own preset roster: the form offers exactly what this bundle composes. */
+				loadPresets: () => ctx.remote.agentTeam.presetRoster(),
 				openMemberSession: openMemberSessionImpl
 			};
 			ctx.slots.inject(name, () => {

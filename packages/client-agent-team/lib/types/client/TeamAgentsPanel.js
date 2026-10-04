@@ -13,7 +13,7 @@ import { AgentEditorDialog, ModelPickerField, sameModel, warmModelCatalog } from
 import { TeamAgentImport } from "./TeamAgentImport.js";
 import createCss from './create.module.css';
 import css from './sidebar.module.css';
-export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, memberSessionId, openMemberSession, onCreatingChange, t }) {
+export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, loadPresets, memberSessionId, openMemberSession, onCreatingChange, t }) {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState();
@@ -24,6 +24,13 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
     const [model, setModel] = useState(undefined);
     const [creating, setCreating] = useState(false);
     const [retryRequest, setRetryRequest] = useState();
+    // The Team's own preset roster, read when the form opens. A choice is what
+    // the Human is staffing the Member with, so it is never guessed: while the
+    // roster is unread the form cannot name a preset and refuses to submit,
+    // rather than quietly composing the default one.
+    const [presets, setPresets] = useState([]);
+    const [presetId, setPresetId] = useState();
+    const [presetError, setPresetError] = useState();
     const triggerRef = useRef(null);
     // Same presentation-preference ordering as the Channels list; the drag
     // commits through one shared mutation.
@@ -178,29 +185,46 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
             onCreatingChange(request, false);
         }
     };
+    // Read once per form opening: the roster is a Host fact that changes only
+    // when the bundle is reinstalled, which cannot happen under an open form.
+    const openForm = () => {
+        setError(undefined);
+        setImporting(false);
+        setFormOpen(true);
+        setPresetError(undefined);
+        void loadPresets().then(result => {
+            if (result.ok)
+                setPresets(result.value.presets);
+            else {
+                setPresets([]);
+                setPresetError(result.error.message);
+            }
+        });
+    };
+    const selectedPresetId = presetId ?? presets.find(choice => choice.isDefault)?.id ?? presets[0]?.id;
     const submit = (event) => {
         event.preventDefault();
         const normalizedHandle = handle.trim();
         const normalizedDescription = description.trim();
-        if (normalizedHandle.length === 0 || creating)
+        if (normalizedHandle.length === 0 || creating || selectedPresetId === undefined)
             return;
         const sameRequest = retryRequest !== undefined && retryRequest.workspaceId === workspaceId
             && retryRequest.handle === normalizedHandle && retryRequest.description === normalizedDescription
-            && sameModel(retryRequest.model, model)
+            && sameModel(retryRequest.model, model) && retryRequest.presetId === selectedPresetId
             && retryRequest.channelRefs.length === 0;
         void provision(sameRequest ? retryRequest : {
             requestId: mintRequestId(),
             workspaceId,
             handle: normalizedHandle,
             description: normalizedDescription,
-            presetId: 'team-member',
+            presetId: selectedPresetId,
             // No initial Channels at creation: the Member joins Channels later from
             // the Channel side and stays reachable through its DM view meanwhile.
             channelRefs: [],
             ...(model === undefined ? {} : { model }),
         });
     };
-    return (_jsxs("div", { className: css.panel, children: [_jsxs(Modal, { open: formOpen, onClose: closeForm, title: t('addAgent'), closeLabel: t('close'), contentClassName: createCss.dialogContent, footer: _jsxs(_Fragment, { children: [_jsx(Button, { variant: "outline", disabled: creating, onClick: closeForm, children: t('cancel') }), !importing && _jsx(Button, { type: "submit", form: "team-agent-create-form", variant: "primary", disabled: creating || handle.trim().length === 0, children: creating ? t('creatingAgent') : t('createAgent') })] }), children: [_jsx(Button, { className: createCss.modeSwitch, variant: "outline", disabled: creating, "aria-expanded": importing, onClick: () => { setImporting(value => !value); setError(undefined); }, children: importing ? t('createAgent') : t('importAgentTitle') }), formOpen && importing ? _jsx(TeamAgentImport, { workspaceId: workspaceId, loadMembers: loadMembers, joinWorkspace: joinWorkspace, onPending: setCreating, onJoined: async () => { await refresh(); setFormOpen(false); queueMicrotask(() => { triggerRef.current?.focus(); }); }, t: t }) : _jsxs("form", { id: "team-agent-create-form", className: createCss.form, onSubmit: submit, children: [_jsxs("label", { className: createCss.field, children: [_jsx("span", { children: t('agentName') }), _jsx(Input, { className: createCss.input, value: handle, onChange: event => { setHandle(event.target.value); setRetryRequest(undefined); }, disabled: creating, autoFocus: true })] }), _jsxs("label", { className: createCss.field, children: [_jsxs("span", { children: [t('agentDescription'), t('optionalSuffix')] }), _jsx(Input, { className: createCss.input, value: description, placeholder: t('agentDescriptionPlaceholder'), onChange: event => { setDescription(event.target.value); setRetryRequest(undefined); }, disabled: creating })] }), _jsx(ModelPickerField, { model: model, onModelChange: choice => { setModel(choice); setRetryRequest(undefined); }, loadModels: loadModels, disabled: creating, t: t }), formOpen && error !== undefined && _jsx("p", { className: createCss.error, role: "alert", children: error })] })] }), _jsxs(TeamSidebarSection, { title: t('agents'), open: sectionOpen, onToggle: open => { setSidebarSectionOpen(workspaceId, 'agents', open); }, actions: (_jsx(Tooltip, { label: t('addAgent'), delayMs: 500, children: _jsx("button", { ref: triggerRef, type: "button", className: css.iconButton, "aria-label": t('addAgent'), onClick: () => { setError(undefined); setImporting(false); setFormOpen(true); }, children: _jsx(IconPlusOutlineRegular, { size: 14 }) }) })), children: [loading && members.length === 0 && _jsx("p", { className: css.emptyState, children: t('loadingAgents') }), !loading && error === undefined && members.length === 0 && _jsx("p", { className: css.emptyState, children: t('emptyAgents') }), _jsx("div", { className: css.agentList, children: orderedMembers.map(status => (_jsx(SortableRow, { drag: drag, orderKey: status.member.memberId, children: _jsx(AgentRow, { workspaceId: workspaceId, leaveWorkspace: leaveWorkspace, status: status, ...(memberSessionId === undefined ? {} : { current: status.member.sessionId === memberSessionId }), updateMember: updateMember, recoverMember: recoverMember, archiveMember: archiveMember, loadModels: loadModels, openMemberSession: openMemberSession, onUpdated: refresh, t: t }) }, status.member.memberId))) })] }), !formOpen && error !== undefined && (_jsxs("div", { className: css.retryError, role: "alert", children: [_jsx("span", { children: error }), retryRequest !== undefined && _jsx("button", { type: "button", className: css.textButton, disabled: creating, onClick: () => { setFormOpen(true); }, children: t('retry') })] }))] }));
+    return (_jsxs("div", { className: css.panel, children: [_jsxs(Modal, { open: formOpen, onClose: closeForm, title: t('addAgent'), closeLabel: t('close'), contentClassName: createCss.dialogContent, footer: _jsxs(_Fragment, { children: [_jsx(Button, { variant: "outline", disabled: creating, onClick: closeForm, children: t('cancel') }), !importing && _jsx(Button, { type: "submit", form: "team-agent-create-form", variant: "primary", disabled: creating || selectedPresetId === undefined || handle.trim().length === 0, children: creating ? t('creatingAgent') : t('createAgent') })] }), children: [_jsx(Button, { className: createCss.modeSwitch, variant: "outline", disabled: creating, "aria-expanded": importing, onClick: () => { setImporting(value => !value); setError(undefined); }, children: importing ? t('createAgent') : t('importAgentTitle') }), formOpen && importing ? _jsx(TeamAgentImport, { workspaceId: workspaceId, loadMembers: loadMembers, joinWorkspace: joinWorkspace, onPending: setCreating, onJoined: async () => { await refresh(); setFormOpen(false); queueMicrotask(() => { triggerRef.current?.focus(); }); }, t: t }) : _jsxs("form", { id: "team-agent-create-form", className: createCss.form, onSubmit: submit, children: [_jsxs("label", { className: createCss.field, children: [_jsx("span", { children: t('agentName') }), _jsx(Input, { className: createCss.input, value: handle, onChange: event => { setHandle(event.target.value); setRetryRequest(undefined); }, disabled: creating, autoFocus: true })] }), _jsxs("label", { className: createCss.field, children: [_jsxs("span", { children: [t('agentDescription'), t('optionalSuffix')] }), _jsx(Input, { className: createCss.input, value: description, placeholder: t('agentDescriptionPlaceholder'), onChange: event => { setDescription(event.target.value); setRetryRequest(undefined); }, disabled: creating })] }), _jsx(ModelPickerField, { model: model, onModelChange: choice => { setModel(choice); setRetryRequest(undefined); }, loadModels: loadModels, disabled: creating, t: t }), presets.length > 1 && (_jsxs("label", { className: createCss.field, children: [_jsx("span", { children: t('agentPreset') }), _jsx("select", { className: createCss.input, value: selectedPresetId ?? '', onChange: event => { setPresetId(event.target.value); setRetryRequest(undefined); }, disabled: creating, children: presets.map(choice => (_jsxs("option", { value: choice.id, disabled: choice.broken !== undefined, children: [choice.name ?? choice.id, choice.broken === undefined ? '' : ` — ${choice.broken}`] }, choice.id))) })] })), presetError !== undefined && _jsx("p", { className: createCss.error, role: "alert", children: presetError }), formOpen && error !== undefined && _jsx("p", { className: createCss.error, role: "alert", children: error })] })] }), _jsxs(TeamSidebarSection, { title: t('agents'), open: sectionOpen, onToggle: open => { setSidebarSectionOpen(workspaceId, 'agents', open); }, actions: (_jsx(Tooltip, { label: t('addAgent'), delayMs: 500, children: _jsx("button", { ref: triggerRef, type: "button", className: css.iconButton, "aria-label": t('addAgent'), onClick: openForm, children: _jsx(IconPlusOutlineRegular, { size: 14 }) }) })), children: [loading && members.length === 0 && _jsx("p", { className: css.emptyState, children: t('loadingAgents') }), !loading && error === undefined && members.length === 0 && _jsx("p", { className: css.emptyState, children: t('emptyAgents') }), _jsx("div", { className: css.agentList, children: orderedMembers.map(status => (_jsx(SortableRow, { drag: drag, orderKey: status.member.memberId, children: _jsx(AgentRow, { workspaceId: workspaceId, leaveWorkspace: leaveWorkspace, status: status, ...(memberSessionId === undefined ? {} : { current: status.member.sessionId === memberSessionId }), updateMember: updateMember, recoverMember: recoverMember, archiveMember: archiveMember, loadModels: loadModels, openMemberSession: openMemberSession, onUpdated: refresh, t: t }) }, status.member.memberId))) })] }), !formOpen && error !== undefined && (_jsxs("div", { className: css.retryError, role: "alert", children: [_jsx("span", { children: error }), retryRequest !== undefined && _jsx("button", { type: "button", className: css.textButton, disabled: creating, onClick: () => { setFormOpen(true); }, children: t('retry') })] }))] }));
 }
 /**
  * One sidebar Agent row: the select button opens the Member's own Session

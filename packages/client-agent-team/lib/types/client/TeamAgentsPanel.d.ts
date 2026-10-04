@@ -12,12 +12,13 @@ interface TeamAgentsPanelProps {
     readonly joinWorkspace: TeamSidebarProps['joinWorkspace'];
     readonly leaveWorkspace: TeamSidebarProps['leaveWorkspace'];
     readonly loadModels: TeamSidebarProps['loadModels'];
+    readonly loadPresets: TeamSidebarProps['loadPresets'];
     /** The Member Session currently embedded in the conversation seat, if any. */
     readonly memberSessionId?: AgentTeamClientMemberStatus['member']['sessionId'];
     readonly openMemberSession: TeamSidebarProps['openMemberSession'];
     readonly onCreatingChange: (request: AgentTeamAddMemberRequest, creating: boolean) => void;
     readonly t: TeamSidebarProps['t'];
 }
-export declare function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, memberSessionId, openMemberSession, onCreatingChange, t }: TeamAgentsPanelProps): import("react").JSX.Element;
+export declare function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, loadPresets, memberSessionId, openMemberSession, onCreatingChange, t }: TeamAgentsPanelProps): import("react").JSX.Element;
 export {};
 //# sourceMappingURL=TeamAgentsPanel.d.ts.map

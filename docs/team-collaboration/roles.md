@@ -59,10 +59,8 @@ Neither message carries a conclusion. Conclusions are the `verifier`'s and the r
 
 ## Current state
 
-The roster above is the target. What the bundle provides today differs from it in three ways, and the difference is recorded here rather than implied.
+The roster above is the target. What the bundle provides today differs from it in two ways, and the difference is recorded here rather than implied.
 
 Member provisioning is a Human operation by construction: the Remote that adds a Member records the Human as its actor, so no Member can create another. Durable roles are therefore created by hand; ephemeral ones are not Members at all.
-
-The member form offers no preset choice. The Client always sends `presetId: 'team-member'`, so a Member on `orchestrator` cannot be invited from the interface this bundle ships. The preset exists and composes; reaching it needs the form to offer it.
 
 Three of the durable roles have no mechanism behind them yet. Nothing writes a per-prover briefing, nothing reads verification logs across rounds, and nothing salvages verified fragments from rejected work or records a dead end.

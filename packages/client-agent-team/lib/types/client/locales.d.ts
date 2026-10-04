@@ -76,6 +76,7 @@ export declare const zh: {
     readonly archiveChannelFailed: "归档频道失败：{message}";
     readonly optionalSuffix: "（可选）";
     readonly agentDescriptionPlaceholder: "留空则暂无描述";
+    readonly agentPreset: "成员 preset";
     readonly membersPickerEmpty: "选择初始成员";
     readonly membersPickerCount: "已选 {count} 个成员";
     readonly reasoningEffort: "推理强度";
@@ -293,6 +294,7 @@ export declare const en: {
     readonly archiveChannelFailed: "Failed to archive Channel: {message}";
     readonly optionalSuffix: " (optional)";
     readonly agentDescriptionPlaceholder: "Leave empty if not needed";
+    readonly agentPreset: "Member preset";
     readonly membersPickerEmpty: "Choose initial members";
     readonly membersPickerCount: "{count} selected";
     readonly reasoningEffort: "Reasoning effort";

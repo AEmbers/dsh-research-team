@@ -5,6 +5,7 @@ import type {
   AgentTeamModelSelection,
 } from '@sophialin/dsh-research-team/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { AgentPresetRoster } from '@deepseek-ai/dsh-agent-preset-registry/types'
 import { Button, IconArchiveOutlineRegular, IconEditOutlineRegular, IconPlayOutlineRegular, IconPlusOutlineRegular, IconRefreshOutlineRegular, Input, Modal, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { TeamSidebarProps } from './slots.ts'
 import { TeamMemberIdentity } from './TeamMemberRow.tsx'
@@ -31,6 +32,7 @@ interface TeamAgentsPanelProps {
   readonly joinWorkspace: TeamSidebarProps['joinWorkspace']
   readonly leaveWorkspace: TeamSidebarProps['leaveWorkspace']
   readonly loadModels: TeamSidebarProps['loadModels']
+  readonly loadPresets: TeamSidebarProps['loadPresets']
   /** The Member Session currently embedded in the conversation seat, if any. */
   readonly memberSessionId?: AgentTeamClientMemberStatus['member']['sessionId']
   readonly openMemberSession: TeamSidebarProps['openMemberSession']
@@ -38,7 +40,10 @@ interface TeamAgentsPanelProps {
   readonly t: TeamSidebarProps['t']
 }
 
-export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, memberSessionId, openMemberSession, onCreatingChange, t }: TeamAgentsPanelProps) {
+/** One roster entry the create form may offer; `broken` marks one that cannot mount. */
+type AgentPresetChoice = AgentPresetRoster['presets'][number]
+
+export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, addMember, updateMember, recoverMember, archiveMember, joinWorkspace, leaveWorkspace, loadModels, loadPresets, memberSessionId, openMemberSession, onCreatingChange, t }: TeamAgentsPanelProps) {
   const [members, setMembers] = useState<readonly AgentTeamClientMemberStatus[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>()
@@ -49,6 +54,13 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
   const [model, setModel] = useState<AgentTeamModelSelection | undefined>(undefined)
   const [creating, setCreating] = useState(false)
   const [retryRequest, setRetryRequest] = useState<AgentTeamAddMemberRequest>()
+  // The Team's own preset roster, read when the form opens. A choice is what
+  // the Human is staffing the Member with, so it is never guessed: while the
+  // roster is unread the form cannot name a preset and refuses to submit,
+  // rather than quietly composing the default one.
+  const [presets, setPresets] = useState<readonly AgentPresetChoice[]>([])
+  const [presetId, setPresetId] = useState<string>()
+  const [presetError, setPresetError] = useState<string>()
   const triggerRef = useRef<HTMLButtonElement>(null)
   // Same presentation-preference ordering as the Channels list; the drag
   // commits through one shared mutation.
@@ -199,21 +211,38 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
     }
   }
 
+  // Read once per form opening: the roster is a Host fact that changes only
+  // when the bundle is reinstalled, which cannot happen under an open form.
+  const openForm = (): void => {
+    setError(undefined)
+    setImporting(false)
+    setFormOpen(true)
+    setPresetError(undefined)
+    void loadPresets().then(result => {
+      if (result.ok) setPresets(result.value.presets)
+      else {
+        setPresets([])
+        setPresetError(result.error.message)
+      }
+    })
+  }
+  const selectedPresetId = presetId ?? presets.find(choice => choice.isDefault)?.id ?? presets[0]?.id
+
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const normalizedHandle = handle.trim()
     const normalizedDescription = description.trim()
-    if (normalizedHandle.length === 0 || creating) return
+    if (normalizedHandle.length === 0 || creating || selectedPresetId === undefined) return
     const sameRequest = retryRequest !== undefined && retryRequest.workspaceId === workspaceId
       && retryRequest.handle === normalizedHandle && retryRequest.description === normalizedDescription
-      && sameModel(retryRequest.model, model)
+      && sameModel(retryRequest.model, model) && retryRequest.presetId === selectedPresetId
       && retryRequest.channelRefs.length === 0
     void provision(sameRequest ? retryRequest : {
       requestId: mintRequestId(),
       workspaceId,
       handle: normalizedHandle,
       description: normalizedDescription,
-      presetId: 'team-member',
+      presetId: selectedPresetId,
       // No initial Channels at creation: the Member joins Channels later from
       // the Channel side and stays reachable through its DM view meanwhile.
       channelRefs: [],
@@ -229,7 +258,7 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
         title={t('addAgent')}
         closeLabel={t('close')}
         contentClassName={createCss.dialogContent!}
-        footer={<><Button variant="outline" disabled={creating} onClick={closeForm}>{t('cancel')}</Button>{!importing && <Button type="submit" form="team-agent-create-form" variant="primary" disabled={creating || handle.trim().length === 0}>{creating ? t('creatingAgent') : t('createAgent')}</Button>}</>}
+        footer={<><Button variant="outline" disabled={creating} onClick={closeForm}>{t('cancel')}</Button>{!importing && <Button type="submit" form="team-agent-create-form" variant="primary" disabled={creating || selectedPresetId === undefined || handle.trim().length === 0}>{creating ? t('creatingAgent') : t('createAgent')}</Button>}</>}
       >
         <Button className={createCss.modeSwitch!} variant="outline" disabled={creating} aria-expanded={importing} onClick={() => { setImporting(value => !value); setError(undefined) }}>{importing ? t('createAgent') : t('importAgentTitle')}</Button>
         {formOpen && importing ? <TeamAgentImport workspaceId={workspaceId} loadMembers={loadMembers} joinWorkspace={joinWorkspace} onPending={setCreating} onJoined={async () => { await refresh(); setFormOpen(false); queueMicrotask(() => { triggerRef.current?.focus() }) }} t={t} /> : <form id="team-agent-create-form" className={createCss.form} onSubmit={submit}>
@@ -242,6 +271,22 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
             <Input className={createCss.input!} value={description} placeholder={t('agentDescriptionPlaceholder')} onChange={event => { setDescription(event.target.value); setRetryRequest(undefined) }} disabled={creating} />
           </label>
           <ModelPickerField model={model} onModelChange={choice => { setModel(choice); setRetryRequest(undefined) }} loadModels={loadModels} disabled={creating} t={t} />
+          {presets.length > 1 && (
+            <label className={createCss.field}>
+              <span>{t('agentPreset')}</span>
+              <select className={createCss.input!} value={selectedPresetId ?? ''} onChange={event => { setPresetId(event.target.value); setRetryRequest(undefined) }} disabled={creating}>
+                {/* A preset whose rows failed to activate stays listed with its
+                    diagnostic but cannot be chosen: the Host would refuse the
+                    mount and the Human would learn it after paying for a turn. */}
+                {presets.map(choice => (
+                  <option key={choice.id} value={choice.id} disabled={choice.broken !== undefined}>
+                    {choice.name ?? choice.id}{choice.broken === undefined ? '' : ` — ${choice.broken}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {presetError !== undefined && <p className={createCss.error} role="alert">{presetError}</p>}
           {formOpen && error !== undefined && <p className={createCss.error} role="alert">{error}</p>}
         </form>}
       </Modal>
@@ -251,7 +296,7 @@ export function TeamAgentsPanel({ workspaceId, loadMembers, subscribeChanges, ad
         onToggle={open => { setSidebarSectionOpen(workspaceId, 'agents', open) }}
         actions={(
           <Tooltip label={t('addAgent')} delayMs={500}>
-            <button ref={triggerRef} type="button" className={css.iconButton} aria-label={t('addAgent')} onClick={() => { setError(undefined); setImporting(false); setFormOpen(true) }}>
+            <button ref={triggerRef} type="button" className={css.iconButton} aria-label={t('addAgent')} onClick={openForm}>
               <IconPlusOutlineRegular size={14} />
             </button>
           </Tooltip>

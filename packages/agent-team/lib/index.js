@@ -181,6 +181,7 @@ let AgentTeam = (() => {
     let _resolveThreadRefs_decorators;
     let _membersForClient_decorators;
     let _changes_decorators;
+    let _presetRoster_decorators;
     let _createChannel_decorators;
     let _updateChannel_decorators;
     let _archiveChannel_decorators;
@@ -218,6 +219,7 @@ let AgentTeam = (() => {
             _resolveThreadRefs_decorators = [Remote('resolveThreadRefs')];
             _membersForClient_decorators = [Remote('members')];
             _changes_decorators = [Remote({ mode: 'stream' })];
+            _presetRoster_decorators = [Remote('presetRoster')];
             _createChannel_decorators = [Remote('createChannel')];
             _updateChannel_decorators = [Remote('updateChannel')];
             _archiveChannel_decorators = [Remote('archiveChannel')];
@@ -252,6 +254,7 @@ let AgentTeam = (() => {
             __esDecorate(this, null, _resolveThreadRefs_decorators, { kind: "method", name: "resolveThreadRefs", static: false, private: false, access: { has: obj => "resolveThreadRefs" in obj, get: obj => obj.resolveThreadRefs }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _membersForClient_decorators, { kind: "method", name: "membersForClient", static: false, private: false, access: { has: obj => "membersForClient" in obj, get: obj => obj.membersForClient }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _changes_decorators, { kind: "method", name: "changes", static: false, private: false, access: { has: obj => "changes" in obj, get: obj => obj.changes }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(this, null, _presetRoster_decorators, { kind: "method", name: "presetRoster", static: false, private: false, access: { has: obj => "presetRoster" in obj, get: obj => obj.presetRoster }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _createChannel_decorators, { kind: "method", name: "createChannel", static: false, private: false, access: { has: obj => "createChannel" in obj, get: obj => obj.createChannel }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _updateChannel_decorators, { kind: "method", name: "updateChannel", static: false, private: false, access: { has: obj => "updateChannel" in obj, get: obj => obj.updateChannel }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _archiveChannel_decorators, { kind: "method", name: "archiveChannel", static: false, private: false, access: { has: obj => "archiveChannel" in obj, get: obj => obj.archiveChannel }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -795,6 +798,18 @@ let AgentTeam = (() => {
         /** Return durable Team status without issuing a model request or a storage write. */
         status() {
             return this.requireLedger().status();
+        }
+        /**
+         * The presets a Human may staff a Member with, read from the Team's own
+         * registry instance rather than the ambient one — an ordinary Session never
+         * composes these rows, so the ambient roster is the wrong answer even when it
+         * is readable. Declarations that failed to activate stay on the roster with
+         * their diagnostic, which is what a form needs to explain a refused choice
+         * instead of silently offering it.
+         * @returns The Team's presets in roster order, each marked when it is the default.
+         */
+        presetRoster() {
+            return this.ctx.agentPresets.remoteExportList();
         }
         async createChannel(request) {
             this.requireAccepting();

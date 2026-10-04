@@ -261,6 +261,12 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; mainPanelId?: s
     ] }],
     failures: [],
   } }))
+  // The create form reads the Team's own roster: the two declarations this
+  // bundle ships, in roster order, the base one default.
+  const presetRoster = vi.fn(async () => ({ ok: true as const, value: { presets: [
+    { id: 'team-member', name: 'Team member', order: 1, isDefault: true },
+    { id: 'orchestrator', name: 'Orchestrator', order: 2, isDefault: false },
+  ] } }))
   const putAttachment = vi.fn(async (request: { requestId: string; name: string; mediaType?: string; bytesBase64: string }) => ({
     ok: true as const,
     value: { attachmentId: `attachment:${putAttachmentCounter += 1}`, path: `/cache/${request.name}`, name: request.name, byteSize: request.bytesBase64.length, mediaType: request.mediaType ?? 'application/octet-stream' },
@@ -538,7 +544,7 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; mainPanelId?: s
   // refuses by contract.
   runtime.remote.provideNamespaces({
     session: { modelCatalog },
-    agentTeam: { members, joinWorkspace, leaveWorkspace, addMember, view: viewChannels, inbox, readThread, threadHistory: loadThreadHistory, threadObservations, putAttachment, getAttachment, createChannel, updateChannel, archiveChannel, updateMember, recoverMember, clearMemberContext, archiveMember, joinChannel, removeChannelMember, sendMessage, reply, changeTask, promoteThread, resolveTaskRefs, changes, environment, humanProfile, setHumanProfile, putHumanAvatar, getHumanAvatar, removeHumanAvatar },
+    agentTeam: { members, joinWorkspace, leaveWorkspace, addMember, presetRoster, view: viewChannels, inbox, readThread, threadHistory: loadThreadHistory, threadObservations, putAttachment, getAttachment, createChannel, updateChannel, archiveChannel, updateMember, recoverMember, clearMemberContext, archiveMember, joinChannel, removeChannelMember, sendMessage, reply, changeTask, promoteThread, resolveTaskRefs, changes, environment, humanProfile, setHumanProfile, putHumanAvatar, getHumanAvatar, removeHumanAvatar },
   })
   Object.assign(runtime.remote, {
     $stream: <T,>(options: ConstructorParameters<typeof RemoteStream<T>>[1]) => new RemoteStream(connection, options),
@@ -570,5 +576,5 @@ export async function runtimeWithTeam(options?: { mode?: 'team'; mainPanelId?: s
   const disposeSettings = runtime.slots.register({ name: 'sidebar.settings', priority: 0 }, BaselineSettings as never)
   const team = await runtime.mount({ inject: [...inject], apply })
   const view = runtime.renderRoot()
-  return { runtime, team, view, panelInfo: runtime.panelInfo, selectPanel, disposeWorkspace, disposeSettings, members, humanProfile, setHumanProfile, getHumanAvatar, putHumanAvatar, removeHumanAvatar, seedHumanProfile, failHumanProfile, failHumanProfileWrite, environment, seedEnvironment, failEnvironment, joinWorkspace, leaveWorkspace, addMember, status, viewChannels, createChannel, updateChannel, archiveChannel, putAttachment, getAttachment, updateMember, recoverMember, clearMemberContext, archiveMember, modelCatalog, joinChannel, removeChannelMember, sendMessage, reply, changeTask, promoteThread, resolveTaskRefs, publishAgentReply, publishPresence, seedChannel, publishChannelUpdate, failChanges, recoverChanges, readThread, loadThreadHistory, threadObservations, changes, inbox, seedInbox, openSession }
+  return { runtime, team, view, panelInfo: runtime.panelInfo, selectPanel, disposeWorkspace, disposeSettings, members, humanProfile, setHumanProfile, getHumanAvatar, putHumanAvatar, removeHumanAvatar, seedHumanProfile, failHumanProfile, failHumanProfileWrite, environment, seedEnvironment, failEnvironment, joinWorkspace, leaveWorkspace, addMember, status, viewChannels, createChannel, updateChannel, archiveChannel, putAttachment, getAttachment, updateMember, recoverMember, clearMemberContext, archiveMember, modelCatalog, presetRoster, joinChannel, removeChannelMember, sendMessage, reply, changeTask, promoteThread, resolveTaskRefs, publishAgentReply, publishPresence, seedChannel, publishChannelUpdate, failChanges, recoverChanges, readThread, loadThreadHistory, threadObservations, changes, inbox, seedInbox, openSession }
 }
