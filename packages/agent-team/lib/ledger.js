@@ -1965,9 +1965,12 @@ export class AgentTeamLedger {
                 || operation.data.member.privateMemoryPath !== prior.privateMemoryPath)
                 throw new Error('invalid Member update');
             // The renamed handle must stay unique among the live Members sharing any Workspace participation.
+            // `archived` is excluded alongside `inactive` (see assertHandleAvailableFrom): a
+            // retired seat does not reserve its handle, so reusing that name here is legal.
             const normalized = operation.data.member.handle.normalize('NFKC').trim().toLowerCase();
             for (const other of projection.members.values()) {
-                if (other.memberId !== prior.memberId && other.state !== 'inactive' && this.participationOverlapFrom(projection, other.memberId, prior.memberId)
+                if (other.memberId !== prior.memberId && other.state !== 'inactive' && other.state !== 'archived'
+                    && this.participationOverlapFrom(projection, other.memberId, prior.memberId)
                     && other.handle.normalize('NFKC').trim().toLowerCase() === normalized)
                     throw new Error('invalid Member update handle');
             }
@@ -3633,7 +3636,12 @@ export class AgentTeamLedger {
     }
     assertHandleAvailableFrom(projection, workspaceId, handle, exceptMemberId) {
         const normalized = handle.normalize('NFKC').trim().toLowerCase();
+        // `archived` is excluded alongside `inactive`: an archived Member is
+        // hidden from every surface and unreachable by mention, so it must not
+        // reserve its handle forever — retiring a seat and staffing its name
+        // again is the only way to move that name onto another preset.
         if ([...projection.members.values()].some(member => member.memberId !== exceptMemberId && member.state !== 'inactive'
+            && member.state !== 'archived'
             && this.participatesInFrom(projection, member.memberId, workspaceId)
             && member.handle.normalize('NFKC').trim().toLowerCase() === normalized)) {
             throw new Error(`Agent Member handle '${handle}' is already active in Workspace '${workspaceId}'`);

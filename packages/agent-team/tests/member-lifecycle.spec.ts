@@ -962,6 +962,33 @@ describe('Agent Team Member lifecycle', () => {
     expect(first.status.member.state).toBe('enabled')
   })
 
+  it('frees an archived handle so the same seat name can be staffed again', async () => {
+    const { ctx, workspaceId } = await realHarness()
+    const channel = await ctx.agentTeam.createChannel({ requestId: requestId('reuse-channel'), workspaceId, name: 'engineering', description: 'Engineering work' })
+    const retired = await ctx.agentTeam.addMember({ requestId: requestId('reuse-first'), workspaceId, handle: 'wrangler', description: 'First generation', presetId: 'team-member', channelRefs: [channel.channel.channelRef] })
+
+    // An archived Member is hidden from every surface and unreachable by
+    // mention, so it must not reserve its handle forever: staffing that name
+    // again is how a seat moves onto another preset, since presetId is fixed
+    // at creation. Two derivations must agree on this — the live add guard and
+    // the `team/member-updated` replay check — hence the full replay at the end.
+    await ctx.agentTeam.archiveMember({ requestId: requestId('reuse-archive'), memberId: retired.status.member.memberId })
+    const rebuilt = await ctx.agentTeam.addMember({ requestId: requestId('reuse-second'), workspaceId, handle: 'wrAngler', description: 'Second generation', presetId: 'team-member', channelRefs: [channel.channel.channelRef] })
+    expect(rebuilt.status.member.memberId).not.toBe(retired.status.member.memberId)
+    expect(rebuilt.status.member).toMatchObject({ handle: 'wrAngler', state: 'enabled' })
+    expect(rebuilt.status.availability).toBe('active')
+    // The freed name is live again, and enabled Members still exclude one
+    // another case- and width-insensitively.
+    await expect(ctx.agentTeam.addMember({ requestId: requestId('reuse-third'), workspaceId, handle: '  WRANGLER ', description: 'Third generation', presetId: 'team-member', channelRefs: [] })).rejects.toThrow(/already active/)
+
+    // A rename onto a retired name follows the same rule.
+    const understudy = await ctx.agentTeam.addMember({ requestId: requestId('reuse-understudy'), workspaceId, handle: 'understudy', description: 'Takes over the name', presetId: 'team-member', channelRefs: [] })
+    await ctx.agentTeam.archiveMember({ requestId: requestId('reuse-understudy-archive'), memberId: understudy.status.member.memberId })
+    const adopted = await ctx.agentTeam.updateMember({ requestId: requestId('reuse-rename'), memberId: rebuilt.status.member.memberId, handle: 'understudy', description: 'Second generation' })
+    expect(adopted.status.member).toMatchObject({ handle: 'understudy', presetId: 'team-member' })
+    expect(() => ctx.agentTeam.validateLedger()).not.toThrow()
+  })
+
   it('runs the five-tool pull protocol through one live Team Member', async () => {
     const { ctx, workspaceId } = await realHarness()
     const channel = await ctx.agentTeam.createChannel({ requestId: requestId('protocol-channel'), workspaceId, name: 'engineering', description: 'Engineering work' })

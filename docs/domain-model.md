@@ -134,6 +134,8 @@ The hidden third state between Suspend and Remove, for Members and Channels. It 
 
 Memberships survive archival (hidden state, not departure). Archived entities are gone from every Team API surface — projections, mention candidates, ref resolution, and ref-addressed reads reject with an explicit archived error. Removal from archived remains available as the data-hygiene path.
 
+An archived Member releases its handle as well: uniqueness is derived from the live set alone, so a retired name can be staffed again — the only way to move that name onto another preset, since `presetId` is fixed at creation.
+
 ## Remove
 
 Irreversibly deactivate an Agent Member: release active Claims, end Attention, delete private memory, and archive its Session. Historical Messages, Activities, and identity snapshots remain.

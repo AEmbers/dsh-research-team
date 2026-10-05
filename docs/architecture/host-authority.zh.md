@@ -46,6 +46,8 @@ Team 是每个 DSH home 内唯一的协作域。append-only operation ledger 是
 
   Archived 实体从所有 Team API surface 消失——projection（view channels/threads/tasks/members、mention 候选、Channel join、编辑）、ref 解析（`resolveTaskRefs`/`resolveThreadRefs` 跳过它们，使 message 正文渲染为纯文本）、以及 ref-addressed read（`readThread`/`threadHistory`/`threadObservations`/`listClaims` 以明确的 archived 错误拒绝，绝不伪装成 unknown-ref）——而事实完整保留在 ledger 中供重放与未来恢复；这条边界就是 archival 与 remove 的分界。 从 archived 状态 Remove 仍可作为数据清理路径，且本轮刻意不提供 restore 入口（与 dsh 的 archived session 对齐）。 Channel 归档之前写入的 ledger 省略 `channel.state`；记录 schema 在 load 时把它归一化为 `active`。
 
+  席位退役时名字一并释放。已归档成员既不可见也不可提及，因此不再占用该 handle——用同一个名字重新建席位（或改名占用它）就是把席位换到另一个 preset 的方式，因为 `presetId` 建档后不可改。
+
 ## Member capabilities 与 skills
 - Member capabilities（Member 实体上的 `capabilities` 字段：预留的 `tools.allow` 与 `skills.allow`）是随全部 lifecycle operation 原样流转的 durable intent。commit 时不做已知名白名单校验，保证 Harness 升级后旧 ledger 仍可重放；与已知名的偏差在 activation 时派生为不持久化的 `capabilityWarnings`。`tools.allow` 是有意的接口预留（无 UI 写入路径），供后续 Runtime Revision manifest 编排依赖，cleanup 时勿删。编辑语义与 `model` 一致（absent 即清除）；不管理 capabilities 的调用方必须回传已存储的值。
 - Activation 把 `tools.allow` 作为 scoped restriction 应用在已组合的 preset 面上，顺序为 mount → restrict → validate（validate 观察限制后的可见面），并在配置之上强制并集八个 Team tools。未知名 drop + warning，不阻断 activation。对 live Member 编辑 allow-list 在 turn 边界同 Session 换装 restriction：idle 立即生效；running 的编辑等待 turn 结束，后续 lifecycle 操作在该等待之后排队（lifecycle Remote 严格串行——等待期间发起的 suspend 在 swap 之后执行；disposed-scope 监听器覆盖 lifecycle 之外的销毁）。restriction 失败只表现为该 Member 的 activation failure。

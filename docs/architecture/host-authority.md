@@ -55,6 +55,8 @@ When changing a Host capability, read package source/tests first and then the ma
 
   Archived entities are gone from every Team API surface — projections (view channels/threads/tasks/members, mention candidates, Channel joins, edits), ref resolution (`resolveTaskRefs`/`resolveThreadRefs` skip them so message bodies render plain text), and ref-addressed reads (`readThread`/`threadHistory`/`threadObservations`/`listClaims` reject with an explicit archived error, never an unknown-ref disguise) — while the facts stay complete in the ledger for replay and a future restore; that boundary is the archival-vs-remove divide.
 
+  The handle is released with the seat. An archived Member is invisible and unmentionable, so it reserves no name: staffing the same handle again — or renaming onto it — is how a seat is moved onto another preset, since `presetId` is fixed at creation.
+
   Removal from archived stays available as the data hygiene path, and there is deliberately no restore entry point this round (mirroring archived dsh sessions). Ledgers written before Channel archival omit `channel.state`; the record schema normalizes it to `active` at load.
 
 ## Member capabilities and skills
