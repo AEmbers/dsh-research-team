@@ -241,7 +241,7 @@ DSH peers 正好声明这条已认证线：`>=0.2.0-rc.2 <0.2.1`，因此本仓�
 - 根 `main` slot 以 keyed 条目注册（key `conversation`、priority `-100`），并经 `renderSlot('main', {}, { entryKey: 'conversation' })` 渲染。
 - Session 经 handle API 访问（`open(id, 'read')` + `read()` + `close()`，`stat()` 返回 header 快照）。
 - 成员 preset 的 `dsh-persona` 行把配置放在 `prefix` 下。
-- Team presets（`team-member`，以及在其之上重述并加上 delegation 行的 `orchestrator`）以 `@deepseek-ai/dsh-agent-preset` 声明行与其 `@deepseek-ai/dsh-agent-preset-registry` 并列，落在 Team 自己的 `isolate` group 内。
+- 七个 Team preset（底座 `team-member` 加每个耐久角色一个）以 `@deepseek-ai/dsh-agent-preset` 声明行与其 `@deepseek-ai/dsh-agent-preset-registry` 并列，落在 Team 自己的 `isolate` group 内。
 - 本 bundle 写出的每条持久 message source 携带生产者自身的 kind；退役的 `{ kind: 'plugin', plugin: … }` wrapper 在写入时即被拒绝。
 
 preset 组合没有编译期或单测守卫：成员类 spec 用的是合成 preset，因此某个行的配置与新 plugin schema 不匹配时，只有在真实 browser journey 里才会暴露——此时类型检查、单测、构建全绿，而所有成员都以 `preset "team-member" failed to mount: … $.prefix missing required value` 激活失败。

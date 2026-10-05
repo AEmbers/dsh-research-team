@@ -2,9 +2,13 @@
 
 [English](tools-and-preset.md) | 中文
 
-组合 Team Member 的 preset 有两个，且仅此两个。显式的 `team-member` preset 是底座：完整 coding capability rows（shell、filesystem/search、web search 与 fetch、background jobs、skill 加载工具、compaction）、Team collaboration guidance/tools、Harness Workspace instruction discovery 和有界的 private-memory reference context。skill 发现本身不是 preset row——每个 Member 的 provider 由 Host 注册在其 agent scope 上（见 Host authority）。普通 Sessions 留在这个 isolated roster 之外，不会获得 Team prompt sections、tools 或 Member memory。
+组合 Team Member 的 preset 有七个，且仅此七个：底座 `team-member` 再加每个耐久角色一个——`orchestrator`、`criteria-gate`、`verifier`、`prover`、`implementer`、`advisor`。它们都完整重述同一份底座，因此两个 Member 之间的差别是角色，而不是手里的工具。
 
-`orchestrator` preset 就是这份列表再加一个 `delegation` group（subagent 控制行、两个进程内 subagent 工具、PTC workflow 引擎与其工具），以**第二条** `@deepseek-ai/dsh-agent-preset` 声明行形式存在、完整重述底座，其 persona 额外承载名册里的委派规则。只有 `orchestrator` 能起子代理或跑 workflow——名册里的临时角色靠它才存在——挂在 `team-member` 上的成员不能，因此 prover 不会变成第二个 orchestrator。
+底座承载 coding capability rows（shell、filesystem/search、web search 与 fetch、background jobs、skill 加载工具、compaction）、Team collaboration guidance/tools、Harness Workspace instruction discovery 和有界的 private-memory reference context。skill 发现本身不是 preset row——每个 Member 的 provider 由 Host 注册在其 agent scope 上（见 Host authority）。普通 Sessions 留在这个 isolated roster 之外，不会获得 Team prompt sections、tools 或 Member memory。
+
+每个 preset 都挂同一份工具面，`delegation` group 也在其中（subagent 控制行、两个进程内 subagent 工具、PTC workflow 引擎与其工具）。范围由角色决定，而不是由缺了哪个工具决定：每个 preset 的 persona 写明该角色可以做什么——包括它拥有哪些临时角色——因此成员只能在自己职责范围内委派。
+
+真正有差别的是两处：persona 末尾的角色段，以及 `role-adjudication` group——一个 `isolate` 后的 `dsh-adjudication` 实例，其 `config.domains` 指定该角色的领域包（底座保留 `domains: all`）。这使挂载成为前提：同一个 profile 必须安装 `dsh-adjudication`，否则该 preset 的行会激活失败。
 
 加成员的表单提供它从 Host 读来的 roster（`agentTeam.presetRoster`），所以给成员定编是在选 composition，而不是一个被 Client 写死的 preset；本 bundle 新增 preset 无需 Client 发版即可够到。某个声明若行激活失败，它仍带着诊断留在列表里，但不能被选中：否则 Host 会在人类已经付过代价之后才拒绝这次挂载。
 

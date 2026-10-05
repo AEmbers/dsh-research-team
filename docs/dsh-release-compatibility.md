@@ -180,7 +180,7 @@ The bundle's dependence on that line is structural rather than incidental. A can
 - The root `main` slot is registered as a keyed entry (key `conversation`, priority `-100`) and rendered through `renderSlot('main', {}, { entryKey: 'conversation' })`.
 - Sessions are reached through the handle API (`open(id, 'read')` + `read()` + `close()`, with `stat()` returning header snapshots).
 - The member preset's `dsh-persona` row carries its config under `prefix`.
-- The Team presets (`team-member`, and the `orchestrator` that restates it with the delegation rows) are declared as `@deepseek-ai/dsh-agent-preset` rows beside the `@deepseek-ai/dsh-agent-preset-registry`, inside the Team's own `isolate` group.
+- The seven Team presets (the base `team-member` and one per durable role) are declared as `@deepseek-ai/dsh-agent-preset` rows beside the `@deepseek-ai/dsh-agent-preset-registry`, inside the Team's own `isolate` group.
 - Every durable message source the bundle writes carries its producer's own kind; the retired `{ kind: 'plugin', plugin: … }` wrapper is refused at write time.
 
 Preset composition has no compile-time or unit-test guard: the member specs compose a synthetic preset, so a row whose config no longer matches its plugin schema surfaces only in the real browser journey — every Member fails to activate with `preset "team-member" failed to mount: … $.prefix missing required value` while typecheck, unit tests, and build stay green.

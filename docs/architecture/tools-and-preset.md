@@ -2,9 +2,13 @@
 
 English | [中文](tools-and-preset.zh.md)
 
-Two presets compose Team Members, and nothing else does. The explicit `team-member` preset is the base: coding capability rows (shell, filesystem/search, web search and fetch, background jobs, the skill loader tool, compaction), collaboration guidance/tools, Harness Workspace instruction discovery, and bounded private-memory context. Skill discovery itself is not a preset row: each Member's provider is Host-registered on its agent scope (see Host authority). Ordinary Sessions remain outside this roster and receive no Team prompt sections, tools, or Member memory.
+Seven presets compose Team Members, and nothing else does: the base `team-member` preset plus one preset per durable role — `orchestrator`, `criteria-gate`, `verifier`, `prover`, `implementer`, `advisor`. Each of them restates the same base, so what separates two Members is their role rather than their tools.
 
-The `orchestrator` preset is that list plus a `delegation` group (subagent control, the two in-process subagent tools, the PTC workflow engine and its tool), declared as a second `@deepseek-ai/dsh-agent-preset` row that restates the base, and its persona adds the roster's delegation rules. Only `orchestrator` can spawn a subagent or run a workflow — that is what makes the roster's ephemeral roles reachable at all — and a Member on `team-member` cannot, so a prover cannot become a second orchestrator.
+The base carries coding capability rows (shell, filesystem/search, web search and fetch, background jobs, the skill loader tool, compaction), collaboration guidance/tools, Harness Workspace instruction discovery, and bounded private-memory context. Skill discovery itself is not a preset row: each Member's provider is Host-registered on its agent scope (see Host authority). Ordinary Sessions remain outside this roster and receive no Team prompt sections, tools, or Member memory.
+
+Every preset mounts the same tool surface, the `delegation` group included (subagent control, the two in-process subagent tools, the PTC workflow engine and its tool). Scope is a property of the role and not of a missing tool: each preset's persona states the duties its role may act on — which ephemeral roles it owns among them — so a Member can delegate only inside its own brief.
+
+Two things do differ between the presets: the role section at the end of the persona, and the `role-adjudication` group, an `isolate`d instance of `dsh-adjudication` whose `config.domains` names that role's domain packs (the base keeps `domains: all`). That makes the mount a prerequisite: the same profile must install `dsh-adjudication`, or a preset's rows fail to activate.
 
 The create form offers the roster it reads from the Host (`agentTeam.presetRoster`), so staffing a Member is a choice of composition rather than a preset the Client hardcodes, and a preset this bundle adds is reachable without a Client release. A declaration whose rows failed to activate stays listed with its diagnostic but cannot be chosen: the Host would refuse the mount after the Human had already paid for it.
 

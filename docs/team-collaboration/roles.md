@@ -31,7 +31,9 @@ A third thing on this page is not a role at all. The record of attempts and the 
 | `writer` | Expanding an accepted result into a self-contained document | Ephemeral |
 | `finalaudit` | The written document, checked against the accepted result | Ephemeral |
 
-Members are named in the Human's own language. The six durable roles a research Team starts with are `编排者` (orchestrator — the preset that may spawn), `证明者一` and `证明者二` (prover), `实现者` (implementer), `验证者` (verifier), and `判据守门人` (protocol-owner).
+Members are named in the Human's own language. The six durable roles a research Team starts with are `编排者` (orchestrator), `证明者一` and `证明者二` (prover), `实现者` (implementer), `验证者` (verifier), and `判据守门人` (protocol-owner).
+
+Each role has a preset of its own — [`../architecture/tools-and-preset.md`](../architecture/tools-and-preset.md) maps them — and a Member whose role lives in its brief takes the base `team-member`.
 
 A Chinese handle is reachable with `@`, but a mention must be followed by a space or punctuation: the mention scanner's word boundary is `\p{L}` and Han characters are `\p{L}`, so `@验证者请看` matches nothing while `@验证者 请看` notifies.
 
@@ -59,7 +61,7 @@ Neither message carries a conclusion. Conclusions are the `verifier`'s and the r
 - A candidate is accepted only when the per-artifact reading **and** the side-by-side reading both pass. One reading is not a verdict.
 - Every reading is adversarial: each step is wrong until justified, and each citation is unchecked until read.
 - Spawn authority belongs to the roles that own an ephemeral role. A `prover` does not spawn a `summarizer`; the `orchestrator` does.
-- That authority is a preset rather than a rule to remember: `orchestrator` mounts the delegation rows and no other Member preset does, so a Member invited on `team-member` has no subagent tool to reach for. Invite at least one Member on `orchestrator`, or no ephemeral role above can exist.
+- That authority lives in the role's own persona rather than in a tool other roles lack: every preset mounts the same delegation rows, and the persona names the ephemeral roles its owner may spawn — so a `prover` holding a subagent tool is still not licensed to spawn a `summarizer`.
 
 ## Current state
 
